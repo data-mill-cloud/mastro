@@ -1,0 +1,12 @@
+type: catalogue
+details:
+  port: 8085
+backend:
+  name: test-mongo
+  type: mongo
+  settings:
+    username: mongo
+    password: test
+    host: "localhost:27017"
+    database: mastro
+    collection: mastro-catalogue

@@ -1,0 +1,12 @@
+
+type: featurestore
+details:
+  port: 8085
+backend:
+  name: test-postgres
+  type: postgres
+  settings:
+    username: postgres
+    password: test
+    host: localhost:54300
+    schema: features

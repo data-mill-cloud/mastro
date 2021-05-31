@@ -1,0 +1,12 @@
+type: catalogue
+details:
+  port: 8085
+backend:
+  name: test-elastic
+  type: elastic
+  settings:
+    username: postgres
+    password: test
+    hosts: "http://localhost:9200"
+    index: test
+    index-def: ./index_def.json

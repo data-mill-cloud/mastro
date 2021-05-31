@@ -1,0 +1,14 @@
+type: crawler
+backend:
+  name: local-impala
+  type: impala
+  crawler:
+    root: ""
+    schedule-period: "sunday"
+    schedule-value: 1
+    start-now: true
+    catalogue-endpoint: "http://localhost:8085/assets"
+  settings:
+    host: "localhost"
+    port: "21000"
+    use-kerberos: false
