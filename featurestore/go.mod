@@ -3,7 +3,8 @@ module github.com/data-mill-cloud/mastro/featurestore
 go 1.15
 
 require (
-	github.com/alexflint/go-arg v1.4.2 
+	github.com/alexflint/go-arg v1.4.2
+	github.com/data-mill-cloud/mastro/commons v0.0.0-20210601154456-d4d8a2ecf6ed
 	github.com/elastic/go-elasticsearch v0.0.0
 	github.com/elastic/go-elasticsearch/v7 v7.13.0 // indirect
 	github.com/gin-contrib/cors v1.3.1
