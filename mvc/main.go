@@ -147,9 +147,6 @@ func (c *Client) overwriteManifest(bucketName string, manifestFilename string, c
 	progress := pb.New64(reader.Size()).SetUnits(pb.U_BYTES)
 	progress.Start()
 	uploadInfo, err := c.mc.PutObject(context.Background(), bucketName, manifestFilename, reader, reader.Size(), minio.PutObjectOptions{ContentType: "application/octet-stream", Progress: progress})
-	if err == nil {
-		log.Println("Uploaded", manifestFilename, "of size:", reader.Size(), "Bytes", "Successfully.")
-	}
 	return &uploadInfo, err
 }
 
@@ -165,7 +162,8 @@ func (c *Client) deleteVersionFiles(bucketName string, version string) {
 
 	for object := range objectCh {
 		if object.Err != nil {
-			panic(object.Err)
+			fmt.Println(object.Err)
+			return
 		}
 		err := c.mc.RemoveObject(context.Background(), bucketName, object.Key, opts)
 		if err != nil {
@@ -251,7 +249,8 @@ func (c *Client) add(cmd *AddCmd, manifestFilename string) {
 		latestVersion := versions[0]
 		c.putFiles(cmd.LocalPath, cmd.DestinationPath, latestVersion)
 	} else {
-		panic(fmt.Sprintf("No versions found at %s \n", cmd.DestinationPath))
+		fmt.Println(fmt.Sprintf("No versions found at %s \n", cmd.DestinationPath))
+		return
 	}
 
 }
@@ -300,9 +299,29 @@ func (c *Client) latestVersion(cmd *LatestCmd, manifestFilename string) {
 	}
 }
 
-func (c *Client) deleteVersion(cmd *DeleteCmd) {
+func (c *Client) deleteVersionMetadata(cmd *DeleteCmd, manifestFilename string) {
+	asset, err := c.getRemoteManifest(cmd.DestinationPath, manifestFilename)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if _, ok := asset.Versions[cmd.Version]; ok {
+		delete(asset.Versions, cmd.Version)
+		data, err := yaml.Marshal(&asset)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		c.overwriteManifest(cmd.DestinationPath, manifestFilename, string(data))
+	} else {
+		fmt.Println(fmt.Sprintf("No version %s found", cmd.Version))
+	}
+}
+
+func (c *Client) deleteVersion(cmd *DeleteCmd, manifestFilename string) {
 	c.deleteVersionFiles(cmd.DestinationPath, cmd.Version)
-	// todo: update manifest
+	c.deleteVersionMetadata(cmd, manifestFilename)
 }
 
 func (c *Client) overwriteVersion(cmd *OverwriteCmd) {
@@ -323,12 +342,14 @@ func main() {
 	var fs FSConnDetails
 	err := envconfig.Process("mvc", &fs)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return
 	}
 	// connect to remote FS
 	client, err := connect(&fs)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return
 	}
 
 	// parse command arguments
@@ -348,7 +369,10 @@ func main() {
 		client.latestVersion(args.Latest, manifestFilename)
 	case args.Overwrite != nil:
 		client.overwriteVersion(args.Overwrite)
+	case args.Delete != nil:
+		client.deleteVersion(args.Delete, manifestFilename)
 	default:
-		panic(fmt.Sprintf("unknown command %q", os.Args[0]))
+		fmt.Println(fmt.Sprintf("unknown command %q", os.Args[0]))
+		return
 	}
 }

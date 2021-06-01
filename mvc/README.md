@@ -1,11 +1,16 @@
 # MVC - Mastro Version Control
-A minimal data versioning tool in Golang
+A minimal data versioning tool in Golang.
 
-* `mvc init $PATH` - initializes metadata file at $PATH
-* `mvc new $PATH` - creates new version and returns full path at $PATH
-* `mvc add $LOCALPATH $PATH` - adds content at $LOCALPATH to remote $PATH at current latest version
-* `mvc latest $PATH` - retrieves latest version at $PATH and returns full path
-* `mvc overwrite $PATH $VERSION $LOCALPATH` - overwrite existing version $VERSION at $PATH and updates metadata
+## Manifest creation
+* `mvc init -d $PATH` - initializes local metadata file (i.e. manifest) for asset located at $PATH
+* `mvc init -d $PATH -f $MANIFESTPATH` - uploads manifest file located at $MANIFESTPATH at $PATH
 
-## Example
+## Version management
+* `mvc new -d $PATH` - creates new version and returns full path at $PATH
+* `mvc versions -d $PATH` - retrieves all available versions at $PATH and shows their metadata
+* `mvc latest -d $PATH` - retrieves latest version at $PATH
+* `mvc delete -d $PATH -v $VERSION` - deletes the specified version and updates the metadata
 
+## File management
+* `mvc add -l $LOCALPATH -d $PATH` - adds $LOCALPATH to remote $PATH at current latest version
+* `mvc overwrite -d $PATH -v $VERSION -l $LOCALPATH` - overwrite existing version $VERSION at $PATH and updates metadata

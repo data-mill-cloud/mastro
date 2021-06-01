@@ -22,6 +22,11 @@ type LatestCmd struct {
 	DestinationPath string `arg:"-d,required"`
 }
 
+type DeleteCmd struct {
+	DestinationPath string `arg:"-d,required"`
+	Version         string `arg:"-v,required"`
+}
+
 type OverwriteCmd struct {
 	DestinationPath string `arg:"-d,required"`
 	Version         string `arg:"-v,required"`
@@ -34,5 +39,6 @@ var args struct {
 	Add       *AddCmd       `arg:"subcommand:add"`
 	Latest    *LatestCmd    `arg:"subcommand:latest"`
 	Versions  *VersionsCmd  `arg:"subcommand:versions"`
+	Delete    *DeleteCmd    `arg:"subcommand:delete"`
 	Overwrite *OverwriteCmd `arg:"subcommand:overwrite"`
 }
