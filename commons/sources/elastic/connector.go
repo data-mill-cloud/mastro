@@ -7,8 +7,8 @@ import (
 
 	"strings"
 
-	"github.com/datamillcloud/mastro/commons/utils/conf"
-	stringutils "github.com/datamillcloud/mastro/commons/utils/strings"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	stringutils "github.com/data-mill-cloud/mastro/commons/utils/strings"
 	es7 "github.com/elastic/go-elasticsearch/v7"
 )
 

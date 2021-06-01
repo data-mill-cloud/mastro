@@ -1,7 +1,7 @@
 package kerberos
 
 import (
-	"github.com/datamillcloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 
 	krbClient "github.com/jcmturner/gokrb5/v8/client"
 	"github.com/jcmturner/gokrb5/v8/config"

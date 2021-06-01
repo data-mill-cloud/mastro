@@ -35,6 +35,6 @@ Help:
 
 Status:
 
-[![Go Build](https://github.com/datamillcloud/mastro/actions/workflows/go-build.yml/badge.svg)](https://github.com/datamillcloud/mastro/actions/workflows/go-build.yml)
-[![Docker Image CI](https://github.com/datamillcloud/mastro/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/datamillcloud/mastro/actions/workflows/docker-image.yml)
+[![Go Build](https://github.com/data-mill-cloud/mastro/actions/workflows/go-build.yml/badge.svg)](https://github.com/data-mill-cloud/mastro/actions/workflows/go-build.yml)
+[![Docker Image CI](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-image.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)

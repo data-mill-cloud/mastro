@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/beltran/gohive"
-	"github.com/datamillcloud/mastro/commons/abstract"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 )
 
 var requiredFields = map[string]string{

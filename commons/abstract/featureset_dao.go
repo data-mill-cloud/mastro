@@ -1,6 +1,6 @@
 package abstract
 
-import "github.com/datamillcloud/mastro/commons/utils/conf"
+import "github.com/data-mill-cloud/mastro/commons/utils/conf"
 
 // FeatureSetDAOProvider ... The interface each dao must implement
 type FeatureSetDAOProvider interface {

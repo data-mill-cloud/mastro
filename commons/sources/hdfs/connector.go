@@ -8,8 +8,8 @@ import (
 
 	gohdfs "github.com/colinmarc/hdfs/v2"
 	"github.com/colinmarc/hdfs/v2/hadoopconf"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
-	"github.com/datamillcloud/mastro/commons/utils/kerberos"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/utils/kerberos"
 )
 
 // NewHDFSConnector factory

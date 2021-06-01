@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/datamillcloud/mastro/commons/abstract"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
-	"github.com/datamillcloud/mastro/featurestore/daos/elastic"
-	"github.com/datamillcloud/mastro/featurestore/daos/mongo"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/featurestore/daos/elastic"
+	"github.com/data-mill-cloud/mastro/featurestore/daos/mongo"
 )
 
 // available backends - lazy loaded singleton DAOs

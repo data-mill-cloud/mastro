@@ -8,13 +8,13 @@ import (
 
 	"github.com/go-co-op/gocron"
 
-	"github.com/datamillcloud/mastro/commons/abstract"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
-	"github.com/datamillcloud/mastro/crawlers/hdfs"
-	"github.com/datamillcloud/mastro/crawlers/hive"
-	"github.com/datamillcloud/mastro/crawlers/impala"
-	"github.com/datamillcloud/mastro/crawlers/local"
-	"github.com/datamillcloud/mastro/crawlers/s3"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/crawlers/hdfs"
+	"github.com/data-mill-cloud/mastro/crawlers/hive"
+	"github.com/data-mill-cloud/mastro/crawlers/impala"
+	"github.com/data-mill-cloud/mastro/crawlers/local"
+	"github.com/data-mill-cloud/mastro/crawlers/s3"
 
 	"github.com/go-resty/resty/v2"
 )

@@ -3,9 +3,9 @@ package elastic
 import (
 	"sync"
 
-	"github.com/datamillcloud/mastro/commons/abstract"
-	"github.com/datamillcloud/mastro/commons/sources/elastic"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/sources/elastic"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 )
 
 var once sync.Once

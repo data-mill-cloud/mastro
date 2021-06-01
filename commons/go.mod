@@ -1,5 +1,3 @@
-module github.com/datamillcloud/mastro/commons
+module github.com/data-mill-cloud/mastro/commons
 
 go 1.14
-
-replace github.com/datamillcloud/mastro/commons => ./

@@ -1,14 +1,9 @@
-module github.com/datamillcloud/mastro/featurestore
+module github.com/data-mill-cloud/mastro/featurestore
 
-go 1.14
-
-replace github.com/datamillcloud/mastro/featurestore => ./
-
-replace github.com/datamillcloud/mastro/commons => ../commons
+go 1.15
 
 require (
-	github.com/alexflint/go-arg v1.4.2
-	github.com/datamillcloud/mastro/commons v0.0.0-00010101000000-000000000000
+	github.com/alexflint/go-arg v1.4.2 
 	github.com/elastic/go-elasticsearch v0.0.0
 	github.com/elastic/go-elasticsearch/v7 v7.13.0 // indirect
 	github.com/gin-contrib/cors v1.3.1

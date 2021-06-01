@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/datamillcloud/mastro/catalogue/daos/mongo"
-	"github.com/datamillcloud/mastro/commons/abstract"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/catalogue/daos/mongo"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 )
 
 // available backends - lazy loaded singleton DAOs

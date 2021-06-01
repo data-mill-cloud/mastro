@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/datamillcloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	"github.com/go-redis/redis/v8"
 )
 

@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/datamillcloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"gopkg.in/yaml.v2"
 )
 

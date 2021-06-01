@@ -7,10 +7,10 @@ import (
 	"io"
 	"log"
 
-	"github.com/datamillcloud/mastro/commons/abstract"
-	"github.com/datamillcloud/mastro/commons/sources/s3"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
-	"github.com/datamillcloud/mastro/commons/utils/strings"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/sources/s3"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/utils/strings"
 	"github.com/minio/minio-go/v7"
 )
 

@@ -1,14 +1,14 @@
 package hive
 
 import (
-	"github.com/datamillcloud/mastro/commons/abstract"
-	"github.com/datamillcloud/mastro/commons/sources/hive"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/sources/hive"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 
 	"fmt"
 	"log"
 
-	"github.com/datamillcloud/mastro/commons/utils/strings"
+	"github.com/data-mill-cloud/mastro/commons/utils/strings"
 )
 
 type hiveCrawler struct {

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/pretty-print-json@1.0/dist/pretty-print-json.css>
+    <script src=https://cdn.jsdelivr.net/npm/pretty-print-json@1.0/dist/pretty-print-json.min.js></script>
+
+    <script src="conf/config.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="sb-nav-fixed sb-sidenav-toggled">
+
+    <div class="loader"></div>
+
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <a class="navbar-brand" href="index.html">Mastro Catalogue</a>
+        
+        <!-- Navbar Search-->
+        <form id="searchform" class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-0 my-2 my-md-0">
+            <div class="input-group">
+                <input class="form-control" type="text" placeholder="search by name..." aria-label="Search" aria-describedby="basic-addon2" />
+                <div class="input-group-append">
+                    <button id="searchBtn" class="btn btn-primary" type="button"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </form>
+        
+    </nav>
+
+    <div id="layoutSidenav" >   
+        <div id="layoutSidenav_content">
+
+            <main>
+
+                <div class="container-fluid">
+                  
+                    <div id="welcome" class="mt-4 mb-4">
+                        <ol class="breadcrumb mt-4 mb-4">
+                            <li class="breadcrumb-item active">
+                                <div>
+                                    Welcome. Start searching assets using the form on the top right.
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div id="searchresults" class="mt-4 mb-4" style="display:none">
+
+                        <ol class="breadcrumb mt-4 mb-4">
+                            <li class="breadcrumb-item active">The search for&nbsp;<query id="query"></query>&nbsp;produced&nbsp;<count id="searchcount"></count>&nbsp;results</li>
+                        </ol>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-table mr-1"></i>
+                                Catalogue Entries
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Last-Discovered-At</th>
+                                                <th>Published-On</th>
+                                                <th>Description</th>
+                                                <th>Depends-On</th>
+                                                <th>Tags</th>
+                                                <th>Labels</th>
+                                            </tr>
+                                        </thead>
+                                        
+                                        <tbody>
+                                            
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </main>
+            
+        </div>
+    </div>
+
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" crossorigin="anonymous"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="stuff.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

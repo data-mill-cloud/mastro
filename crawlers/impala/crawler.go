@@ -1,14 +1,14 @@
 package impala
 
 import (
-	"github.com/datamillcloud/mastro/commons/abstract"
-	"github.com/datamillcloud/mastro/commons/sources/impala"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/sources/impala"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 
 	"fmt"
 	"log"
 
-	"github.com/pilillo/mastro/utils/strings"
+	"github.com/data-mill-cloud/mastro/utils/strings"
 )
 
 type impalaCrawler struct {

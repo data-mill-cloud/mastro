@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/datamillcloud/mastro/commons/abstract"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
-	"github.com/datamillcloud/mastro/commons/utils/errors"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/utils/errors"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )

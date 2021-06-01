@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/datamillcloud/mastro/commons/abstract"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
-	"github.com/datamillcloud/mastro/commons/utils/date"
-	"github.com/datamillcloud/mastro/commons/utils/errors"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/utils/date"
+	"github.com/data-mill-cloud/mastro/commons/utils/errors"
 )
 
 // Service ... Service Interface listing implemented methods

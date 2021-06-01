@@ -1,7 +1,7 @@
 package abstract
 
 import (
-	"github.com/datamillcloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 )
 
 const DefaultManifestFilename string = "MANIFEST.yaml"

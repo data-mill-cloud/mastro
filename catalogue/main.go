@@ -7,8 +7,8 @@ import (
 	"sync"
 
 	"github.com/alexflint/go-arg"
-	"github.com/datamillcloud/mastro/commons/utils/conf"
-	"github.com/datamillcloud/mastro/commons/utils/ux"
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	"github.com/data-mill-cloud/mastro/commons/utils/ux"
 	"github.com/kelseyhightower/envconfig"
 )
 
