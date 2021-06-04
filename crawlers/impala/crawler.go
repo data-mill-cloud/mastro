@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/data-mill-cloud/mastro/utils/strings"
+	"github.com/data-mill-cloud/mastro/commons/utils/strings"
 )
 
 type impalaCrawler struct {

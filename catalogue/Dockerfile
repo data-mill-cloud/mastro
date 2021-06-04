@@ -1,4 +1,4 @@
-ARG ARTIFACT=featurestore
+ARG ARTIFACT=catalogue
 FROM golang:1.15-alpine AS builder
 
 ARG ARTIFACT
