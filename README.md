@@ -29,12 +29,11 @@ Terminology:
 * [Crawler](doc/CRAWLERS.md) - any agent able to list and walk a file system, filter and parse asset definitions (i.e. manifest files) and push them to the catalogue;
 
 Help:
-* [PlantUML Diagram of the repo](https://www.dumels.com/diagram/2e5f820a-1822-4852-8259-4811deefa789)
+* [PlantUML Diagram of the repo](https://www.dumels.com/diagram/4a292159-170b-4abd-bb7a-b93a86c746a7)
 * [Configuration](doc/CONFIGURATION.md)
 * [Deploy to K8s](doc/K8S-DEPLOY.md)
 
 Status:
 
-[![Go Build](https://github.com/data-mill-cloud/mastro/actions/workflows/go-build.yml/badge.svg)](https://github.com/data-mill-cloud/mastro/actions/workflows/go-build.yml)
 [![Docker Image CI](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-image.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
