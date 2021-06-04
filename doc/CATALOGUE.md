@@ -36,13 +36,13 @@ This is translated to the following endpoint:
 
 | Verb        | Endpoint                | Maps to                                                 |
 |-------------|-------------------------|---------------------------------------------------------|
-| **GET**     | /healthcheck/asset      | github.com/pilillo/mastro/catalogue.Ping                |
-| ~~**GET**~~ | ~~/asset/id/:asset_id~~ | ~~github.com/pilillo/mastro/catalogue.GetAssetByID~~    |
-| **GET**     | /asset/name/:asset_name | github.com/pilillo/mastro/catalogue.GetAssetByName      |
-| **PUT**     | /asset/                 | github.com/pilillo/mastro/catalogue.UpsertAsset         |
-| **PUT**     | /assets/                | github.com/pilillo/mastro/catalogue.BulkUpsert          |
-| **POST**    | /assets/tags            | github.com/pilillo/mastro/catalogue.SearchAssetsByTags  |
-| ~~**GET**~~ | ~~/assets/~~            | ~~github.com/pilillo/mastro/catalogue.ListAllAssets~~   | 
+| **GET**     | /healthcheck/asset      | github.com/data-mill-cloud/mastro/catalogue.Ping                |
+| ~~**GET**~~ | ~~/asset/id/:asset_id~~ | ~~github.com/data-mill-cloud/mastro/catalogue.GetAssetByID~~    |
+| **GET**     | /asset/name/:asset_name | github.com/data-mill-cloud/mastro/catalogue.GetAssetByName      |
+| **PUT**     | /asset/                 | github.com/data-mill-cloud/mastro/catalogue.UpsertAsset         |
+| **PUT**     | /assets/                | github.com/data-mill-cloud/mastro/catalogue.BulkUpsert          |
+| **POST**    | /assets/tags            | github.com/data-mill-cloud/mastro/catalogue.SearchAssetsByTags  |
+| ~~**GET**~~ | ~~/assets/~~            | ~~github.com/data-mill-cloud/mastro/catalogue.ListAllAssets~~   | 
 
 Those crossed out are meant for testing purposes and will be removed in the following releases.
 
