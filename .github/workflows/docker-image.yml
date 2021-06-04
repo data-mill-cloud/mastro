@@ -37,22 +37,22 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        TAG=$(date +%Y%m%d)
-        #TAG=$GIT_TAG_NAME
+        #TAG=$(date +%Y%m%d)
+        TAG=$GIT_TAG_NAME
         # statically built ones use CGO_ENABLED=0 ---
         # mvc
-        docker build mvc --tag ${{ secrets.DOCKERHUB_USER }}/mvc:${TAG}
-        docker push ${{ secrets.DOCKERHUB_USER }}/mvc:${TAG}
+        docker build mvc --tag ${{ secrets.DOCKERHUB_ORGANIZATION }}/mvc:${TAG}
+        docker push ${{ secrets.DOCKERHUB_ORGANIZATION }}/mvc:${TAG}
         # catalogue
-        docker build catalogue --tag ${{ secrets.DOCKERHUB_USER }}/mastro-catalogue:${TAG}
-        docker push ${{ secrets.DOCKERHUB_USER }}/mastro-catalogue:${TAG}
+        docker build catalogue --tag ${{ secrets.DOCKERHUB_ORGANIZATION }}/mastro-catalogue:${TAG}
+        docker push ${{ secrets.DOCKERHUB_ORGANIZATION }}/mastro-catalogue:${TAG}
         # featurestore
-        docker build featurestore --tag ${{ secrets.DOCKERHUB_USER }}/mastro-featurestore:${TAG}
-        docker push ${{ secrets.DOCKERHUB_USER }}/mastro-featurestore:${TAG}
+        docker build featurestore --tag ${{ secrets.DOCKERHUB_ORGANIZATION }}/mastro-featurestore:${TAG}
+        docker push ${{ secrets.DOCKERHUB_ORGANIZATION }}/mastro-featurestore:${TAG}
         # dynamically built ones use CGO_ENABLED=1 ---
         # crawlers
 
         # mastro ui
-        docker build ui --tag ${{ secrets.DOCKERHUB_USER }}/mastro-ui:${TAG}
-        docker push ${{ secrets.DOCKERHUB_USER }}/mastro-ui:${TAG}
+        docker build ui --tag ${{ secrets.DOCKERHUB_ORGANIZATION }}/mastro-ui:${TAG}
+        docker push ${{ secrets.DOCKERHUB_ORGANIZATION }}/mastro-ui:${TAG}
         
