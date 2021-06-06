@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - '*'
-    #branches: [ master ]
 
 jobs:
   build:
@@ -18,7 +17,7 @@ jobs:
       run: |
         TAG=${GIT_TAG_NAME:-$(date +%Y%m%d)}
         echo "TAG=${TAG}" >> $GITHUB_ENV
-        echo "IMAGE=mvc" >> $GITHUB_ENV
+        echo "IMAGE=mastro-ui" >> $GITHUB_ENV
 
     - name: Docker Login
       uses: docker/login-action@v1.8.0
@@ -29,7 +28,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        docker build mvc --tag ${{ secrets.DOCKERHUB_ORGANIZATION }}/{{ env.IMAGE }}:${{ env.TAG }}
+        docker build ui --tag ${{ secrets.DOCKERHUB_ORGANIZATION }}/{{ env.IMAGE }}:${{ env.TAG }}
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
