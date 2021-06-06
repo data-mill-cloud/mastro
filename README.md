@@ -37,7 +37,13 @@ Help:
 * [Configuration](doc/CONFIGURATION.md)
 * [Deploy to K8s](doc/K8S-DEPLOY.md)
 
-Status:
+License:
+* Apache 2.0 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-[![Docker Image CI](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-image.yml)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+Build Status:
+
+[![Docker Build FeatureStore](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-build-featurestore.yml/badge.svg)](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-build-featurestore.yml)  
+[![Docker Build Catalogue](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-build-catalogue.yml/badge.svg)](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-build-catalogue.yml)  
+[![Docker Build Crawlers](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-build-crawlers.yml/badge.svg)](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-build-crawlers.yml)  
+[![Docker Image UI](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-build-ui.yml/badge.svg)](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-build-ui.yml)  
+[![Docker Image MVC](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-build-mvc.yml/badge.svg)](https://github.com/data-mill-cloud/mastro/actions/workflows/docker-build-mvc.yml)  
