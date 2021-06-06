@@ -39,12 +39,12 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        docker build crawlers --tag ${{ secrets.DOCKERHUB_ORGANIZATION }}/{{ env.IMAGE }}:${{ env.TAG }}
+        docker build crawlers --tag ${{ secrets.DOCKERHUB_ORGANIZATION }}/${{ env.IMAGE }}:${{ env.TAG }}
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/{{ env.IMAGE }}:${{ env.TAG }}'
+        image-ref: 'docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/${{ env.IMAGE }}:${{ env.TAG }}'
         format: 'table'
         exit-code: '1'
         ignore-unfixed: true
@@ -53,4 +53,4 @@ jobs:
 
     - name: Push the Docker image
       run: |
-        docker push ${{ secrets.DOCKERHUB_ORGANIZATION }}/{{ env.IMAGE }}:${{ env.TAG }}
+        docker push ${{ secrets.DOCKERHUB_ORGANIZATION }}/${{ env.IMAGE }}:${{ env.TAG }}
