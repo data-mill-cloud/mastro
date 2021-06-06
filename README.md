@@ -37,8 +37,8 @@ Help:
 * [Configuration](doc/CONFIGURATION.md)
 * [Deploy to K8s](doc/K8S-DEPLOY.md)
 
-License:
-* Apache 2.0 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+License:  
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Build Status:
 
