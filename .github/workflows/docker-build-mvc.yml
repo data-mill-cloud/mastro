@@ -33,7 +33,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/mvc:${{{ env.TAG }}}'
+        image-ref: 'docker.io/${{ secrets.DOCKERHUB_ORGANIZATION }}/mvc:${{ env.TAG }}'
         format: 'table'
         exit-code: '1'
         ignore-unfixed: true
