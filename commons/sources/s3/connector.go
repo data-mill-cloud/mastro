@@ -21,6 +21,7 @@ type Connector struct {
 	client *minio.Client
 	Bucket string
 	Prefix string
+	Region string
 }
 
 var requiredFields = map[string]string{
@@ -29,6 +30,10 @@ var requiredFields = map[string]string{
 	"secretkey": "secret-access-key",
 	"usessl":    "use-ssl",
 	"bucket":    "bucket",
+}
+
+var optionalFields = map[string]string{
+	"region" : "region",
 }
 
 // GetClient ... Returns the client from the connector
@@ -67,6 +72,11 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	secretKey := def.Settings[requiredFields["secretKey"]]
 	useSSL, _ := strconv.ParseBool(def.Settings[requiredFields["usessl"]])
 	bucket := def.Settings[requiredFields["bucket"]]
+
+	// optional, e.g. when using minio this is not necessary
+	if region, exist = def.Settings[optionalFields["region"]]; exist {
+		log.Println(fmt.Sprintf("Using provided region %s", region))
+	} 
 
 	var err error
 	c.client, err = minio.New(endpoint, &minio.Options{
