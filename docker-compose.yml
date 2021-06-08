@@ -1,0 +1,51 @@
+version: "3.9"
+services:
+  mongo:
+    image: "mongo:latest"
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/configdb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=test
+      - MONGO_INITDB_DATABASE=mastro
+  catalogue:
+    build: 
+      context: catalogue
+      dockerfile: Dockerfile
+    ports:
+      - 8085:8085
+    volumes:
+      - ./compose-confs/mongo-catalogue.yml:/conf/mongo-catalogue.yml
+    environment:
+      - MASTRO_CONFIG=/conf/mongo-catalogue.yml
+    depends_on:
+      - mongo
+  featurestore:
+    build: 
+      context: featurestore
+      dockerfile: Dockerfile
+    ports:
+      - 8086:8085
+    volumes:
+      - ./compose-confs/mongo-fs.yml:/conf/mongo-fs.yml
+    environment:
+      - MASTRO_CONFIG=/conf/mongo-fs.yml
+    depends_on:
+      - mongo
+  ui:
+    build:
+      context: ui
+      dockerfile: Dockerfile
+    ports:
+      - 8087:80
+    depends_on:
+      - mongo
+      - catalogue
+      - featurestore
+
+volumes:
+  mongo-data:
+  mongo-config:
