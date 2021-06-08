@@ -74,7 +74,7 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	bucket := def.Settings[requiredFields["bucket"]]
 
 	// optional, e.g. when using minio this is not necessary
-	var exists bool
+	var exist bool
 	if c.Region, exist = def.Settings[optionalFields["region"]]; exist {
 		log.Println(fmt.Sprintf("Using provided region %s", c.Region))
 	} 
