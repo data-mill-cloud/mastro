@@ -33,7 +33,7 @@ var requiredFields = map[string]string{
 }
 
 var optionalFields = map[string]string{
-	"region" : "region",
+	"region": "region",
 }
 
 // GetClient ... Returns the client from the connector
@@ -69,7 +69,7 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 
 	endpoint := def.Settings[requiredFields["endpoint"]]
 	accessKeyID := def.Settings[requiredFields["accesskey"]]
-	secretKey := def.Settings[requiredFields["secretKey"]]
+	secretKey := def.Settings[requiredFields["secretkey"]]
 	useSSL, _ := strconv.ParseBool(def.Settings[requiredFields["usessl"]])
 	bucket := def.Settings[requiredFields["bucket"]]
 
@@ -77,7 +77,7 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	var exist bool
 	if c.Region, exist = def.Settings[optionalFields["region"]]; exist {
 		log.Println(fmt.Sprintf("Using provided region %s", c.Region))
-	} 
+	}
 
 	var err error
 	c.client, err = minio.New(endpoint, &minio.Options{
