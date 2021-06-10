@@ -29,11 +29,11 @@ var requiredFields = map[string]string{
 	"accesskey": "access-key-id",
 	"secretkey": "secret-access-key",
 	"usessl":    "use-ssl",
-	"bucket":    "bucket",
 }
 
 var optionalFields = map[string]string{
 	"region": "region",
+	"bucket": "bucket",
 }
 
 // GetClient ... Returns the client from the connector
@@ -71,12 +71,15 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	accessKeyID := def.Settings[requiredFields["accesskey"]]
 	secretKey := def.Settings[requiredFields["secretkey"]]
 	useSSL, _ := strconv.ParseBool(def.Settings[requiredFields["usessl"]])
-	bucket := def.Settings[requiredFields["bucket"]]
 
-	// optional, e.g. when using minio this is not necessary
+	// optional
 	var exist bool
 	if c.Region, exist = def.Settings[optionalFields["region"]]; exist {
-		log.Println(fmt.Sprintf("Using provided region %s", c.Region))
+		log.Println(fmt.Sprintf("Using specified region %s", c.Region))
+	}
+	// optional - in mvc can be provided by cli
+	if c.Bucket, exist = def.Settings[optionalFields["bucket"]]; exist {
+		log.Println(fmt.Sprintf("Using specified bucket %s", c.Bucket))
 	}
 
 	var err error
