@@ -87,7 +87,6 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 		Creds:  credentials.NewStaticV4(accessKeyID, secretKey, ""),
 		Secure: useSSL,
 	})
-	c.Bucket = bucket
 
 	if err != nil {
 		log.Panicln(err)
