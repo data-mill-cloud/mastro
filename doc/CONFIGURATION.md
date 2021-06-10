@@ -25,6 +25,8 @@ const (
 	Catalogue = "catalogue"
 	// FeatureStore ... featurestore config type
 	FeatureStore = "featurestore"
+	// MVC config type
+	Mvc = "mvc"
 )
 ```
 

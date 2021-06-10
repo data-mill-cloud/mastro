@@ -32,6 +32,8 @@ type assetMongoDao struct {
 	Labels map[string]interface{} `bson:"labels"`
 	// tags are flags used to simplify asset search
 	Tags []string `bson:"tags"`
+	// versions specify available variants of the same asset
+	Versions map[string]interface{} `bson:"versions"`
 }
 
 func convertAssetDTOtoDAO(as *abstract.Asset) *assetMongoDao {
@@ -49,6 +51,7 @@ func convertAssetDTOtoDAO(as *abstract.Asset) *assetMongoDao {
 
 	asmd.Labels = as.Labels
 	asmd.Tags = as.Tags
+	asmd.Versions = as.Versions
 
 	return asmd
 }
@@ -66,6 +69,7 @@ func convertAssetDAOtoDTO(asmd *assetMongoDao) *abstract.Asset {
 
 	as.Labels = asmd.Labels
 	as.Tags = asmd.Tags
+	as.Versions = asmd.Versions
 
 	return as
 }
