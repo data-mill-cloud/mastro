@@ -3,17 +3,63 @@ A minimal data versioning tool in Golang.
 
 TLDR:
 * for each data asset keeps a manifest file that can be crawled and stored in a mastro catalogue.  
-* based on the minio s3 client.  
+* based on the commons.sources.  
+
+## Prerequisites
+
+An mvc provider is available for the desired backend storage to be used for file versioning. 
+Mind that a provider is defined as follows: 
+```go
+type MvcProvider interface {
+	InitConnection(cfg *conf.Config) (MvcProvider, error)
+	InitDataset(cmd *InitCmd)
+	NewVersion(cmd *NewCmd)
+	Add(cmd *AddCmd)
+	AllVersions(cmd *VersionsCmd)
+	LatestVersion(cmd *LatestCmd)
+	OverwriteVersion(cmd *OverwriteCmd)
+	DeleteVersion(cmd *DeleteCmd)
+}
+```
+The mvc provider instantiates a [mastro connector](../doc/CONNECTORS.md) within the `InitConnection` function, as specified in the commons module.
 
 ## Requirements
 
-The following env vars pointing to an S3-compatible storage must be set, e.g.:
+In order for **mvc** to work, a Mastro configuration file of kind `mvc` must be specified and referred to using the `MVC_CONFIG` variable, e.g.:
+
+```bash
+./mvc -h
+required key MVC_CONFIG missing value
 ```
-export MVC_ENDPOINT="play.min.io"
-export MVC_ACCESSKEY="Q3AM3UQ867SPQQA43P2F"
-export MVC_SECRETKEY="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
-export MVC_USESSL=true
-export MVC_LOCATION="us-east-1"
+
+```bash
+export MVC_CONFIG=$PWD/conf/example_s3.yml
+```
+
+where `example_s3.yml` refers to the public minio:
+
+```yaml
+type: mvc
+backend:
+  name: public-minio-s3
+  type: s3
+  settings:
+    region: us-east-1
+    endpoint: play.min.io
+    access-key-id: Q3AM3UQ867SPQQA43P2F
+    secret-access-key: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+    use-ssl: true
+    bucket: ""
+```
+
+Let us now list available versions for the path `abcde`:
+
+```bash
+./mvc versions -d abcde
+2021/06/10 14:44:58 Successfully loaded config mvc public-minio-s3
+2021/06/10 14:44:58 Successfully validated data source definition
+2021/06/10 14:44:58 Using provided region us-east-1
+[1623324009]
 ```
 
 ## Usage
