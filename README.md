@@ -30,7 +30,7 @@ Terminology:
 * [Catalogue](doc/CATALOGUE.md) - service to manage data assets (i.e., static data definitions and their relationships);
 * [Crawler](doc/CRAWLERS.md) - any agent able to list and walk a file system, filter and parse asset definitions (i.e. manifest files) and push them to the catalogue;
 * [UI](ui/README.md) - basic user interface to search assets by name and tags
-* [MVC](mvc/README.md) - data versioning tool for s3-based storage
+* [MVC](mvc/README.md) - data versioning tool for various storage - based on the `commons.abstract.sources` package
 
 Help:
 * [PlantUML Diagram of the repo](https://www.dumels.com/diagram/4a292159-170b-4abd-bb7a-b93a86c746a7)

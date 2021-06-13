@@ -3,7 +3,7 @@ A minimal data versioning tool in Golang.
 
 TLDR:
 * for each data asset keeps a manifest file that can be crawled and stored in a mastro catalogue.  
-* based on the commons.sources.  
+* based on the `commons.abstract.sources` package - multiple connectors available 
 
 ## Prerequisites
 
