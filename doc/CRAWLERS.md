@@ -16,7 +16,7 @@ A filter is provided to only select specific metadata files, whose naming follow
 ```go
 type Asset struct {
 	// asset last found by crawler at - only added by service (not crawler/manifest itself, i.e. no yaml)
-	LastDiscoveredAt time.Time `json:"last-discovered-at"`
+	LastDiscoveredAt time.Time `json:"last-discovered-at" yaml:"last-discovered-at,omitempty"`
 	// asset publication datetime
 	PublishedOn time.Time `yaml:"published-on" json:"published-on"`
 	// name of the asset
@@ -26,11 +26,13 @@ type Asset struct {
 	// the list of assets this depends on
 	DependsOn []string `yaml:"depends-on" json:"depends-on"`
 	// asset type
-	Type AssetType `yaml:"type,omitempty" json:"type,omitempty"`
+	Type AssetType `yaml:"type" json:"type"`
 	// labels for the specific asset
-	Labels map[string]interface{} `yaml:"labels,omitempty" json:"labels,omitempty"`
+	Labels map[string]interface{} `yaml:"labels" json:"labels"`
 	// tags are flags used to simplify asset search
-	Tags []string `yaml:"tags,omitempty" json:"tags,omitempty"`
+	Tags []string `yaml:"tags" json:"tags"`
+	// versions specify available variants of the same asset
+	Versions map[string]interface{} `yaml:"versions" json:"versions"`
 }
 ```
 
