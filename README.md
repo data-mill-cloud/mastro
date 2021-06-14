@@ -1,6 +1,6 @@
 # Mastro
 
-👷 Data and Feature Catalogue in Go 
+👷 Metadata management in Go 
 
 ## Data What?
 ![ML Process](img/ml_dev_process.png)
