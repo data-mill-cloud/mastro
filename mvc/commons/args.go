@@ -32,3 +32,7 @@ type OverwriteCmd struct {
 	Version         string `arg:"-v,required"`
 	LocalPath       string `arg:"-l,required"`
 }
+
+type CheckCmd struct {
+	LocalPath string `arg:"-l,required"`
+}

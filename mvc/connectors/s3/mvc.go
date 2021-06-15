@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -21,6 +22,7 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	"github.com/data-mill-cloud/mastro/mvc/commons"
 	"github.com/minio/minio-go/v7"
+	"github.com/sger/go-hashdir"
 	"gopkg.in/yaml.v2"
 )
 
@@ -191,7 +193,9 @@ func GetVersionedPath(version string, filePath string) (*string, error) {
 	return &path, nil
 }
 
-func (mvc *S3Mvc) PutFiles(localFolder string, bucketName string, version string) {
+func (mvc *S3Mvc) PutFiles(localPath string, bucketName string, version string) {
+	// get a ref to the parent's path
+	ref := filepath.Dir(filepath.Clean(localPath))
 
 	// walk file system
 	var walkFn filepath.WalkFunc = func(currentPath string, info os.FileInfo, e error) error {
@@ -200,31 +204,45 @@ func (mvc *S3Mvc) PutFiles(localFolder string, bucketName string, version string
 		}
 		// check if it is a regular file
 		if info.Mode().IsRegular() {
+
+			// compute relative path to avoid saving to s3 the absolute path
+			rel, err := filepath.Rel(ref, currentPath)
+			if err != nil {
+				log.Println(err.Error())
+				return e
+			}
+			// visiting the same file being passed as input
+			if rel == "." {
+				// getting filename only (basename)
+				rel = filepath.Base(currentPath)
+			}
+
 			// open the file at currentPath
-			// open the file
 			file, _ := os.Open(currentPath)
 			fi, _ := file.Stat()
+
 			defer file.Close()
 
 			progress := pb.New64(fi.Size()).SetUnits(pb.U_BYTES)
 			progress.Start()
 
-			p, err := GetVersionedPath(version, file.Name())
+			p, err := GetVersionedPath(version, rel)
 			if err != nil {
 				panic(err)
 			}
+			fmt.Println(*p)
+
 			_, err = mvc.connector.GetClient().PutObject(context.Background(), bucketName, *p, file, fi.Size(), minio.PutObjectOptions{ContentType: "application/octet-stream", Progress: progress})
 			if err != nil {
 				panic(err)
 			}
-
 		}
 		return nil
 	}
 	// walk file system
 	// https://golang.org/pkg/path/filepath/#Walk
 	// https://flaviocopes.com/go-list-files/
-	err := filepath.Walk(localFolder, walkFn)
+	err := filepath.Walk(localPath, walkFn)
 	if err != nil {
 		panic(err)
 	}
@@ -251,6 +269,51 @@ func (mvc *S3Mvc) NewVersion(cmd *commons.NewCmd) {
 	fmt.Println("\n", version)
 }
 
+func (mvc *S3Mvc) editVersionMetadata(localPath string, destinationPath string, version string, append bool) {
+	asset, err := mvc.getRemoteManifest(destinationPath)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if _, ok := asset.Versions[version]; ok {
+		var versionMetadata interface{}
+		if append {
+			versionMetadata = asset.Versions[version]
+		} else {
+			versionMetadata = map[string]string{}
+		}
+		v := reflect.ValueOf(versionMetadata)
+
+		// --
+		// compute hash of newly added element bunch
+		basename := filepath.Base(filepath.Clean(localPath))
+		//h, err := dirhash.HashDir(localPath, "a", dirhash.DefaultHash)
+		h, err := hashdir.Create(localPath, "sha256")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(basename, h)
+		// add hashes for files/folders to version metadata
+		if v.Kind() == reflect.Map {
+			key := reflect.ValueOf(basename)
+			value := reflect.ValueOf(h)
+			v.SetMapIndex(key, value)
+		}
+		// --
+		asset.Versions[version] = versionMetadata
+		data, err := yaml.Marshal(&asset)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		mvc.OverwriteManifest(destinationPath, string(data))
+	} else {
+		fmt.Println(fmt.Sprintf("No version %s found", version))
+	}
+}
+
 func (mvc *S3Mvc) Add(cmd *commons.AddCmd) {
 	// open manifest and get newest version
 	versions, err := mvc.GetVersions(cmd.DestinationPath)
@@ -261,6 +324,7 @@ func (mvc *S3Mvc) Add(cmd *commons.AddCmd) {
 	if len(versions) > 0 {
 		latestVersion := versions[0]
 		mvc.PutFiles(cmd.LocalPath, cmd.DestinationPath, latestVersion)
+		mvc.editVersionMetadata(cmd.LocalPath, cmd.DestinationPath, latestVersion, true)
 	} else {
 		fmt.Println(fmt.Sprintf("No versions found at %s \n", cmd.DestinationPath))
 		return
@@ -342,5 +406,5 @@ func (mvc *S3Mvc) DeleteVersion(cmd *commons.DeleteCmd) {
 func (mvc *S3Mvc) OverwriteVersion(cmd *commons.OverwriteCmd) {
 	mvc.DeleteVersionFiles(cmd.DestinationPath, cmd.Version)
 	mvc.PutFiles(cmd.LocalPath, cmd.DestinationPath, cmd.Version)
-	// todo: update manifest file
+	mvc.editVersionMetadata(cmd.LocalPath, cmd.DestinationPath, cmd.Version, false)
 }

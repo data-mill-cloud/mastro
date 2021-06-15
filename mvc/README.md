@@ -75,5 +75,8 @@ Let us now list available versions for the path `abcde`:
 * `mvc delete -d $PATH -v $VERSION` - deletes the specified version and updates the metadata
 
 ### File management
-* `mvc add -l $LOCALPATH -d $PATH` - adds $LOCALPATH to remote $PATH at current latest version
-* `mvc overwrite -d $PATH -v $VERSION -l $LOCALPATH` - overwrite existing version $VERSION at $PATH and updates metadata
+* `mvc add -l $LOCALPATH -d $PATH` - adds $LOCALPATH to remote $PATH at current latest version, includes the sha256 in the version metadata
+* `mvc overwrite -d $PATH -v $VERSION -l $LOCALPATH` - overwrite existing version $VERSION at $PATH and overwrites metadata
+
+### Checksum
+* `mvc check -l $LOCALPATH` - computes the sha256sum of the entire folder at $LOCALPATH

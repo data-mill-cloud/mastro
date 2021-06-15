@@ -8,6 +8,7 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	"github.com/data-mill-cloud/mastro/mvc/commons"
 	"github.com/data-mill-cloud/mastro/mvc/connectors/s3"
+	"github.com/sger/go-hashdir"
 
 	"github.com/kelseyhightower/envconfig"
 )
@@ -39,6 +40,7 @@ var args struct {
 	Versions  *commons.VersionsCmd  `arg:"subcommand:versions"`
 	Delete    *commons.DeleteCmd    `arg:"subcommand:delete"`
 	Overwrite *commons.OverwriteCmd `arg:"subcommand:overwrite"`
+	Check     *commons.CheckCmd     `arg:"subcommand:check"`
 }
 
 const header string = `
@@ -49,6 +51,15 @@ const header string = `
 // factories for available connectors
 var factories = map[string]func(string) commons.MvcProvider{
 	"s3": s3.NewMvc,
+}
+
+func check(cmd *commons.CheckCmd) {
+	h, err := hashdir.Create(cmd.LocalPath, "sha256")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(cmd.LocalPath, h)
 }
 
 func main() {
@@ -93,6 +104,8 @@ func main() {
 		mvc.OverwriteVersion(args.Overwrite)
 	case args.Delete != nil:
 		mvc.DeleteVersion(args.Delete)
+	case args.Check != nil:
+		check(args.Check)
 	default:
 		fmt.Println(fmt.Sprintf("unknown command %q", os.Args[0]))
 		return
