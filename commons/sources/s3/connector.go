@@ -75,11 +75,11 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	// optional
 	var exist bool
 	if c.Region, exist = def.Settings[optionalFields["region"]]; exist {
-		log.Println(fmt.Sprintf("Using specified region %s", c.Region))
+		log.Println(fmt.Sprintf("Using specified region '%s'", c.Region))
 	}
 	// optional - in mvc can be provided by cli
 	if c.Bucket, exist = def.Settings[optionalFields["bucket"]]; exist {
-		log.Println(fmt.Sprintf("Using specified bucket %s", c.Bucket))
+		log.Println(fmt.Sprintf("Using specified bucket '%s'", c.Bucket))
 	}
 
 	var err error
