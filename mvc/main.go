@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/data-mill-cloud/mastro/mvc/connectors/hdfs"
 	"os"
 
 	"github.com/alexflint/go-arg"
@@ -50,7 +51,8 @@ const header string = `
 
 // factories for available connectors
 var factories = map[string]func(string) commons.MvcProvider{
-	"s3": s3.NewMvc,
+	"s3":   s3.NewMvc,
+	"hdfs": hdfs.NewMvc,
 }
 
 func check(cmd *commons.CheckCmd) {
