@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/alexflint/go-arg v1.4.2
 	github.com/cheggaaa/pb v1.0.29
-	github.com/data-mill-cloud/mastro/commons v0.0.0-20210614193753-800b10823325
+	github.com/data-mill-cloud/mastro/commons v0.0.0-20210617115641-0d84e3342b7d
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattn/go-runewidth v0.0.12 // indirect
