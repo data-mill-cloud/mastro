@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 	"strings"
 
 	gohdfs "github.com/colinmarc/hdfs/v2"
@@ -68,6 +69,12 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 
 	// https://godoc.org/github.com/colinmarc/hdfs#ClientOptionsFromConf
 	clientOptions := gohdfs.ClientOptionsFromConf(hadoopConf)
+
+	username, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
+	clientOptions.User = username.Username
 
 	if clientOptions.KerberosClient != nil {
 		clientOptions.KerberosClient = kerberos.GetKerberosClient(def.KerberosDetails)
