@@ -162,24 +162,47 @@ func (mvc *S3Mvc) OverwriteManifest(bucketName string, content string) (*minio.U
 }
 
 func (mvc *S3Mvc) DeleteVersionFiles(bucketName string, version string) {
-	objectCh := mvc.connector.GetClient().ListObjects(context.Background(), bucketName, minio.ListObjectsOptions{
-		Prefix:    version,
-		Recursive: true,
-	})
+	/*
+		// iterate and delete all objects
+		objectCh := mvc.connector.GetClient().ListObjects(context.Background(), bucketName, minio.ListObjectsOptions{
+			Prefix:    version,
+			Recursive: true,
+		})
 
-	opts := minio.RemoveObjectOptions{
-		GovernanceBypass: true,
-	}
+		opts := minio.RemoveObjectOptions{
+			GovernanceBypass: true,
+		}
+		for object := range objectCh {
+			if object.Err != nil {
+				fmt.Println(object.Err)
+				return
+			}
+			err := mvc.connector.GetClient().RemoveObject(context.Background(), bucketName, object.Key, opts)
+			if err != nil {
+				fmt.Println("Error detected during deletion: ", err)
+			}
+		}
+	*/
 
-	for object := range objectCh {
-		if object.Err != nil {
-			fmt.Println(object.Err)
-			return
+	// use channels to list and delete object lists
+	objectsCh := make(chan minio.ObjectInfo)
+	go func() {
+		defer close(objectsCh)
+		listOpts := minio.ListObjectsOptions{
+			Prefix:    version,
+			Recursive: true,
 		}
-		err := mvc.connector.GetClient().RemoveObject(context.Background(), bucketName, object.Key, opts)
-		if err != nil {
-			fmt.Println("Error detected during deletion: ", err)
+		for object := range mvc.connector.GetClient().ListObjects(context.Background(), bucketName, listOpts) {
+			if object.Err != nil {
+				fmt.Println(object.Err)
+				return
+			}
+			objectsCh <- object
 		}
+	}()
+
+	for err := range mvc.connector.GetClient().RemoveObjects(context.Background(), bucketName, objectsCh, minio.RemoveObjectsOptions{GovernanceBypass: true}) {
+		fmt.Println("Error detected during deletion:", err)
 	}
 }
 
