@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParsing(t *testing.T) {
+func TestAssetParsing(t *testing.T) {
 
 	inputYaml := `
     published-on: "2015-08-06T17:52:48Z"
@@ -26,5 +26,5 @@ func TestParsing(t *testing.T) {
 	assert.Equal(err, nil)
 	assert.NotEqual(asset, nil)
 
-  t.Log(asset)
+	t.Log(asset)
 }
