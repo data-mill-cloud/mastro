@@ -9,5 +9,6 @@ type MetricSetDAOProvider interface {
 	GetById(id string) (*MetricSet, error)
 	GetByName(name string) (*[]MetricSet, error)
 	SearchMetricSetsByLabels(labels map[string]string) (*[]MetricSet, error)
+	ListAllMetricSets() (*[]MetricSet, error)
 	CloseConnection()
 }
