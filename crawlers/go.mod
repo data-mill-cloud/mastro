@@ -10,7 +10,7 @@ require (
 	github.com/elastic/go-elasticsearch v0.0.0
 	github.com/elastic/go-elasticsearch/v7 v7.10.0
 	github.com/gin-contrib/cors v1.3.1
-	github.com/gin-gonic/gin v1.6.3
+	github.com/gin-gonic/gin v1.7.2
 	github.com/go-co-op/gocron v0.5.1
 	github.com/go-redis/redis/v8 v8.4.4 // indirect
 	github.com/go-resty/resty/v2 v2.4.0
