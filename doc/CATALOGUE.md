@@ -34,8 +34,8 @@ Have a look at `catalogue/daos/*` for example implementations.
 
 This is translated to the following endpoint:
 
-| Verb        | Endpoint                | Maps to                                                 |
-|-------------|-------------------------|---------------------------------------------------------|
+| Verb        | Endpoint                | Maps to                                                         |
+|-------------|-------------------------|-----------------------------------------------------------------|
 | **GET**     | /healthcheck/asset      | github.com/data-mill-cloud/mastro/catalogue.Ping                |
 | ~~**GET**~~ | ~~/asset/id/:asset_id~~ | ~~github.com/data-mill-cloud/mastro/catalogue.GetAssetByID~~    |
 | **GET**     | /asset/name/:asset_name | github.com/data-mill-cloud/mastro/catalogue.GetAssetByName      |
