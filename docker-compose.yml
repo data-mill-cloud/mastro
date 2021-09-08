@@ -35,12 +35,24 @@ services:
       - MASTRO_CONFIG=/conf/mongo-fs.yml
     depends_on:
       - mongo
+  metricstore:
+    build: 
+      context: metricstore
+      dockerfile: Dockerfile
+    ports:
+      - 8087:8085
+    volumes:
+      - ./compose-confs/mongo-ms.yml:/conf/mongo-ms.yml
+    environment:
+      - MASTRO_CONFIG=/conf/mongo-ms.yml
+    depends_on:
+      - mongo
   ui:
     build:
       context: ui
       dockerfile: Dockerfile
     ports:
-      - 8087:80
+      - 8088:80
     depends_on:
       - mongo
       - catalogue

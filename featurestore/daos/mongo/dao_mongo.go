@@ -183,12 +183,18 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}) (*[]abstract.Featu
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	cursor, err := dao.Connector.Collection.Find(ctx, filter)
+	// return if any error during get
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error while retrieving featureset :: %v", err)
 	}
 
+	// return if any error while getting a cursor
 	if err = cursor.All(ctx, &features); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error while retrieving featureset :: %v", err)
+	}
+
+	if features == nil {
+		return nil, fmt.Errorf("Error while retrieving featuresets using filter :: empty result set")
 	}
 
 	var resultFeats []abstract.FeatureSet = convertAllFeatureSets(&features)
