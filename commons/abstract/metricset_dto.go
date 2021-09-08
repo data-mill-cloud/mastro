@@ -1,6 +1,10 @@
 package abstract
 
-import "time"
+import (
+	"errors"
+	"strings"
+	"time"
+)
 
 // MetricSet ... a timestamped set of Metrics
 type MetricSet struct {
@@ -21,4 +25,29 @@ type MetricSet struct {
 
 type Metric struct {
 	DeequMetric
+}
+
+// Validate ... validate a metricSet
+func (ms *MetricSet) Validate() error {
+	// the name should not be empty or we may not be able to retrieve the mset
+	if len(strings.TrimSpace(ms.Name)) == 0 {
+		return errors.New("MetricSet Name is undefined")
+	}
+
+	if len(strings.TrimSpace(ms.Version)) == 0 {
+		return errors.New("MetricSet Version is undefined")
+	}
+
+	for _, f := range ms.Metrics {
+		if err := f.Validate(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Validate ... validate a metric
+func (m *Metric) Validate() error {
+	return nil
 }
