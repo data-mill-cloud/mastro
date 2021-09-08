@@ -6,7 +6,8 @@ import "github.com/data-mill-cloud/mastro/commons/utils/conf"
 type MetricSetDAOProvider interface {
 	Init(*conf.DataSourceDefinition)
 	Create(m *MetricSet) error
-	GetByName(id string) (*MetricSet, error)
+	GetById(id string) (*MetricSet, error)
+	GetByName(name string) (*[]MetricSet, error)
 	SearchMetricSetsByLabels(labels map[string]string) (*[]MetricSet, error)
 	CloseConnection()
 }
