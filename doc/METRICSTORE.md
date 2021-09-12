@@ -75,13 +75,85 @@ type Service interface {
 This is translated to the following endpoint:
 
 
-| Verb        | Endpoint                           | Maps to                                                                |
-|-------------|------------------------------------|------------------------------------------------------------------------|
-| **GET**     | /healthcheck/metricstore           | github.com/data-mill-cloud/mastro/metricstore.Ping                     |
-| ~~**GET**~~ | ~~/metricstore/id/:featureset_id~~ | ~~github.com/data-mill-cloud/mastro/metricstore.GetMetricSetByID~~     |
-| **GET**     | /metricstore/name/:featureset_name | github.com/data-mill-cloud/mastro/metricstore.GetMetricSetByName       |
-| **PUT**     | /metricstore/                      | github.com/data-mill-cloud/mastro/metricstore.CreateMetricSet          |
-| **POST**    | /metricstore/labels                | github.com/data-mill-cloud/mastro/metricstore.SearchMetricSetsByLabels |
-| ~~**GET**~~ | ~~/metricstore/~~                  | ~~github.com/data-mill-cloud/mastro/metricstore.ListAllMetricSets~~    | 
+| Verb        | Endpoint                           | Maps to                                                                     |
+|-------------|------------------------------------|-----------------------------------------------------------------------------|
+| **GET**     | /healthcheck/metricstore           | github.com/data-mill-cloud/mastro/metricstore.Ping                          |
+| ~~**GET**~~ | ~~/metricstore/id/:featureset_id~~ | ~~github.com/data-mill-cloud/mastro/metricstore.GetMetricSetByID~~          |
+| **GET**     | /metricstore/name/:featureset_name | github.com/data-mill-cloud/mastro/metricstore.GetMetricSetByName            |
+| **PUT**     | /metricstore/                      | github.com/data-mill-cloud/mastro/metricstore.CreateMetricSet               |
+| **POST**    | /metricstore/labels                | github.com/data-mill-cloud/mastro/metricstore.SearchMetricSetsByLabels      |
+| **GET**     | /metricstore/labels/:labels_id     | github.com/data-mill-cloud/mastro/metricStore.SearchMetricSetsByQueryLabels |
+| ~~**GET**~~ | ~~/metricstore/~~                  | ~~github.com/data-mill-cloud/mastro/metricstore.ListAllMetricSets~~         | 
 
 ### Examples
+
+To push a metric set a PUT to `/metricstore/` is used, along with a JSON body of kind:
+```bash
+{
+    "name" : "gilberto",
+	"version" : "test-v1.0",
+	"description" : "example metricset for testing purposes",
+	"labels" : {
+	    "refers-to" : "project-gilberto",
+	    "environment" : "test"
+	},
+	"metrics" : [
+		...
+	]
+}
+```
+
+where metrics can be of various types. For instance, Deequ returns an AnalysisResult type such as the following:
+```bash
+[
+  {
+    "resultKey": {
+      "dataSetDate": 1630876393300,
+      "tags": {}
+    },
+    "analyzerContext": {
+      "metricMap": [
+        {
+          "analyzer": {
+            "analyzerName": "Size"
+          },
+          "metric": {
+            "metricName": "DoubleMetric",
+            "entity": "Dataset",
+            "instance": "*",
+            "name": "Size",
+            "value": 5.0
+          }
+        },
+        {
+          "analyzer": {
+            "analyzerName": "Minimum",
+            "column": "numViews"
+          },
+          "metric": {
+            "metricName": "DoubleMetric",
+            "entity": "Column",
+            "instance": "numViews",
+            "name": "Minimum",
+            "value": 0.0
+          }
+        }
+      ]
+    }
+  }
+]
+```
+
+To retrieve metric sets by labels we can either use a POST to `metricstore/labels` and provide a JSON dict of label	values, for instance:
+
+```bash
+ {
+     "labels": {
+         "environment": "test",
+         "refers-to": "project-gilberto"
+    }
+}
+```
+
+or use a GET to the same URL with a query string of the form `?label1=value1&label2=value2`, such as `localhost:8087/metricstore/labels?environment=test&refers-to=project-gilberto`.
+

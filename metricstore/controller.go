@@ -88,6 +88,28 @@ func SearchMetricSetsByLabels(c *gin.Context) {
 	}
 }
 
+func SearchMetricSetsByQueryLabels(c *gin.Context) {
+	query := c.Request.URL.Query()
+
+	if len(query) == 0 {
+		restErr := errors.GetBadRequestError("Invalid query by labels :: empty label dict")
+		c.JSON(restErr.Status, restErr)
+	} else {
+		q := make(map[string]string)
+		for k, l := range query {
+			q[k] = l[0]
+		}
+		assets, getErr := metricStoreService.SearchMetricSetsByLabels(q)
+		if getErr != nil {
+			c.JSON(getErr.Status, getErr)
+		} else {
+			c.JSON(http.StatusOK, assets)
+		}
+
+	}
+
+}
+
 // ListAllMetricSets ... lists all metricsets in the DB
 func ListAllMetricSets(c *gin.Context) {
 	msets, err := metricStoreService.ListAllMetricSets()
@@ -122,6 +144,7 @@ func StartEndpoint(cfg *conf.Config) {
 
 	// get any metricset matching labels
 	router.POST(fmt.Sprintf("%s/labels", metricStoreRestEndpoint), SearchMetricSetsByLabels)
+	router.GET(fmt.Sprintf("%s/labels", metricStoreRestEndpoint), SearchMetricSetsByQueryLabels)
 
 	// list all metricsets
 	router.GET(fmt.Sprintf("%s/", metricStoreRestEndpoint), ListAllMetricSets)
