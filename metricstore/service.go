@@ -43,7 +43,6 @@ func (s *metricStoreServiceType) Init(cfg *conf.Config) *errors.RestErr {
 
 // CreateMetricSet ... Create a MetricSet entry
 func (s *metricStoreServiceType) CreateMetricSet(ms abstract.MetricSet) (*abstract.MetricSet, *errors.RestErr) {
-
 	if err := ms.Validate(); err != nil {
 		return nil, errors.GetBadRequestError(err.Error())
 	}

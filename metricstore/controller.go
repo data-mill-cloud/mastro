@@ -78,11 +78,11 @@ func SearchMetricSetsByLabels(c *gin.Context) {
 			restErr := errors.GetBadRequestError("Invalid query by labels :: empty label dict")
 			c.JSON(restErr.Status, restErr)
 		} else {
-			assets, getErr := metricStoreService.SearchMetricSetsByLabels(query.Labels)
+			metricsets, getErr := metricStoreService.SearchMetricSetsByLabels(query.Labels)
 			if getErr != nil {
 				c.JSON(getErr.Status, getErr)
 			} else {
-				c.JSON(http.StatusOK, assets)
+				c.JSON(http.StatusOK, metricsets)
 			}
 		}
 	}
@@ -99,11 +99,11 @@ func SearchMetricSetsByQueryLabels(c *gin.Context) {
 		for k, l := range query {
 			q[k] = l[0]
 		}
-		assets, getErr := metricStoreService.SearchMetricSetsByLabels(q)
+		metricsets, getErr := metricStoreService.SearchMetricSetsByLabels(q)
 		if getErr != nil {
 			c.JSON(getErr.Status, getErr)
 		} else {
-			c.JSON(http.StatusOK, assets)
+			c.JSON(http.StatusOK, metricsets)
 		}
 
 	}

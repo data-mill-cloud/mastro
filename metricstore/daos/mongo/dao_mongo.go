@@ -26,7 +26,7 @@ type metricSetMongoDao struct {
 
 // metricMongoDao ... a named variable with a data type
 type metricMongoDao struct {
-	deequMetricMongoDao
+	DeequMetric *deequMetricMongoDao `bson:"deequ,omitempty"`
 }
 
 type deequMetricMongoDao struct {
@@ -87,8 +87,9 @@ func convertAllMetricInstancesDTOtoDAO(inputInstances []abstract.DeequMetricInst
 }
 
 func convertMetricDTOtoDAO(m *abstract.Metric) *metricMongoDao {
-	return &metricMongoDao{
-		deequMetricMongoDao{
+	result := &metricMongoDao{}
+	if m.DeequMetric != nil {
+		result.DeequMetric = &deequMetricMongoDao{
 			ResultKey: deequResultKeyMongoDao{
 				DataSetDate: m.DeequMetric.ResultKey.DataSetDate,
 				Tags:        m.DeequMetric.ResultKey.Tags,
@@ -96,8 +97,9 @@ func convertMetricDTOtoDAO(m *abstract.Metric) *metricMongoDao {
 			AnalyzerContext: deequAnalyzerContextMongoDao{
 				MetricMap: convertAllMetricInstancesDTOtoDAO(m.DeequMetric.AnalyzerContext.MetricMap),
 			},
-		},
+		}
 	}
+	return result
 }
 
 func convertAllMetricsDTOtoDAO(mm []abstract.Metric) []metricMongoDao {
@@ -144,28 +146,30 @@ func convertAllMetricInstancesDAOToDTO(inMi []deequMetricInstanceMongoDao) []abs
 }
 
 func convertMetricDAOToDTO(mmd *metricMongoDao) *abstract.Metric {
-	dm := abstract.DeequMetric{
-		ResultKey: abstract.DeequResultKey{
-			DataSetDate: mmd.ResultKey.DataSetDate,
-			Tags:        mmd.ResultKey.Tags,
-		},
-		AnalyzerContext: abstract.DeequAnalyzerContext{
-			MetricMap: convertAllMetricInstancesDAOToDTO(mmd.AnalyzerContext.MetricMap),
-		},
+	result := &abstract.Metric{}
+	if mmd.DeequMetric != nil {
+		result.DeequMetric = &abstract.DeequMetric{
+			ResultKey: &abstract.DeequResultKey{
+				DataSetDate: mmd.DeequMetric.ResultKey.DataSetDate,
+				Tags:        mmd.DeequMetric.ResultKey.Tags,
+			},
+			AnalyzerContext: &abstract.DeequAnalyzerContext{
+				MetricMap: convertAllMetricInstancesDAOToDTO(mmd.DeequMetric.AnalyzerContext.MetricMap),
+			},
+		}
 	}
-	return &abstract.Metric{dm}
+	return result
 }
 
 func convertMetricSetDAOToDTO(msmd *metricSetMongoDao) *abstract.MetricSet {
-	ms := &abstract.MetricSet{}
-	ms.Name = msmd.Name
-	ms.InsertedAt = msmd.InsertedAt
-	ms.Description = msmd.Description
-	ms.Version = msmd.Version
-	ms.Labels = msmd.Labels
-
-	ms.Metrics = convertAllMetricsDAOToDTO(&msmd.Metrics)
-	return ms
+	return &abstract.MetricSet{
+		Name:        msmd.Name,
+		InsertedAt:  msmd.InsertedAt,
+		Version:     msmd.Version,
+		Description: msmd.Description,
+		Labels:      msmd.Labels,
+		Metrics:     convertAllMetricsDAOToDTO(&msmd.Metrics),
+	}
 }
 
 func convertAllMetricSetsDAOToDTO(inFeats *[]metricSetMongoDao) []abstract.MetricSet {
