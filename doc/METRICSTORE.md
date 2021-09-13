@@ -78,11 +78,11 @@ This is translated to the following endpoint:
 | Verb        | Endpoint                           | Maps to                                                                     |
 |-------------|------------------------------------|-----------------------------------------------------------------------------|
 | **GET**     | /healthcheck/metricstore           | github.com/data-mill-cloud/mastro/metricstore.Ping                          |
-| ~~**GET**~~ | ~~/metricstore/id/:featureset_id~~ | ~~github.com/data-mill-cloud/mastro/metricstore.GetMetricSetByID~~          |
-| **GET**     | /metricstore/name/:featureset_name | github.com/data-mill-cloud/mastro/metricstore.GetMetricSetByName            |
+| ~~**GET**~~ | ~~/metricstore/id/:metricset_id~~  | ~~github.com/data-mill-cloud/mastro/metricstore.GetMetricSetByID~~          |
+| **GET**     | /metricstore/name/:metricset_name  | github.com/data-mill-cloud/mastro/metricstore.GetMetricSetByName            |
 | **PUT**     | /metricstore/                      | github.com/data-mill-cloud/mastro/metricstore.CreateMetricSet               |
 | **POST**    | /metricstore/labels                | github.com/data-mill-cloud/mastro/metricstore.SearchMetricSetsByLabels      |
-| **GET**     | /metricstore/labels/:labels_id     | github.com/data-mill-cloud/mastro/metricStore.SearchMetricSetsByQueryLabels |
+| **GET**     | /metricstore/labels                | github.com/data-mill-cloud/mastro/metricStore.SearchMetricSetsByQueryLabels |
 | ~~**GET**~~ | ~~/metricstore/~~                  | ~~github.com/data-mill-cloud/mastro/metricstore.ListAllMetricSets~~         | 
 
 ### Examples
