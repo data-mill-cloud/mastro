@@ -49,5 +49,10 @@ func (ms *MetricSet) Validate() error {
 
 // Validate ... validate a metric
 func (m *Metric) Validate() error {
+	// make sure at least one metric type is defined
+	if m.DeequMetric == nil {
+		return errors.New("No metric is defined")
+	}
+
 	return nil
 }
