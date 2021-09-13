@@ -2,8 +2,8 @@ package abstract
 
 // DeequMetric ...
 type DeequMetric struct {
-	ResultKey       DeequResultKey       `json:"resultKey"`
-	AnalyzerContext DeequAnalyzerContext `json:"analyzerContext"`
+	ResultKey       *DeequResultKey       `json:"resultKey,omitempty"`
+	AnalyzerContext *DeequAnalyzerContext `json:"analyzerContext,omitempty"`
 }
 
 type DeequResultKey struct {
