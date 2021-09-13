@@ -2,6 +2,7 @@ package abstract
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -38,9 +39,9 @@ func (ms *MetricSet) Validate() error {
 		return errors.New("MetricSet Version is undefined")
 	}
 
-	for _, f := range ms.Metrics {
+	for i, f := range ms.Metrics {
 		if err := f.Validate(); err != nil {
-			return err
+			return errors.New(fmt.Sprintf("%s at position %d", err.Error(), i))
 		}
 	}
 
@@ -51,7 +52,7 @@ func (ms *MetricSet) Validate() error {
 func (m *Metric) Validate() error {
 	// make sure at least one metric type is defined
 	if m.DeequMetric == nil {
-		return errors.New("No metric is defined")
+		return errors.New("Incorrect metric definition")
 	}
 
 	return nil
