@@ -24,7 +24,7 @@ type MetricSet struct {
 }
 
 type Metric struct {
-	DeequMetric
+	*DeequMetric
 }
 
 // Validate ... validate a metricSet
