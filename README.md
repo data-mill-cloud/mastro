@@ -25,18 +25,18 @@ Mastro is still on development and largely untested. Please fork the repo and ex
 ## TL-DR
 
 Terminology:
-* [Connector](doc/CONNECTORS.md) - component handling the connection to volumes and data bases
-* [FeatureStore](doc/FEATURESTORE.md) - service to manage features (i.e., featureSets);
-* [MetricStore](doc/METRICSTORE.md) - service to manage metrics (i.e., metricSets);
-* [Catalogue](doc/CATALOGUE.md) - service to manage data assets (i.e., static data definitions and their relationships);
-* [Crawler](doc/CRAWLERS.md) - any agent able to list and walk a file system, filter and parse asset definitions (i.e. manifest files) and push them to the catalogue;
+* [Connector](commons/CONNECTORS.md) - component handling the connection to volumes and data bases
+* [FeatureStore](featurestore/README.md) - service to manage features (i.e., featureSets);
+* [MetricStore](metricstore/README.md) - service to manage metrics (i.e., metricSets);
+* [Catalogue](catalogue/README.md) - service to manage data assets (i.e., static data definitions and their relationships);
+* [Crawler](crawlers/README.md) - any agent able to list and walk a file system, filter and parse asset definitions (i.e. manifest files) and push them to the catalogue;
 * [UI](ui/README.md) - basic user interface to search assets by name and tags
 * [MVC](mvc/README.md) - data versioning tool for various storage - based on the `commons.abstract.sources` package
 
 Help:
 * [PlantUML Diagram of the repo](https://www.dumels.com/diagram/4a292159-170b-4abd-bb7a-b93a86c746a7)
-* [Configuration](doc/CONFIGURATION.md)
-* [Deploy to K8s](doc/K8S-DEPLOY.md)
+* [Configuration](commons/CONFIGURATION.md)
+* [Deploy to K8s](K8S-DEPLOY.md)
 
 License:  
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
