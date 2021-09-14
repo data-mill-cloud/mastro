@@ -31,5 +31,5 @@ The script `pack-it.sh` will generate a `.tgz` file and update the `index.yaml` 
 ## Using the repo and the Helm chart
 
 ```
-helm repo add mastro https://data-mill-cloud.github.com/mastro/helm-charts
+helm repo add mastro https://data-mill-cloud.github.io/mastro/helm-charts
 ```

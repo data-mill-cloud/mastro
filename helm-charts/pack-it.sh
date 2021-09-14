@@ -8,5 +8,5 @@ echo "moving package at ../docs/helm-charts/"
 mv mastro*.tgz ../docs/helm-charts/
 
 cd ../docs/
-helm repo index helm-charts --url https://data-mill-cloud.github.com/mastro/helm-charts
+helm repo index helm-charts --url https://data-mill-cloud.github.io/mastro/helm-charts
 cd $SCRIPT_DIR
