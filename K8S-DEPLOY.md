@@ -1,5 +1,12 @@
 # Deploy Mastro to a K8s Cluster
-Mastro is a stateless service that can be easily deployed to a K8s cluster. 
+Mastro can be easily deployed to a K8s cluster. 
+This guide is a walk through of the steps required to deploy Mastro to a K8s cluster.
+
+If you have limited time, please use the available [Helm Chart](helm-charts/README.md).
+
+```bash
+helm repo add mastro https://data-mill-cloud.github.io/mastro/helm-charts
+```
 
 ## Precondition
 In the examples below, we assume a previously deployed mongo database available on the same namespace or any reachable host at `mongo-mongodb:27017`.
@@ -8,10 +15,9 @@ For instance, we used the one using a StatefulSet and deployed as a Helm chart p
 
 ## Docker Images
 
-The catalogue and the feature store are services that can be easily compiled statically and moved across environments. 
-For this reason, we will be using the `pilillo/mastro-catalogue:20210306-static` and `pilillo/mastro-featurestore:20210306-static` in the examples below.
-The main difference is the flag `CGO_ENABLED=1` (as by default) set in the dynamically compiled version (the static version has it set to 0). Please have a look at [Dockerfile](../Dockerfile) and [Dockerfile.static](../Dockerfile.static).
-On the contrary, the crawler may depend on system libraries (e.g. Kerberos auth libraries) and requires being compiled dynamically. To this end, we will be using the `pilillo/mastro-crawlers:20210304` insted of its `pilillo/mastro-crawlers:20210304-static` counterpart.
+The catalogue and the feature store, as well as the metric store are services that can be easily compiled statically and moved across environments. 
+The main difference is the flag `CGO_ENABLED=1` (as by default) set in the dynamically compiled version (the static version has it set to 0). Please have a look at [the catalogue Dockerfile](catalogue/Dockerfile) and [the crawler Dockerfile](crawlers/Dockerfile).
+Accordingly, the crawler may depend on system libraries (e.g. Kerberos auth libraries) and requires being compiled dynamically. 
 
 ## Catalogue
 
@@ -66,7 +72,7 @@ spec:
         app: mastro-catalogue
     spec:
       containers:
-      - image: pilillo/mastro-catalogue:20210306-static
+      - image: datamillcloud/mastro-catalogue:v0.3.1
         imagePullPolicy: Always
         name: mastro-catalogue
         resources: {}
@@ -158,7 +164,7 @@ spec:
         app: mastro-featurestore
     spec:
       containers:
-      - image: pilillo/mastro-featurestore:20210306-static
+      - image: datamillcloud/mastro-featurestore:v0.3.1
         imagePullPolicy: Always
         name: mastro-featurestore
         resources: {}
@@ -201,12 +207,10 @@ spec:
 
 ## Crawler
 
-For the following example we use the image `pilillo/mastro-crawlers:20210304` including a dynamically built binary of the crawlers.
-
 The crawling agent can be easily debugged locally by overwriting the default entrypoint:
 
 ```
-docker run --entrypoint "/bin/sh" -it pilillo/mastro-crawlers:20210304
+docker run --entrypoint "/bin/sh" -it datamillcloud/mastro-crawlers:v0.3.1
 ```
 
 ### ConfigMap
@@ -348,7 +352,7 @@ spec:
         - mountPath: /tmp-krb5
           name: shared-cache
       # actual crawler
-      - image: pilillo/mastro-crawlers:20210305
+      - image: datamillcloud/mastro-crawlers:v0.3.1
         imagePullPolicy: Always
         #IfNotPresent
         name: mastro-crawler
@@ -401,7 +405,7 @@ spec:
       creationTimestamp: null
     spec:
       containers:
-      - image: pilillo/mastro-crawlers:20210305
+      - image: datamillcloud/mastro-crawlers:v0.3.1
         name: mastro-crawler
         resources: {}
       restartPolicy: Never
@@ -430,7 +434,7 @@ spec:
           creationTimestamp: null
         spec:
           containers:
-          - image: pilillo/mastro-crawlers:20210305
+          - image: datamillcloud/mastro-crawlers:v0.3.1
             name: mastro-crawler
             resources: {}
           restartPolicy: OnFailure
