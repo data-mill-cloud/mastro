@@ -1,0 +1,29 @@
+{{- if .Values.catalogue.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "mastro.fullCatalogueName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: catalogue
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "mastro.fullCatalogueName" . }}
+  minReplicas: {{ .Values.catalogue.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.catalogue.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.catalogue.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.catalogue.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.catalogue.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.catalogue.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

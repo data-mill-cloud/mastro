@@ -1,0 +1,31 @@
+{{- if .Values.featurestore.create }}
+{{- if .Values.featurestore.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "mastro.fullFeatureStoreName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: featurestore
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "mastro.fullFeatureStoreName" . }}
+  minReplicas: {{ .Values.featurestore.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.featurestore.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.featurestore.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.featurestore.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.featurestore.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.featurestore.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+{{- end }}

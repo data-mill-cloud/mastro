@@ -1,0 +1,99 @@
+{{- if .Values.ui.create }}
+apiVersion: v1
+data:
+  config.js: |
+    {{- .Values.ui.conf | nindent 4 }}
+kind: ConfigMap
+metadata:
+  name: ui-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mastro.fullUIName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ui
+spec:
+  {{- if not .Values.ui.autoscaling.enabled }}
+  replicas: {{ .Values.ui.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mastro.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: ui
+  template:
+    metadata:
+      {{- with .Values.ui.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "mastro.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: ui
+    spec:
+      {{- with .Values.ui.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "mastro.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.ui.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.ui.securityContext | nindent 12 }}
+          image: "{{ .Values.ui.image.repository }}:{{ .Values.ui.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.ui.image.pullPolicy }}          
+          volumeMounts:
+          - name: ui-conf-volume
+            mountPath: /usr/share/nginx/html/conf/config.js
+            subPath: config.js
+          ports:
+            - containerPort: {{ .Values.ui.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.ui.resources | nindent 12 }}
+      {{- with .Values.ui.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ui.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ui.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: ui-conf-volume
+        configMap:
+          name: ui-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mastro.fullUIName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ui
+spec:
+  type: {{ .Values.ui.service.type }}
+  ports:
+    - port: {{ .Values.ui.service.port }}
+      targetPort: {{ .Values.ui.containerPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mastro.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: ui
+{{- end }}

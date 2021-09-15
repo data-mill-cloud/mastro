@@ -1,0 +1,102 @@
+{{- if .Values.featurestore.create }}
+apiVersion: v1
+data:
+  featurestore-conf.yaml: |
+    {{- .Values.featurestore.conf | nindent 4 }}
+kind: ConfigMap
+metadata:
+  name: featurestore-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mastro.fullFeatureStoreName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: featurestore
+spec:
+  {{- if not .Values.featurestore.autoscaling.enabled }}
+  replicas: {{ .Values.featurestore.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mastro.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: featurestore
+  template:
+    metadata:
+      {{- with .Values.featurestore.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "mastro.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: featurestore
+    spec:
+      {{- with .Values.featurestore.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "mastro.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.featurestore.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.featurestore.securityContext | nindent 12 }}
+          image: "{{ .Values.featurestore.image.repository }}:{{ .Values.featurestore.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.featurestore.image.pullPolicy }}
+          env:
+          - name: MASTRO_CONFIG
+            value: /conf/featurestore-conf.yaml
+          volumeMounts:
+          - mountPath: /conf
+            name: featurestore-conf-volume
+          ports:
+            - containerPort: {{ .Values.featurestore.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.featurestore.resources | nindent 12 }}
+      {{- with .Values.featurestore.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.featurestore.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.featurestore.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: featurestore-conf-volume
+        configMap:
+          defaultMode: 420
+          name: featurestore-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mastro.fullFeatureStoreName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: featurestore
+spec:
+  type: {{ .Values.featurestore.service.type }}
+  ports:
+    - port: {{ .Values.featurestore.service.port }}
+      targetPort: {{ .Values.featurestore.containerPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mastro.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: featurestore
+{{- end }}

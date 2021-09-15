@@ -1,0 +1,100 @@
+apiVersion: v1
+data:
+  catalogue-conf.yaml: |
+    {{- .Values.catalogue.conf | nindent 4 }}
+kind: ConfigMap
+metadata:
+  name: catalogue-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mastro.fullCatalogueName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: catalogue
+spec:
+  {{- if not .Values.catalogue.autoscaling.enabled }}
+  replicas: {{ .Values.catalogue.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mastro.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: catalogue
+  template:
+    metadata:
+      {{- with .Values.catalogue.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "mastro.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: catalogue
+    spec:
+      {{- with .Values.catalogue.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "mastro.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.catalogue.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.catalogue.securityContext | nindent 12 }}
+          image: "{{ .Values.catalogue.image.repository }}:{{ .Values.catalogue.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.catalogue.image.pullPolicy }}
+          env:
+          - name: MASTRO_CONFIG
+            value: /conf/catalogue-conf.yaml
+          volumeMounts:
+          - mountPath: /conf
+            name: catalogue-conf-volume
+          ports:
+            - containerPort: {{ .Values.catalogue.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.catalogue.resources | nindent 12 }}
+      {{- with .Values.catalogue.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.catalogue.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.catalogue.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: catalogue-conf-volume
+        configMap:
+          defaultMode: 420
+          name: catalogue-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mastro.fullCatalogueName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: catalogue
+spec:
+  type: {{ .Values.catalogue.service.type }}
+  ports:
+    - port: {{ .Values.catalogue.service.port }}
+      targetPort: {{ .Values.catalogue.containerPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mastro.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: catalogue

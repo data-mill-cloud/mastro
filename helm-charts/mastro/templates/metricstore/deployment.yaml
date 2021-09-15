@@ -1,0 +1,102 @@
+{{- if .Values.metricstore.create }}
+apiVersion: v1
+data:
+  metricstore-conf.yaml: |
+    {{- .Values.metricstore.conf | nindent 4 }}
+kind: ConfigMap
+metadata:
+  name: metricstore-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mastro.fullMetricStoreName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: metricstore
+spec:
+  {{- if not .Values.metricstore.autoscaling.enabled }}
+  replicas: {{ .Values.metricstore.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mastro.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: metricstore
+  template:
+    metadata:
+      {{- with .Values.metricstore.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "mastro.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: metricstore
+    spec:
+      {{- with .Values.metricstore.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "mastro.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.metricstore.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.metricstore.securityContext | nindent 12 }}
+          image: "{{ .Values.metricstore.image.repository }}:{{ .Values.metricstore.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.metricstore.image.pullPolicy }}
+          env:
+          - name: MASTRO_CONFIG
+            value: /conf/metricstore-conf.yaml
+          volumeMounts:
+          - mountPath: /conf
+            name: metricstore-conf-volume
+          ports:
+            - containerPort: {{ .Values.metricstore.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.metricstore.resources | nindent 12 }}
+      {{- with .Values.metricstore.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.metricstore.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.metricstore.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: metricstore-conf-volume
+        configMap:
+          defaultMode: 420
+          name: metricstore-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mastro.fullMetricStoreName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: metricstore
+spec:
+  type: {{ .Values.metricstore.service.type }}
+  ports:
+    - port: {{ .Values.metricstore.service.port }}
+      targetPort: {{ .Values.metricstore.containerPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mastro.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: metricstore
+{{- end }}

@@ -1,0 +1,31 @@
+{{- if .Values.metricstore.create }}
+{{- if .Values.metricstore.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "mastro.fullMetricStoreName" . }}
+  labels:
+    {{- include "mastro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: metricstore
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "mastro.fullMetricStoreName" . }}
+  minReplicas: {{ .Values.metricstore.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.metricstore.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.metricstore.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.metricstore.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.metricstore.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.metricstore.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+{{- end }}
