@@ -55,12 +55,12 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /healthcheck/asset
+              port: {{ .Values.catalogue.containerPort }}
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /healthcheck/asset
+              port: {{ .Values.catalogue.containerPort }}
           resources:
             {{- toYaml .Values.catalogue.resources | nindent 12 }}
       {{- with .Values.catalogue.nodeSelector }}

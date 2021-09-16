@@ -56,12 +56,12 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /healthcheck/featureset
+              port: {{ .Values.featurestore.containerPort }}
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /healthcheck/featureset
+              port: {{ .Values.featurestore.containerPort }}
           resources:
             {{- toYaml .Values.featurestore.resources | nindent 12 }}
       {{- with .Values.featurestore.nodeSelector }}

@@ -56,12 +56,12 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /healthcheck/metricstore
+              port: {{ .Values.metricstore.containerPort }}
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /healthcheck/metricstore
+              port: {{ .Values.metricstore.containerPort }}
           resources:
             {{- toYaml .Values.metricstore.resources | nindent 12 }}
       {{- with .Values.metricstore.nodeSelector }}

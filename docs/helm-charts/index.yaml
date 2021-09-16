@@ -3,12 +3,12 @@ entries:
   mastro:
   - apiVersion: v2
     appVersion: 0.3.1
-    created: "2021-09-15T00:39:51.144331+02:00"
+    created: "2021-09-16T14:03:50.054675+02:00"
     description: A Helm chart for Mastro
-    digest: 72f9a45f9527400f27d4521bec6ed7e4036e778df30bcbe07fe869a970b3ce02
+    digest: faaed60cb2ee117597b4171224b1f2ee148d8b7e2f82947327ea72762e998668
     name: mastro
     type: application
     urls:
     - https://data-mill-cloud.github.io/mastro/helm-charts/mastro-0.1.0.tgz
     version: 0.1.0
-generated: "2021-09-15T00:39:51.141951+02:00"
+generated: "2021-09-16T14:03:50.053481+02:00"
