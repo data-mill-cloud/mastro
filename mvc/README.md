@@ -4,6 +4,7 @@ A minimal data versioning tool in Golang.
 TLDR:
 * for each data asset keeps a manifest file that can be crawled and stored in a mastro catalogue.  
 * based on the `commons.abstract.sources` package - multiple connectors available 
+* meant to be runnable either locally or by a workflow manager (e.g. Argo-workflows) 
 
 ## Prerequisites
 
