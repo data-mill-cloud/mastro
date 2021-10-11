@@ -40,57 +40,36 @@ func Start(cfg *conf.Config) (abstract.Crawler, error) {
 		// init connection on the selected crawler
 		crawler.InitConnection(cfg)
 		log.Println("Successfully initialized connection", cfg.DataSourceDefinition.Name)
-		// schedule crawler
-		//every := gocron.Every(cfg.CrawlerDefinition.ScheduleValue)
-		scheduler := gocron.NewScheduler(time.UTC)
-		every := scheduler.Every(cfg.DataSourceDefinition.CrawlerDefinition.ScheduleValue)
-		switch cfg.DataSourceDefinition.CrawlerDefinition.ScheduleEvery {
-		case conf.Seconds:
-			every = every.Seconds()
-		case conf.Minutes:
-			every = every.Minutes()
-		case conf.Hours:
-			every = every.Hours()
-		case conf.Days:
-			every = every.Days()
-		case conf.Weeks:
-			every = every.Weeks()
-		case conf.Monday:
-			every = every.Monday()
-		case conf.Tuesday:
-			every = every.Tuesday()
-		case conf.Wednesday:
-			every = every.Wednesday()
-		case conf.Thursday:
-			every = every.Thursday()
-		case conf.Friday:
-			every = every.Friday()
-		case conf.Saturday:
-			every = every.Saturday()
-		case conf.Sunday:
-			every = every.Sunday()
-		default:
-			return nil, fmt.Errorf("crawler: schedule period %s not found", cfg.DataSourceDefinition.CrawlerDefinition.ScheduleEvery)
-		}
-		// spawn crawler for the selected schedule period
-		_, err := every.Do(Reconcile, crawler, cfg)
-		// if err get out
-		if err != nil {
-			return nil, err
-		}
 
-		log.Println("Scheduled crawler every", cfg.DataSourceDefinition.CrawlerDefinition.ScheduleValue, cfg.DataSourceDefinition.CrawlerDefinition.ScheduleEvery)
+		if cfg.DataSourceDefinition.CrawlerDefinition.Schedule != nil {
+			// schedule crawler if a schedule is set
+			scheduler := gocron.NewScheduler(time.UTC)
 
-		// start a run right now if necessary
-		if cfg.DataSourceDefinition.CrawlerDefinition.StartNow {
-			log.Println("Starting first run")
+			_, err := scheduler.
+				Cron(*cfg.DataSourceDefinition.CrawlerDefinition.Schedule).
+				Do(Reconcile, crawler, cfg)
+
+			// if err get out
+			if err != nil {
+				return nil, err
+			}
+
+			log.Printf("Scheduled crawler with %s", *cfg.DataSourceDefinition.CrawlerDefinition.Schedule)
+
+			// start a run right now if necessary
+			if cfg.DataSourceDefinition.CrawlerDefinition.StartNow != nil && *cfg.DataSourceDefinition.CrawlerDefinition.StartNow {
+				log.Println("Starting first run")
+				go Reconcile(crawler, cfg)
+			}
+
+			// start gocron - move outside if we decide to start multiple crawlers within the same agent
+			//<-gocron.Start()
+			scheduler.StartAsync() // start and continue
+			//s.StartBlocking() // start scheduler and wait
+		} else {
+			// start now!
 			go Reconcile(crawler, cfg)
 		}
-
-		// start gocron - move outside if we decide to start multiple crawlers within the same agent
-		//<-gocron.Start()
-		scheduler.StartAsync() // start and continue
-		//s.StartBlocking() // start scheduler and wait
 
 		return crawler, nil
 	}
