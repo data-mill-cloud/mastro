@@ -17,9 +17,9 @@ helm repo add mastro https://data-mill-cloud.github.io/mastro/helm-charts
 ```
 
 You can also use a GitOps tool, such as [ArgoCD](https://argo-cd.readthedocs.io/en/stable/).
-For instance, this can be done by inheriting and installing mongo and mastro as a new chart:
+For instance, this can be done by inheriting and installing mongo and mastro as a new chart, for instance (`Chart.yaml`):
 
-```bash
+```yaml
 apiVersion: v2
 name: mastro
 description: A Helm chart for Mastro
@@ -51,7 +51,7 @@ For instance, we used the one using a StatefulSet and deployed as a Helm chart p
 
 The config for the catalogue can be defined as a K8s config map, as follows:
 
-```
+```yaml
 apiVersion: v1
 data:
   catalogue-conf.yaml: |
@@ -79,7 +79,7 @@ A deployment can be created to spawn multiple replicas for the catalogue.
 
 The configuration is mounted as volume and its path set using the MASTRO_CONFIG variable.
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -123,7 +123,7 @@ spec:
 
 A service is created with:
 
-```
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -149,7 +149,7 @@ You will have to create an ingress or a route (respectively on plain K8s and ope
 
 #### Config Map
 
-```
+```yaml
 apiVersion: v1
 data:
   fs-conf.yaml: |
@@ -171,7 +171,7 @@ metadata:
 
 #### Deployment
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -213,7 +213,7 @@ spec:
 
 #### Service
 
-```
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -235,7 +235,7 @@ spec:
 
 The crawling agent can be easily debugged locally by overwriting the default entrypoint:
 
-```
+```bash
 docker run --entrypoint "/bin/sh" -it datamillcloud/mastro-crawlers:v0.3.1
 ```
 
@@ -243,7 +243,7 @@ docker run --entrypoint "/bin/sh" -it datamillcloud/mastro-crawlers:v0.3.1
 
 A config for the crawler can be mounted as config map, for instance:
 
-```
+```yaml
 apiVersion: v1
 data:
   crawler-conf.yaml: |
@@ -281,7 +281,7 @@ For Kerberos configuration we need: i) a krb5.conf file, and ii) a keytab or pas
 A `krb5.conf` file defines the REALM and location of the KDC. 
 See [here](https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html) for a full documentation.
 
-```
+```yaml
 apiVersion: v1
 data:
   krb5.conf: |
@@ -307,7 +307,7 @@ metadata:
 The user keytab can be mounted as a secret, directly on K8s, or mounted from an external Vault.
 For instance:
 
-```
+```yaml
 apiVersion: v1
 data:
   user.keytab: blablablablablablablablablabla
@@ -333,7 +333,7 @@ To deploy the crawler with an auth sidecar container, the following steps are ta
 - mount the krb5.conf map on both the application container and the sidecar (as a read only volume); as you may try and see, it is not a good idea to mount something at /etc as kubernetes normally injects host and dns info at this location and may result in the Pod being rejected by the admission controller or an error. A similar behavior may occurr at /tmp. So just change the default paths with something creative. Mind that we can use KRB5_CONFIG and KRB5CCNAME to respectively overwrite the default location of the krb5.conf and cache files. Specifically, the cache file can be set to be written to an ephimeral volume used as communication means between main and sidecar container.
 - mount the keytab secret on the sidecar container, i.e., as a read only volume at the /keytabs location.
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -420,7 +420,7 @@ spec:
 
 A K8s Job is a batch process meant to run once. For instance:
 
-```
+```yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -444,7 +444,7 @@ This is only a Job example. Please refer to the full description provided in the
 
 A CronJob can be created with the following syntax.
 
-```
+```yaml
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
