@@ -365,7 +365,11 @@ spec:
           value: SMARTUSER01
         - name: REALM
           value: DOMAIN.COM
-        command: ["kinit", "-kt", "/keytabs/user.keytab", "$(KRBUSER)@$(REALM)"]
+        # directly using the entrypoint
+        #command: ["kinit", "-kt", "/keytabs/user.keytab", "$(KRBUSER)@$(REALM)"]
+        command: ["/bin/sh", "-c"]
+        # renew the ticket every 60 secs using k5start (blocks waiting for renewal to occur)
+        args: ["k5start -f /keytabs/user.keytab $(KRBUSER)@$(REALM) -v -K 60 -x"]
         restartPolicy: OnFailure
         lifecycle:
           type: Sidecar
