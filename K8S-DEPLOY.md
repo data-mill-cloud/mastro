@@ -2,26 +2,52 @@
 Mastro can be easily deployed to a K8s cluster. 
 This guide is a walk through of the steps required to deploy Mastro to a K8s cluster.
 
-If you have limited time, please use the available [Helm Chart](helm-charts/README.md).
-
-```bash
-helm repo add mastro https://data-mill-cloud.github.io/mastro/helm-charts
-```
-
-## Precondition
-In the examples below, we assume a previously deployed mongo database available on the same namespace or any reachable host at `mongo-mongodb:27017`.
-
-For instance, we used the one using a StatefulSet and deployed as a Helm chart provided by bitnami (see [here](https://bitnami.com/stack/mongodb/helm)).
-
 ## Docker Images
 
 The catalogue and the feature store, as well as the metric store are services that can be easily compiled statically and moved across environments. 
 The main difference is the flag `CGO_ENABLED=1` (as by default) set in the dynamically compiled version (the static version has it set to 0). Please have a look at [the catalogue Dockerfile](catalogue/Dockerfile) and [the crawler Dockerfile](crawlers/Dockerfile).
 Accordingly, the crawler may depend on system libraries (e.g. Kerberos auth libraries) and requires being compiled dynamically. 
 
-## Catalogue
+## Helm Chart
 
-### Config Map
+If you have limited time, please use the available [Helm Chart](helm-charts/README.md).
+
+```bash
+helm repo add mastro https://data-mill-cloud.github.io/mastro/helm-charts
+```
+
+You can also use a GitOps tool, such as [ArgoCD](https://argo-cd.readthedocs.io/en/stable/).
+For instance, this can be done by inheriting and installing mongo and mastro as a new chart:
+
+```bash
+apiVersion: v2
+name: mastro
+description: A Helm chart for Mastro
+type: Application
+
+version: 0.1.0
+appVersion: "0.3.1"
+
+dependencies:
+- name: mongodb
+  version: 10.7.1
+  repository: https://charts.bitnami.com/bitnami
+- name: mastro
+  version: 0.1.0
+  repository: https://data-mill-cloud.github.io/mastro/helm-charts
+```
+
+Mind that the Chart, however, does not install any of the crawlers, for which you will have to read the following sections.
+
+## Plain-K8s deployment
+
+In the examples below, we assume a previously deployed mongo database available on the same namespace or any reachable host at `mongo-mongodb:27017`.
+
+For instance, we used the one using a StatefulSet and deployed as a Helm chart provided by bitnami (see [here](https://bitnami.com/stack/mongodb/helm)).
+
+### Catalogue
+
+#### Config Map
 
 The config for the catalogue can be defined as a K8s config map, as follows:
 
@@ -47,7 +73,7 @@ metadata:
 Mind that in the example above we specified directly the DB user and password (i.e., `mastro:mastro`).
 A K8s secret or one injected by an external vault (e.g. hashicorp) can be used for this purpose.
 
-### Deployment
+#### Deployment
 
 A deployment can be created to spawn multiple replicas for the catalogue.
 
@@ -93,7 +119,7 @@ spec:
           name: catalogue-conf
 ```
 
-### Service
+#### Service
 
 A service is created with:
 
@@ -119,9 +145,9 @@ Mind that the service only exposes the catalogue across the namespace.
 
 You will have to create an ingress or a route (respectively on plain K8s and openshift) to make it reachable from the outside world.
 
-## Feature Store
+### Feature Store
 
-### Config Map
+#### Config Map
 
 ```
 apiVersion: v1
@@ -143,7 +169,7 @@ metadata:
   name: fs-conf
 ```
 
-### Deployment
+#### Deployment
 
 ```
 apiVersion: apps/v1
@@ -185,7 +211,7 @@ spec:
           name: fs-conf
 ```
 
-### Service
+#### Service
 
 ```
 apiVersion: v1
@@ -205,7 +231,7 @@ spec:
   type: ClusterIP
 ```
 
-## Crawler
+## Crawlers
 
 The crawling agent can be easily debugged locally by overwriting the default entrypoint:
 
@@ -298,6 +324,7 @@ There are 3 possibilities to deploy a crawler on K8s: using **i) a deployment, i
 When using a deployment the `github.com/go-co-op/gocron` library is used to schedule the agent runs. 
 The deployment implies a Pod being created to run either once or periodically.
 On K8s, however, the Job and CronJob resources can be used for a similar purpose, respectively for one-time and periodical jobs.
+Another possibility, currently out of the scope of this document, is to use a Workflow manager such as [Argo-workflows](https://argoproj.github.io/argo-workflows/).
 
 #### Deployment
 
