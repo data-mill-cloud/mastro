@@ -11,13 +11,13 @@ import (
 )
 
 var requiredFields = map[string]string{
-	"bootstrapServers": "bootstrap-servers",
+	"bootstrapServers": "bootstrap.servers",
 }
 
 var optionalFields = map[string]string{
-	"schemaRegistryUrl":      "schema-registry-url",
-	"schemaRegistryUsername": "schema-registry-username",
-	"schemaRegistryPassword": "schema-registry-password",
+	"schemaRegistryUrl":      "schema.registry.url",
+	"schemaRegistryUsername": "schema.registry.username",
+	"schemaRegistryPassword": "schema.registry.password",
 }
 
 // NewKafkaConnector ... Factory
@@ -41,7 +41,7 @@ func (c *Connector) ValidateDataSourceDefinition(def *conf.DataSourceDefinition)
 	}
 
 	if len(missingFields) > 0 {
-		return fmt.Errorf("The following %d fields are missing from the data source configuration: %s", len(missingFields), strings.Join(missingFields[:], ","))
+		return fmt.Errorf("the following %d fields are missing from the data source configuration: %s", len(missingFields), strings.Join(missingFields[:], ","))
 	}
 
 	log.Println("Successfully validated data source definition")
@@ -52,10 +52,18 @@ func (c *Connector) ValidateDataSourceDefinition(def *conf.DataSourceDefinition)
 func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	var err error
 
-	// create a new kafka admin client
-	c.KafkaAdminClient, err = kafka.NewAdminClient(&kafka.ConfigMap{
-		"bootstrap.servers": def.Settings[requiredFields["bootstrapServers"]],
-	})
+	// create a new kafka admin client (inject directly the connector properties)
+	/*
+		clientConf := &kafka.ConfigMap{
+			"bootstrap.servers": def.Settings[requiredFields["bootstrapServers"]],
+		}
+	*/
+	clientConf := &kafka.ConfigMap{}
+	for key, value := range def.Settings {
+		clientConf.SetKey(key, value)
+	}
+	// additional connector properties if any
+	c.KafkaAdminClient, err = kafka.NewAdminClient(clientConf)
 	if err != nil {
 		log.Fatal(err)
 	} else {
