@@ -21,8 +21,6 @@ github.com/cheggaaa/pb v1.0.29/go.mod h1:W40334L7FMC5JKWldsTWbdGjLo0RxUKK73K+TuP
 github.com/colinmarc/hdfs/v2 v2.1.2-0.20200910090628-650457eb0b9d/go.mod h1:Wss6n3mtaZyRwWaqtSH+6ge01qT0rw9dJJmvoUnIQ/E=
 github.com/confluentinc/confluent-kafka-go v1.7.0/go.mod h1:u2zNLny2xq+5rWeTQjFHbDzzNuba4P1vo31r9r4uAdg=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
-github.com/data-mill-cloud/mastro/commons v0.0.0-20211208161933-320a88c6ba52 h1:gMY1zjKdlz0znZFQQqmTejSdOBqxMM7OPZHrx7Hwokc=
-github.com/data-mill-cloud/mastro/commons v0.0.0-20211208161933-320a88c6ba52/go.mod h1:dYZhaFoNtMvJK9t+zmEmm6fBkRydT2SFYSV37K6Oo8M=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

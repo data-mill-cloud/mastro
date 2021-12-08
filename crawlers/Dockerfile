@@ -1,8 +1,8 @@
-# https://github.com/moby/moby/issues/37345
+ARG SOURCE_FOLDER=crawlers
 ARG ARTIFACT=crawlers
-
-# https://levelup.gitconnected.com/complete-guide-to-create-docker-container-for-your-golang-application-80f3fb59a15e
 FROM golang:1.15-alpine AS builder
+
+ARG SOURCE_FOLDER
 ARG ARTIFACT
 
 # Set necessary environmet variables needed for our image
@@ -11,38 +11,36 @@ ENV GO111MODULE=on \
     GOOS=linux \
     GOARCH=amd64
 
-# Move to working directory /build
-WORKDIR /build
-
 RUN apk add --no-cache build-base krb5 krb5-dev
 #krb5-pkinit
 
-# Copy and download dependency using go mod
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
+WORKDIR /build
+COPY commons commons
+COPY ${SOURCE_FOLDER} ${ARTIFACT}
 
-# Copy the code into the container
-COPY . .
+WORKDIR /build/${ARTIFACT}
+RUN go mod download
+RUN go build -o ${ARTIFACT} .
 
 # Build the application
 RUN go build -tags=kerberos -o ${ARTIFACT} .
 
 # multistage build - we only copy the result (binary) into a fresh image which is super light
 FROM alpine:3.12.4
+
+ARG SOURCE_FOLDER
 ARG ARTIFACT
 ENV ARTIFACT=${ARTIFACT}
 
 RUN apk add --no-cache krb5 krb5-dev
-# copy binary
-COPY --from=builder /build/${ARTIFACT} ./
 
 # set default vars
-ENV MASTRO_CONFIG=/conf/catalogue/
+ENV MASTRO_CONFIG=/conf
 ENV GIN_MODE=release
 
 # set config.yaml using wget or local copy
-COPY conf $MASTRO_CONFIG
+COPY ${SOURCE_FOLDER}/conf $MASTRO_CONFIG
+COPY --from=builder /build/${ARTIFACT}/${ARTIFACT} ./
 
 # Command to run when starting the container
 ENTRYPOINT ["sh", "-c", "./${ARTIFACT}"]

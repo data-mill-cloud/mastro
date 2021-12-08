@@ -28,7 +28,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        docker build catalogue --tag ${{ secrets.DOCKERHUB_ORGANIZATION }}/${{ env.IMAGE }}:${{ env.TAG }}
+        docker build -f catalogue/Dockerfile . --tag ${{ secrets.DOCKERHUB_ORGANIZATION }}/${{ env.IMAGE }}:${{ env.TAG }}
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master

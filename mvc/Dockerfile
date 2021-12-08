@@ -7,15 +7,13 @@ ENV GO111MODULE=on \
 
 WORKDIR /build
 
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
+COPY commons commons
+COPY mvc mvc
 
-COPY . .
+WORKDIR /build/mvc
+RUN go mod download
 RUN go build -o mvc .
 
 FROM scratch
-
-COPY --from=builder /build/mvc ./
-
+COPY --from=builder /build/mvc/mvc ./
 ENTRYPOINT ["./mvc"]

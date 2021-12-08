@@ -1,6 +1,8 @@
+ARG SOURCE_FOLDER=catalogue
 ARG ARTIFACT=featurestore
 FROM golang:1.15-alpine AS builder
 
+ARG SOURCE_FOLDER
 ARG ARTIFACT
 
 ENV GO111MODULE=on \
@@ -9,12 +11,11 @@ ENV GO111MODULE=on \
     GOARCH=amd64
 
 WORKDIR /build
+COPY commons commons
+COPY ${SOURCE_FOLDER} ${ARTIFACT}
 
-COPY go.mod .
-COPY go.sum .
+WORKDIR /build/${ARTIFACT}
 RUN go mod download
-
-COPY . .
 RUN go build -o ${ARTIFACT} .
 
 #FROM scratch
@@ -27,8 +28,8 @@ ENV ARTIFACT=${ARTIFACT}
 ENV MASTRO_CONFIG=/conf
 ENV GIN_MODE=release
 
-COPY conf $MASTRO_CONFIG
-COPY --from=builder /build/${ARTIFACT} ./
+COPY ${SOURCE_FOLDER}/conf $MASTRO_CONFIG
+COPY --from=builder /build/${ARTIFACT}/${ARTIFACT} ./
 
 # Command to run when starting the container
 ENTRYPOINT ["sh", "-c", "./${ARTIFACT}"]
