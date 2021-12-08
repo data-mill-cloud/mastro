@@ -1,4 +1,4 @@
-ARG SOURCE_FOLDER=catalogue
+ARG SOURCE_FOLDER=featurestore
 ARG ARTIFACT=featurestore
 FROM golang:1.15-alpine AS builder
 
