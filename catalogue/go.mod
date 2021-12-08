@@ -2,11 +2,11 @@ module github.com/data-mill-cloud/mastro/catalogue
 
 go 1.15
 
-replace github.com/data-mill-cloud/mastro/commons => ../commons
+//replace github.com/data-mill-cloud/mastro/commons => ../commons
 
 require (
 	github.com/alexflint/go-arg v1.4.2
-	github.com/data-mill-cloud/mastro/commons v0.0.0
+	github.com/data-mill-cloud/mastro/commons v0.0.0-20211208161933-320a88c6ba52
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.2
 	github.com/kelseyhightower/envconfig v1.4.0
