@@ -13,8 +13,8 @@ services:
       - MONGO_INITDB_DATABASE=mastro
   catalogue:
     build: 
-      context: catalogue
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: catalogue/Dockerfile
     ports:
       - 8085:8085
     volumes:
@@ -25,8 +25,8 @@ services:
       - mongo
   featurestore:
     build: 
-      context: featurestore
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: featurestore/Dockerfile
     ports:
       - 8086:8085
     volumes:
@@ -37,8 +37,8 @@ services:
       - mongo
   metricstore:
     build: 
-      context: metricstore
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: metricstore/Dockerfile
     ports:
       - 8087:8085
     volumes:
