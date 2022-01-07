@@ -34,12 +34,17 @@ const SearchReducer = (state = initialSearchState, {type, payload}) => {
     }
 }
 
+const getSvcHost = (svcName) => {
+    const devEnvVar = `REACT_APP_${svcName.toUpperCase()}_URL`
+    return typeof process.env[devEnvVar] !== 'undefined' ? process.env[devEnvVar] : svcName
+}
+
 const getRequest = (query) => {
     var elements = query.split(",");
     // get by name is 1 element only without #
-    if(elements.length == 1 && !elements[0].includes("#")) {
+    if(elements.length === 1 && !elements[0].includes("#")) {
         return {
-            url : "catalogue/asset/name/"+elements[0],
+            url : `${getSvcHost('catalogue')}/asset/name/${elements[0]}`,
             options : null
         }
     }else{
@@ -48,7 +53,7 @@ const getRequest = (query) => {
             elements[i] = elements[i].trim().replace("#", "");
         }
         return {
-            url : "catalogue/assets/tags",
+            url : `${getSvcHost('catalogue')}/assets/tags`,
             options : { 
                 method : 'POST',
                 headers : { 'Content-Type': 'application/json' },
@@ -66,7 +71,7 @@ const search = async (query) => {
         if(response.ok){
             store.dispatch({type: "search/fetched", payload: data.constructor !== Array ? [data] : data})
         }else{
-            store.dispatch({type: "search/error", payload: {status:response.status, statusText: response.statusText}})    
+            store.dispatch({type: "search/error", payload: {status:response.status, statusText: `${response.statusText}: ${data.message}`}})    
         }
     }catch(error){
         store.dispatch({type: "search/error", payload: {status: 500, statusText: error.message}})
