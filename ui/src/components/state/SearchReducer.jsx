@@ -1,7 +1,8 @@
 import store from "./store"
 
 const initialSearchState = {
-    entries : [],
+    asset : {},
+    assets : [],
     loading : false,
     errorMessage : ""
 }
@@ -18,16 +19,42 @@ const SearchReducer = (state = initialSearchState, {type, payload}) => {
         case 'search/fetched':
             return {
                 ...state, 
-                entries : payload,
+                assets : payload,
                 loading : false,
                 errorMessage : ""
             }
         case 'search/error':
             return {
                 ...state,
-                entries : [],
+                assets : [],
                 loading : false,
                 errorMessage : payload.statusText
+            }
+        case 'search/clear':
+            return {
+                ...state,
+                assets: [],
+                loading : false,
+                errorMessage: ""
+            }
+        case 'assetdetail/get':
+            getAsset(payload)
+            return {
+                ...state,
+                loading : true
+            }
+        case 'assetdetail/show':
+            return {
+                ...state,
+                loading : false,
+                asset : payload,
+                errorMessage : ""
+            }
+        case 'assetdetail/error':
+            return {
+                ...state, 
+                loading : false,
+                errorMessage: payload.statusText
             }
         default:
             return state
@@ -70,12 +97,30 @@ const search = async (query) => {
         const data = await response.json()
         if(response.ok){
             store.dispatch({type: "search/fetched", payload: data.constructor !== Array ? [data] : data})
-        }else{
+        }/*else if(response.status === 404){
+            window.location = "/notfound"
+        }*/else{
             store.dispatch({type: "search/error", payload: {status:response.status, statusText: `${response.statusText}: ${data.message}`}})    
         }
     }catch(error){
         store.dispatch({type: "search/error", payload: {status: 500, statusText: error.message}})
     }
 }
+
+const getAsset = async (query) => {
+    try {
+        const request = getRequest(query)
+        const response = await fetch(request.url, request.options)
+        const data = await response.json()
+        if(response.ok){
+            store.dispatch({type: "assetdetail/show", payload: data})
+        }else{
+            store.dispatch({type: "assetdetail/error", payload: {status:response.status, statusText: `${response.statusText}: ${data.message}`}})    
+        }
+    }catch(error){
+        store.dispatch({type: "assetdetail/error", payload: {status: 500, statusText: error.message}})
+    }
+}
+
 
 export default SearchReducer
