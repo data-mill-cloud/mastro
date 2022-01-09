@@ -5,7 +5,7 @@ import AssetIcon from './AssetIcon';
 function Asset({asset}) {
     return (
             <div className="card shadow-2xl compact side bg-base-100 border-2 hover:border-gray-400">
-                    <div className="flex-row items-start space-x-4 card-body">
+                <div className="flex-row items-start space-x-4 card-body">
                     <div>
                         <AssetIcon type={asset.type} />
                     </div>

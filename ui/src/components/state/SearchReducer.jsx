@@ -1,4 +1,5 @@
 import store from "./store"
+import {getSvcHost} from "../../SvcUtils"
 
 const initialSearchState = {
     asset : {},
@@ -59,11 +60,6 @@ const SearchReducer = (state = initialSearchState, {type, payload}) => {
         default:
             return state
     }
-}
-
-const getSvcHost = (svcName) => {
-    const devEnvVar = `REACT_APP_${svcName.toUpperCase()}_URL`
-    return typeof process.env[devEnvVar] !== 'undefined' ? process.env[devEnvVar] : svcName
 }
 
 const getRequest = (query) => {

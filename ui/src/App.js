@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
 import Asset from './pages/Asset';
+import Explorer from './pages/Explorer';
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <main className="container mx-auto px-3 pb-12">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/explorer" element={<Explorer />} />
             <Route path="/asset/:assetid" element={<Asset />} />
             <Route path="/about" element={<About />} />
             <Route path="/notfound" element={<NotFound />} />
