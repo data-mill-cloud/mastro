@@ -1,12 +1,4 @@
 {{- if .Values.ui.create }}
-apiVersion: v1
-data:
-  config.js: |
-    {{- .Values.ui.conf | nindent 4 }}
-kind: ConfigMap
-metadata:
-  name: ui-conf
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -44,11 +36,16 @@ spec:
           securityContext:
             {{- toYaml .Values.ui.securityContext | nindent 12 }}
           image: "{{ .Values.ui.image.repository }}:{{ .Values.ui.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.ui.image.pullPolicy }}          
-          volumeMounts:
-          - name: ui-conf-volume
-            mountPath: /usr/share/nginx/html/conf/config.js
-            subPath: config.js
+          imagePullPolicy: {{ .Values.ui.image.pullPolicy }}
+          env:
+          - name: NGINX_PORT
+            value: "{{ .Values.ui.conf.nginxPort }}"
+          - name: CATALOGUE_URL
+            value: "{{ .Values.ui.conf.catalogue }}"
+          - name: FEATURESTORE_URL
+            value: "{{ .Values.ui.conf.featurestore }}"
+          - name: METRICSTORE_URL
+            value: "{{ .Values.ui.conf.metricstore }}"
           ports:
             - containerPort: {{ .Values.ui.containerPort }}
               protocol: TCP
@@ -74,10 +71,6 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      volumes:
-      - name: ui-conf-volume
-        configMap:
-          name: ui-conf
 ---
 apiVersion: v1
 kind: Service

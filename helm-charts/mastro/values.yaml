@@ -22,7 +22,7 @@ catalogue:
   image:
     repository: datamillcloud/mastro-catalogue
     pullPolicy: IfNotPresent
-    tag: "v0.3.1"
+    tag: "v0.4"
   replicaCount: 1
   autoscaling:
     enabled: false
@@ -93,7 +93,7 @@ featurestore:
   image:
     repository: datamillcloud/mastro-featurestore
     pullPolicy: IfNotPresent
-    tag: "v0.3.1"
+    tag: "v0.4"
   replicaCount: 1
   autoscaling:
     enabled: false
@@ -164,7 +164,7 @@ metricstore:
   image:
     repository: datamillcloud/mastro-metricstore
     pullPolicy: IfNotPresent
-    tag: "v0.3.1"
+    tag: "v0.4"
   replicaCount: 1
   autoscaling:
     enabled: false
@@ -222,19 +222,15 @@ metricstore:
 
 ui:
   create: true
-  conf: |-
-    var config = {
-      "catalogue" : {
-          "endpoint" : "http://catalogue:8085"
-      },
-      "featurestore" : {
-          "endpoint" : "http://featurestore:8085"
-      }
-    };
+  conf:
+    nginxPort: 80
+    catalogue: "http://mastro-catalogue:8085"
+    featurestore: "http://mastro-featurestore:8085"
+    metricstore: "http://mastro-metricstore:8085"
   image:
     repository: datamillcloud/mastro-ui
     pullPolicy: IfNotPresent
-    tag: "v0.3.1"
+    tag: "v0.4"
   replicaCount: 1
   autoscaling:
     enabled: false

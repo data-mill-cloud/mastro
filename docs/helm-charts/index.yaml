@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   mastro:
   - apiVersion: v2
+    appVersion: 0.4.0
+    created: "2022-01-10T20:24:59.490979+01:00"
+    description: A Helm chart for Mastro
+    digest: 66a9ee8426ea82bb347e0c0d65eec0331f43aff2cf07234ea60c72be255ffb63
+    name: mastro
+    type: application
+    urls:
+    - https://data-mill-cloud.github.io/mastro/helm-charts/mastro-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 0.3.1
     created: "2021-09-16T14:03:50.054675+02:00"
     description: A Helm chart for Mastro
@@ -10,5 +20,5 @@ entries:
     type: application
     urls:
     - https://data-mill-cloud.github.io/mastro/helm-charts/mastro-0.1.0.tgz
-    version: 0.1.0
-generated: "2021-09-16T14:03:50.053481+02:00"
+    version: 0.1.0  
+generated: "2022-01-10T20:24:59.487885+01:00"
