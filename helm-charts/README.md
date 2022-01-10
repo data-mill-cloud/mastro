@@ -6,7 +6,7 @@
 * `export HELM_NAMESPACE=mastro`
 * `helm install mongodb bitnami/mongodb --set auth.username=mastro,auth.password=mastro,auth.database=mastro`
 * `helm install mastro mastro/`
-* `oc get svc -n mastro`  
+* `kubectl get svc -n mastro`  
   ```
   NAME                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)     AGE  
   mastro-catalogue      ClusterIP   10.111.101.128   <none>        8085/TCP    33s  
