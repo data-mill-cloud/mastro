@@ -224,9 +224,9 @@ ui:
   create: true
   conf:
     nginxPort: 80
-    catalogue: "http://mastro-catalogue:8085"
-    featurestore: "http://mastro-featurestore:8085"
-    metricstore: "http://mastro-metricstore:8085"
+    catalogue: "http://mastro-catalogue:8085/"
+    featurestore: "http://mastro-featurestore:8085/"
+    metricstore: "http://mastro-metricstore:8085/"
   image:
     repository: datamillcloud/mastro-ui
     pullPolicy: IfNotPresent
