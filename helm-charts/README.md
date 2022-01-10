@@ -2,7 +2,7 @@
 
 ## Development Info: testing the Helm-Chart
 
-* `kubectl create mastro`
+* `kubectl create namespace mastro`
 * `export HELM_NAMESPACE=mastro`
 * `helm install mongodb bitnami/mongodb --set auth.username=mastro,auth.password=mastro,auth.database=mastro`
 * `helm install mastro mastro/`
