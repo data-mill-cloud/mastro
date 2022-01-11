@@ -30,12 +30,18 @@ function Explorer() {
                 request.options.body = body
             }
             const response = await fetch(request.url, request.options)
-            const data = await response.json()
-
+            var data;
+            try {
+                data = await response.json()
+            }catch(err){
+                setErrorMessage(`HTTP ${response.status} (${response.statusText}): ${err.message}`)
+                return
+            }
+            
             if(response.ok){
                 setResponseBody(JSON.stringify(data, null, 2))
             }else{
-                setErrorMessage(`${response.statusText}: ${data.message}`)
+                setErrorMessage(`HTTP ${response.status} (${response.statusText}): ${data.message}`)
             }
         }catch(error){
             setErrorMessage(error.message)
