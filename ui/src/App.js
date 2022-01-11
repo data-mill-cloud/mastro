@@ -7,6 +7,7 @@ import About from './pages/About';
 import NotFound from './pages/NotFound';
 import Asset from './pages/Asset';
 import Explorer from './pages/Explorer';
+import Featuresets from './pages/Featuresets';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/asset/:assetid" element={<Asset />} />
+            <Route path="/featureset/:assetid" element={<Featuresets />} />
             <Route path="/about" element={<About />} />
             <Route path="/notfound" element={<NotFound />} />
             <Route path="/*" element={<NotFound />} />

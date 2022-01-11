@@ -1,8 +1,10 @@
 import { createStore, combineReducers } from 'redux'
 import SearchReducer from './SearchReducer'
+import FeaturesetReducer from './FeaturesetReducer'
 
 const rootReducer = combineReducers({
-        searchState : SearchReducer
+        searchState : SearchReducer,
+        featuresetState : FeaturesetReducer,
     }
 )
 

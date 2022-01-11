@@ -5,6 +5,7 @@ import AssetIcon from '../components/entries/AssetIcon'
 import {FaLink} from 'react-icons/fa'
 import {BiError} from 'react-icons/bi'
 import LineageChart from '../components/lineage/LineageChart';
+import {Link} from 'react-router-dom';
 
 function Asset() {
     const params = useParams()
@@ -68,46 +69,43 @@ function Asset() {
                             <div className="mb-6">
                                 <h1 className="text-3xl card-title">
                                     {asset.name}
-                                    <div className="ml-2 mr-1 badge badge-success">{asset.type}</div>
+                                    <Link className="card-title" to={`/asset/${asset.name}`}>
+                                        <div className="ml-2 mr-1 badge badge-primary">asset</div>
+                                    </Link>
+                                    <Link className="card-title" to={`/${asset.type}/${asset.name}`}>
+                                        <div className="ml-2 mr-1 badge badge-primary">{asset.type}</div>
+                                    </Link>
                                 </h1>
                                 <p>{asset.description}</p>
                             </div>
-                            <div className="w-full rounded-lg shadow-md bg-base-100 stats">
-                                <div className="stat">
-                                    <div className="stat-title text-md">Labels</div>
-                                    <div className="stat-value text-lg">
-                                        <div className="overflow-x-auto">
-                                            <table className="table w-full">
-                                                <thead>
-                                                <tr>
-                                                    <th>Key</th> 
-                                                    <th>Value</th> 
-                                                </tr>
-                                                </thead> 
-                                                <tbody>
-                                                    { asset.labels !== undefined ? Object.keys(asset.labels).map(key => (<tr><th>{key}</th><td>{asset.labels[key]}</td></tr>)): '' }
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div> 
-                                </div>
+                            <div className="w-full rounded-lg shadow-md bg-base-100 stats">                       
                             
                                 <div className="stat">
                                     <div className="stat-title text-md">Tags</div>
-                                    <div className="stat-value text-lg">
+                                    <div className="stat-value text-lg overflow-auto">
                                         { asset.tags !== undefined ? asset.tags.map(tag => <span className="badge badge-primary mr-1">{tag}</span>) : ''}
                                     </div> 
                                 </div>
                                 
                                 <div className="stat">
                                     <div className="stat-title text-md">Versions</div>
-                                    <div className="stat-value text-lg">
+                                    <div className="stat-value text-lg overflow-auto">
                                         { asset.versions !== undefined ? Object.keys(asset.versions) : ''}
                                     </div> 
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    { asset.labels && Object.keys(asset.labels).map(key => (
+                                    <div className="shadow stats">
+                                    <div className="stat">
+                                        <div className="stat-title">{key}</div> 
+                                        <div className="stat-value">{asset.labels[key]}</div> 
+                                    </div>
+                                    </div>
+                                ))}
+
                     <div className="w-full rounded-lg shadow-md bg-base-100 stats py-5 mb-6">
                         <div className="stat">
                             <div className="stat-figure text-secondary">
