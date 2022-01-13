@@ -11,10 +11,10 @@ function Asset() {
     const { v4: uuidv4 } = require('uuid');
     const params = useParams()
     const dispatch = useDispatch()
-    const searchState = useSelector(state => state.searchState)
-    const asset = searchState.asset
-    const loading = searchState.loading
-    const errorMessage = searchState.errorMessage
+    const assetDetailState = useSelector(state => state.assetDetailState)
+    const asset = assetDetailState.asset
+    const loading = assetDetailState.loading
+    const errorMessage = assetDetailState.errorMessage
 
     useEffect(() => {
         // get asset info
