@@ -15,19 +15,13 @@ server {
 
     location /catalogue/ {
         proxy_pass ${CATALOGUE_URL};
-        proxy_set_header Host $host:$server_port;
-        proxy_set_header X-Real-IP $remote_addr;
     }
 
     location /featurestore/ {
         proxy_pass ${FEATURESTORE_URL};
-        proxy_set_header Host $host:$server_port;
-        proxy_set_header X-Real-IP $remote_addr;
     }
 
     location /metricstore/ {
         proxy_pass ${METRICSTORE_URL};
-        proxy_set_header Host $host:$server_port;
-        proxy_set_header X-Real-IP $remote_addr;
     }
 }

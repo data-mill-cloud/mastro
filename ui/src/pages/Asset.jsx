@@ -8,6 +8,7 @@ import LineageChart from '../components/lineage/LineageChart';
 import {Link} from 'react-router-dom';
 
 function Asset() {
+    const { v4: uuidv4 } = require('uuid');
     const params = useParams()
     const dispatch = useDispatch()
     const searchState = useSelector(state => state.searchState)
@@ -83,7 +84,7 @@ function Asset() {
                                 <div className="stat">
                                     <div className="stat-title text-md">Tags</div>
                                     <div className="stat-value text-lg overflow-auto">
-                                        { asset.tags !== undefined ? asset.tags.map(tag => <span className="badge badge-primary mr-1">{tag}</span>) : ''}
+                                        { asset.tags !== undefined ? asset.tags.map(tag => <span key={uuidv4()} className="badge badge-primary mr-1">{tag}</span>) : ''}
                                     </div> 
                                 </div>
                                 
@@ -98,11 +99,11 @@ function Asset() {
                     </div>
 
                     { asset.labels && Object.keys(asset.labels).map(key => (
-                                    <div className="shadow stats">
-                                    <div className="stat">
-                                        <div className="stat-title">{key}</div> 
-                                        <div className="stat-value">{asset.labels[key]}</div> 
-                                    </div>
+                                    <div key={uuidv4()} className="shadow stats">
+                                        <div className="stat">
+                                            <div className="stat-title">{key}</div> 
+                                            <div className="stat-value">{asset.labels[key]}</div> 
+                                        </div>
                                     </div>
                                 ))}
 

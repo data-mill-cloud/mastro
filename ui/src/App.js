@@ -8,7 +8,7 @@ import NotFound from './pages/NotFound';
 import Asset from './pages/Asset';
 import Explorer from './pages/Explorer';
 import Featuresets from './pages/Featuresets';
-
+import Metricsets from './pages/Metricsets';
 
 function App() {
   return (
@@ -21,6 +21,7 @@ function App() {
             <Route path="/explorer" element={<Explorer />} />
             <Route path="/asset/:assetid" element={<Asset />} />
             <Route path="/featureset/:assetid" element={<Featuresets />} />
+            <Route path="/metricset/:assetid" element={<Metricsets />} />
             <Route path="/about" element={<About />} />
             <Route path="/notfound" element={<NotFound />} />
             <Route path="/*" element={<NotFound />} />
