@@ -15,8 +15,8 @@ type Service interface {
 	UpsertAssets(assets *[]abstract.Asset) (*[]abstract.Asset, *errors.RestErr)
 	GetAssetByID(assetID string) (*abstract.Asset, *errors.RestErr)
 	GetAssetByName(name string) (*abstract.Asset, *errors.RestErr)
-	SearchAssetsByTags(tags []string) (*[]abstract.Asset, *errors.RestErr)
-	ListAllAssets() (*[]abstract.Asset, *errors.RestErr)
+	SearchAssetsByTags(tags []string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
+	ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
 }
 
 // assetServiceType ... Service Type
@@ -79,8 +79,8 @@ func (s *assetServiceType) GetAssetByName(name string) (*abstract.Asset, *errors
 	return asset, nil
 }
 
-func (s *assetServiceType) SearchAssetsByTags(tags []string) (*[]abstract.Asset, *errors.RestErr) {
-	assets, err := dao.SearchAssetsByTags(tags)
+func (s *assetServiceType) SearchAssetsByTags(tags []string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr) {
+	assets, err := dao.SearchAssetsByTags(tags, limit, page)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
 	}
@@ -88,14 +88,14 @@ func (s *assetServiceType) SearchAssetsByTags(tags []string) (*[]abstract.Asset,
 }
 
 // ListAllAssets ... Retrieves all stored assets
-func (s *assetServiceType) ListAllAssets() (*[]abstract.Asset, *errors.RestErr) {
-	assets, err := dao.ListAllAssets()
+func (s *assetServiceType) ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr) {
+	assets, err := dao.ListAllAssets(limit, page)
 	if err != nil {
 		return nil, errors.GetInternalServerError(err.Error())
 	}
 	// n.b. - assets empty if collection is empty
 	// better to return an error or an empty list?
-	if assets == nil || len(*assets) == 0 {
+	if assets == nil || len(*assets.Data) == 0 {
 		return nil, errors.GetNotFoundError("No assets in given collection")
 	}
 	return assets, nil

@@ -2,7 +2,12 @@ import store from "./store"
 import {getSvcHost} from "../../SvcUtils"
 
 const initialSearchState = {
-    asset : {},
+    query : null,
+    
+    limit : 8,
+    page : 0,
+    pagination : null,
+
     assets : [],
     loading : false,
     errorMessage : ""
@@ -11,16 +16,27 @@ const initialSearchState = {
 const SearchReducer = (state = initialSearchState, {type, payload}) => {
     switch (type) {
         case 'search/submit':
-            search(payload)
+            search(payload, state.limit, state.page)
             return {
                 ...state,
+                query : payload,
                 loading : true,
                 errorMessage : ""
             }
+        case 'search/gotopage':        
+            search(state.query, state.limit, payload)
+            return {...state, page : payload}
+        case 'search/resizemaxitems':
+            if(state.pagination && state.pagination.total >= state.limit){
+                search(state.query, payload, state.page)
+            }
+            return {...state, limit : payload}
         case 'search/fetched':
             return {
                 ...state, 
-                assets : payload,
+                page : 1,
+                assets : 'pagination' in payload ? payload.data : [payload],
+                pagination : 'pagination' in payload ? payload.pagination : null,
                 loading : false,
                 errorMessage : ""
             }
@@ -32,18 +48,13 @@ const SearchReducer = (state = initialSearchState, {type, payload}) => {
                 errorMessage : payload.statusText
             }
         case 'search/clear':
-            return {
-                ...state,
-                assets: [],
-                loading : false,
-                errorMessage: ""
-            }
+            return initialSearchState
         default:
             return state
     }
 }
 
-const getRequest = (query) => {
+const getRequest = (query, limit, page) => {
     var elements = query.split(",");
     // get by name is 1 element only without #
     if(elements.length === 1 && !elements[0].includes("#")) {
@@ -57,23 +68,26 @@ const getRequest = (query) => {
             elements[i] = elements[i].trim().replace("#", "");
         }
         return {
+            //url : `${getSvcHost('catalogue')}/assets/tags?limit=${limit}&page=${page}`,
             url : `${getSvcHost('catalogue')}/assets/tags`,
             options : { 
                 method : 'POST',
                 headers : { 'Content-Type': 'application/json' },
-                body : JSON.stringify({ tags: elements })
+                body : JSON.stringify({ tags: elements, limit : limit, page : page })
             }
         }
     }
 }
 
-const search = async (query) => {
+const search = async (query, limit, page) => {
     try {
-        const request = getRequest(query)
+        const request = getRequest(query, limit, page)
         const response = await fetch(request.url, request.options)
         const data = await response.json()
         if(response.ok){
-            store.dispatch({type: "search/fetched", payload: data.constructor !== Array ? [data] : data})
+            store.dispatch({type: "search/fetched", payload : data})
+            //payload : 'pagination' in data ? data.data : [data]})
+            // payload: data.constructor !== Array ? [data] : data})
         }/*else if(response.status === 404){
             window.location = "/notfound"
         }*/else{

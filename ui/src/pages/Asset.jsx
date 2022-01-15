@@ -17,10 +17,8 @@ function Asset() {
     const errorMessage = assetDetailState.errorMessage
 
     useEffect(() => {
-        // get asset info
-        // params.assetid
         dispatch({type: 'assetdetail/get', payload: params.assetid})
-    }, [])
+    }, [dispatch, params.assetid])
 
     const getUpwardLineage = (asset) => {
         var lineageData = {name : asset.name, children : []}
@@ -32,6 +30,7 @@ function Asset() {
         return lineageData
     }
     
+    /*
     const getDownwardLineage = (asset) => {
         var lineageData = {name : "root", children : []}
 
@@ -47,7 +46,7 @@ function Asset() {
         }
         return lineageData
     }
-
+    */
 
     if (!loading){
         if(errorMessage){

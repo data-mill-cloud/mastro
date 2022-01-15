@@ -109,14 +109,16 @@ function Explorer() {
                 <div className="col-span-3 card-body rounded-lg shadow-md bg-base-100 border-2">
                     <h2 className="card-title">Response by {`${selectedService}${path}`}</h2>
                     <div className="form-control h-full">
-                        { errorMessage !== "" && (
+                        { (errorMessage !== "") && (
                             <div className="alert alert-error">
                                 <div className="flex-1">
                                     <BiError className="text-2xl" />
                                     <label>{errorMessage}</label>
                                 </div>
                             </div>
-                        ) || (
+                        )}
+                         
+                        { (errorMessage === "") && (
                             <div className="form-control h-full">
                                 <label className="label">
                                     <span className="label-text">Body</span>

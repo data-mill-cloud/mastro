@@ -16,7 +16,7 @@ function Featuresets() {
 
     useEffect(() => {
         dispatch({type: 'featureset/get', payload: params.assetid})
-    }, [])
+    },[dispatch, params.assetid])
 
     if (!loading){
         if(errorMessage){

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
@@ -81,9 +82,20 @@ func GetAssetByName(c *gin.Context) {
 
 // SearchAssetsByTags ... retrieves any asset matching all specified tags or error if empty
 func SearchAssetsByTags(c *gin.Context) {
+	/*
+		limit, err := strconv.ParseInt(c.Request.URL.Query().Get("limit"), 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+		page, err := strconv.ParseInt(c.Request.URL.Query().Get("page"), 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+	*/
 	query := queries.ByTags{}
 	err := c.BindJSON(&query)
-
 	if err != nil {
 		restErr := errors.GetBadRequestError("Invalid query by tag :: invalid input json format")
 		c.JSON(restErr.Status, restErr)
@@ -92,7 +104,12 @@ func SearchAssetsByTags(c *gin.Context) {
 			restErr := errors.GetBadRequestError("Invalid query by tag :: empty tag list")
 			c.JSON(restErr.Status, restErr)
 		} else {
-			assets, getErr := assetService.SearchAssetsByTags(query.Tags)
+			assets, getErr := assetService.SearchAssetsByTags(query.Tags,
+				//limit,
+				query.Limit,
+				//page,
+				query.Page,
+			)
 			if getErr != nil {
 				c.JSON(getErr.Status, getErr)
 			} else {
@@ -104,9 +121,21 @@ func SearchAssetsByTags(c *gin.Context) {
 
 // ListAllAssets ... returns all assets
 func ListAllAssets(c *gin.Context) {
-	assets, err := assetService.ListAllAssets()
+	limit, err := strconv.Atoi(c.Request.URL.Query().Get("limit"))
+	//limit, err := strconv.ParseInt(c.Request.URL.Query().Get("limit"), 10, 64)
 	if err != nil {
-		c.JSON(err.Status, err)
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	//page, err := strconv.ParseInt(c.Request.URL.Query().Get("page"), 10, 64)
+	page, err := strconv.Atoi(c.Request.URL.Query().Get("page"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	assets, getErr := assetService.ListAllAssets(limit, page)
+	if err != nil {
+		c.JSON(getErr.Status, err)
 	} else {
 		c.JSON(http.StatusOK, assets)
 	}

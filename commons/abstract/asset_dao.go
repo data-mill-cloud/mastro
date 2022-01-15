@@ -8,7 +8,7 @@ type AssetDAOProvider interface {
 	Upsert(asset *Asset) error
 	GetById(id string) (*Asset, error)
 	GetByName(id string) (*Asset, error)
-	SearchAssetsByTags(tags []string) (*[]Asset, error)
-	ListAllAssets() (*[]Asset, error)
+	SearchAssetsByTags(tags []string, limit int, page int) (*PaginatedAssets, error)
+	ListAllAssets(limit int, page int) (*PaginatedAssets, error)
 	CloseConnection()
 }

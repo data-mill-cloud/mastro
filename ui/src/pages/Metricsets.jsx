@@ -19,7 +19,7 @@ function Metricsets() {
 
     useEffect(() => {
         dispatch({type: 'metricset/get', payload: params.assetid})
-    }, [])
+    }, [dispatch, params.assetid])
 
     if (!loading){
         if(errorMessage){

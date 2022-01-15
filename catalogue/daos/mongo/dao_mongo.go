@@ -10,7 +10,9 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/sources/mongo"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	paginate "github.com/gobeam/mongo-go-pagination"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -158,12 +160,12 @@ func (dao *dao) getOneDocumentUsingFilter(filter interface{}) (*abstract.Asset, 
 	return convertAssetDAOtoDTO(&result), nil
 }
 
-func (dao *dao) getAnyDocumentUsingFilter(filter interface{}) (*[]abstract.Asset, error) {
+func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, limit int, page int) (*abstract.PaginatedAssets, error) {
 	var assets []assetMongoDao
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	cursor, err := dao.Connector.Collection.Find(ctx, filter)
+	/* cursor, err := dao.Connector.Collection.Find(ctx, filter)
 	// return if any error during get
 	if err != nil {
 		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
@@ -172,13 +174,33 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}) (*[]abstract.Asset
 	if err = cursor.All(ctx, &assets); err != nil {
 		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
 	}
+	*/
+
+	paginatedData, err := paginate.
+		New(dao.Connector.Collection).
+		Context(ctx).
+		Limit(int64(limit)).
+		Page(int64(page)).
+		//Sort("price", -1).
+		//Sort("quantity", -1).
+		//Select(projection).
+		Filter(filter).
+		Decode(&assets).
+		Find()
+	if err != nil {
+		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
+	}
 
 	if assets == nil {
 		return nil, fmt.Errorf("Error while retrieving assets using filter :: empty result set")
 	}
 
 	var resultAssets []abstract.Asset = convertAllAssets(&assets)
-	return &resultAssets, nil
+	//return &resultAssets, nil
+	return &abstract.PaginatedAssets{
+		Data:       &resultAssets,
+		Pagination: abstract.FromMongoPaginationData(paginatedData.Pagination),
+	}, nil
 }
 
 // GetById ... Retrieve document by given id
@@ -196,19 +218,19 @@ func (dao *dao) GetByName(name string) (*abstract.Asset, error) {
 }
 
 // SearchAssetsByTags ... Retrieve assets by given tags
-func (dao *dao) SearchAssetsByTags(tags []string) (*[]abstract.Asset, error) {
+func (dao *dao) SearchAssetsByTags(tags []string, limit int, page int) (*abstract.PaginatedAssets, error) {
 	// https://www.mongodb.com/blog/post/quick-start-golang--mongodb--data-aggregation-pipeline
 	// https://docs.mongodb.com/manual/tutorial/query-arrays/#match-an-array
 	// find all docs whose tags field contains all the elements provided as tags []string in input
 	// without regard of the order
 	filter := bson.M{"tags": bson.M{"$all": tags}}
-	return dao.getAnyDocumentUsingFilter(filter)
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }
 
 // ListAllAssets ... Return all assets in index
-func (dao *dao) ListAllAssets() (*[]abstract.Asset, error) {
+func (dao *dao) ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, error) {
 	filter := bson.M{}
-	return dao.getAnyDocumentUsingFilter(filter)
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }
 
 // CloseConnection ... Terminates the connection to ES for the DAO

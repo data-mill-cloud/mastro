@@ -15,13 +15,10 @@ function Search() {
         setErrorMessageText(searchState.errorMessage && searchState.errorMessage.length > 0 ? searchState.errorMessage : '')
     }, [searchState.errorMessage])
 
-    
-    /*
     useEffect(() => {
-        setSearchText(searchState.searchText)
-    }, [searchState.searchText])
-    */
-
+        setSearchText(searchState.query)
+    }, [searchState.query])
+    
     const handleChange = (e) => {
         setSearchText(e.target.value);
     }
@@ -44,7 +41,7 @@ function Search() {
 
     return (
         <div>
-            <div className="grid grid-cols-1 xl:grid-cols-2 lg:grid-cols-2 md:grid-cols-2 mb-8 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 lg:grid-cols-2 md:grid-cols-2 mb-8 gap-8 justify-center">
                 <div>
                     <form onSubmit={handleSubmit}>
                         <div className="form-control">

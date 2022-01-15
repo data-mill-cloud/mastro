@@ -35,12 +35,12 @@ func (dao *dao) Upsert(fs *abstract.Asset) error {
 }
 
 // SearchAssetsByTags ... search for the provided tags
-func (dao *dao) SearchAssetsByTags(tags []string) (*[]abstract.Asset, error) {
+func (dao *dao) SearchAssetsByTags(tags []string, limit int64, page int64) (*[]abstract.Asset, error) {
 	return nil, nil
 }
 
 // ListAllFeatureSets ... Return all assets in index
-func (dao *dao) ListAllAssets() (*[]abstract.Asset, error) {
+func (dao *dao) ListAllAssets(limit int64, page int64) (*[]abstract.Asset, error) {
 	return nil, nil
 }
 
