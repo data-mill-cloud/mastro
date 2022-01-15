@@ -10,11 +10,11 @@ function Assets(){
     const limit = searchState.limit
    
     const handlePaginationClick = (page) => {
-        dispatch({type: 'search/gotopage', payload: page})
+        dispatch({type: 'search/gotopage', payload: parseInt(page)})
     }
 
     const changeMaxItemsPerPage = (e) => {
-        dispatch({type: 'search/resizemaxitems', payload: e.target.value})
+        dispatch({type: 'search/resizemaxitems', payload: parseInt(e.target.value)})
     }
 
     if (!loading){

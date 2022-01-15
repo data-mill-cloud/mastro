@@ -86,8 +86,6 @@ const search = async (query, limit, page) => {
         const data = await response.json()
         if(response.ok){
             store.dispatch({type: "search/fetched", payload : data})
-            //payload : 'pagination' in data ? data.data : [data]})
-            // payload: data.constructor !== Array ? [data] : data})
         }/*else if(response.status === 404){
             window.location = "/notfound"
         }*/else{
