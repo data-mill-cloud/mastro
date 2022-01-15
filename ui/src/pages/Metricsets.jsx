@@ -5,6 +5,8 @@ import {BiError} from 'react-icons/bi'
 import {Link} from 'react-router-dom';
 import Metricset from '../components/metricsets/Metricset'
 import MetricViewer from '../components/metricsets/MetricViewer';
+import Slider from '../components/pagination/Slider'
+import PageSelector from '../components/pagination/PageSelector'
 
 function Metricsets() {
 
@@ -16,6 +18,9 @@ function Metricsets() {
     const selectedMetricset = metricsetState.selectedMetricset
     const loading = metricsetState.loading
     const errorMessage = metricsetState.errorMessage
+
+    const pagination = metricsetState.pagination
+    const limit = metricsetState.limit
 
     useEffect(() => {
         dispatch({type: 'metricset/get', payload: params.assetid})
@@ -45,6 +50,7 @@ function Metricsets() {
                             </Link>
                         </h1>
                     </div>
+                    <Slider pagination={pagination} limit={limit} resizeTarget={'metricset/resizemaxitems'} />
                     <div className="grid grid-cols-1 gap-8 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
                         {metricsets.map(metricset => <Metricset key={uuidv4()} metricset={metricset} />)}    
                     </div>
@@ -53,6 +59,7 @@ function Metricsets() {
                             <MetricViewer metricset={selectedMetricset} />
                         </div>
                     )}
+                    <PageSelector pagination={pagination} pageTarget={'metricset/gotopage'}/>   
                 </div>
             )
         }

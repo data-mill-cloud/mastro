@@ -6,12 +6,14 @@ import Featureset from '../components/featuresets/Featureset'
 import {Link} from 'react-router-dom';
 import Slider from '../components/pagination/Slider'
 import PageSelector from '../components/pagination/PageSelector'
+import FeatureViewer from '../components/featuresets/FeatureViewer';
 
 function Featuresets() {
     const { v4: uuidv4 } = require('uuid');
     const params = useParams()
     const dispatch = useDispatch()
     const featuresetState = useSelector(state => state.featuresetState)
+    const selectedFeatureset = featuresetState.selectedFeatureset
     const featuresets = featuresetState.featuresets
     const loading = featuresetState.loading
     const errorMessage = featuresetState.errorMessage
@@ -51,6 +53,11 @@ function Featuresets() {
                     <div className="grid grid-cols-1 gap-8 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
                         {featuresets.map(featureset => <Featureset key={uuidv4()} featureset={featureset} />)}    
                     </div>
+                    { selectedFeatureset && (
+                        <div className="mt-6">
+                            <FeatureViewer featureset={selectedFeatureset} />
+                        </div>
+                    )}
                     <PageSelector pagination={pagination} pageTarget={'featureset/gotopage'}/>                        
                 </div>
             )

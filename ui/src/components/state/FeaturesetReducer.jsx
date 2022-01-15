@@ -2,11 +2,13 @@ import store from "./store"
 import {getSvcHost} from "../../SvcUtils"
 
 const initialFeaturesetState = {
+    selectedFeatureset : null,
+
     featuresets : [],
     loading : false,
     errorMessage : "",
 
-    limit : 8,
+    limit : 4,
     page : 0,
     pagination : null
 }
@@ -43,6 +45,16 @@ const FeaturesetReducer = (state = initialFeaturesetState, {type, payload}) => {
                 loading : false,
                 errorMessage: payload.statusText
             }
+        case 'featureset/select':
+            return {
+                ...state,
+                selectedFeatureset : payload
+            }
+        case 'featureset/unselect':
+                return {
+                    ...state,
+                    selectedFeatureset : null
+                }
         default:
             return state
     }

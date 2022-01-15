@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
@@ -16,7 +17,21 @@ const (
 	metricStoreRestEndpoint string = "metricstore"
 	metricSetIDParam        string = "metricset_id"
 	metricSetNameParam      string = "metricset_name"
+
+	limitParam string = "limit"
+	pageParam  string = "page"
 )
+
+func getLimitAndPageNumber(req *http.Request) (limit int, page int, err error) {
+	if limit, err = strconv.Atoi(req.URL.Query().Get(limitParam)); err != nil {
+		err = fmt.Errorf(fmt.Sprintf("%s parameter is not a valid integer number", limitParam))
+		return
+	}
+	if page, err = strconv.Atoi(req.URL.Query().Get(pageParam)); err != nil {
+		err = fmt.Errorf(fmt.Sprintf("%s parameter is not a valid integer number", pageParam))
+	}
+	return
+}
 
 // Ping ... replies to a ping message for healthcheck purposes
 func Ping(c *gin.Context) {
@@ -57,7 +72,13 @@ func GetMetricSetByName(c *gin.Context) {
 	//id, err := parseMetricSetName(c.Param(metricSetNameParam))
 	name := c.Param(metricSetNameParam)
 
-	ms, getErr := metricStoreService.GetMetricSetByName(name)
+	limit, page, err := getLimitAndPageNumber(c.Request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	ms, getErr := metricStoreService.GetMetricSetByName(name, limit, page)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
@@ -78,7 +99,7 @@ func SearchMetricSetsByLabels(c *gin.Context) {
 			restErr := errors.GetBadRequestError("Invalid query by labels :: empty label dict")
 			c.JSON(restErr.Status, restErr)
 		} else {
-			metricsets, getErr := metricStoreService.SearchMetricSetsByLabels(query.Labels)
+			metricsets, getErr := metricStoreService.SearchMetricSetsByLabels(query.Labels, query.Limit, query.Page)
 			if getErr != nil {
 				c.JSON(getErr.Status, getErr)
 			} else {
@@ -89,6 +110,13 @@ func SearchMetricSetsByLabels(c *gin.Context) {
 }
 
 func SearchMetricSetsByQueryLabels(c *gin.Context) {
+
+	limit, page, err := getLimitAndPageNumber(c.Request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
 	query := c.Request.URL.Query()
 
 	if len(query) == 0 {
@@ -97,9 +125,11 @@ func SearchMetricSetsByQueryLabels(c *gin.Context) {
 	} else {
 		q := make(map[string]string)
 		for k, l := range query {
-			q[k] = l[0]
+			if k != limitParam && k != pageParam {
+				q[k] = l[0]
+			}
 		}
-		metricsets, getErr := metricStoreService.SearchMetricSetsByLabels(q)
+		metricsets, getErr := metricStoreService.SearchMetricSetsByLabels(q, limit, page)
 		if getErr != nil {
 			c.JSON(getErr.Status, getErr)
 		} else {
@@ -112,9 +142,15 @@ func SearchMetricSetsByQueryLabels(c *gin.Context) {
 
 // ListAllMetricSets ... lists all metricsets in the DB
 func ListAllMetricSets(c *gin.Context) {
-	msets, err := metricStoreService.ListAllMetricSets()
+	limit, page, err := getLimitAndPageNumber(c.Request)
 	if err != nil {
-		c.JSON(err.Status, err)
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	msets, getErr := metricStoreService.ListAllMetricSets(limit, page)
+	if getErr != nil {
+		c.JSON(getErr.Status, getErr)
 	} else {
 		c.JSON(http.StatusOK, msets)
 	}

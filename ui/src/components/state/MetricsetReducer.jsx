@@ -5,23 +5,38 @@ const initialMetricsetState = {
     selectedMetricset : null,
     metricsets : [],
     loading : false,
-    errorMessage : ""
+    errorMessage : "", 
+
+    limit : 8,
+    page : 0,
+    pagination : null
 }
 
 const MetricsetReducer = (state = initialMetricsetState, {type, payload}) => {
     switch (type) {
         case 'metricset/get':
-            getMetricset(payload)
+            getMetricset(payload, state.limit, state.page)
             return {
                 ...state,
+                query: payload,
                 loading : true
             }
+        case 'metricset/gotopage':        
+            getMetricset(state.query, state.limit, payload)
+            return {...state, page : payload}
+        case 'metricset/resizemaxitems':
+            if(state.pagination && state.pagination.total >= state.limit){
+                getMetricset(state.query, payload, state.page)
+            }
+            return {...state, limit : payload}
         case 'metricset/show':
             return {
                 ...state,
                 loading : false,
-                metricsets : payload,
-                errorMessage : ""
+                errorMessage : "",
+                page : 1,
+                metricsets : 'pagination' in payload ? payload.data : [payload],
+                pagination : 'pagination' in payload ? payload.pagination : null,
             }
         case 'metricset/error':
             return {
@@ -45,11 +60,12 @@ const MetricsetReducer = (state = initialMetricsetState, {type, payload}) => {
 }
 
 
-const getMetricset = async (assetId) => {
+const getMetricset = async (assetId, limit, page) => {
     try {
         const request = {
             method : 'GET',
-            url: `${getSvcHost('metricstore')}/metricstore/name/${assetId}`
+            //url: `${getSvcHost('metricstore')}/metricstore/name/${assetId}`
+            url: `${getSvcHost('metricstore')}/metricstore/name/${assetId}?limit=${limit}&page=${page}`
         }
         const response = await fetch(request.url, request.options)
         const data = await response.json()

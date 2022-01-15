@@ -10,6 +10,7 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/sources/mongo"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	paginate "github.com/gobeam/mongo-go-pagination"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -258,27 +259,38 @@ func (dao *dao) getOneDocumentUsingFilter(filter interface{}) (*abstract.MetricS
 	return convertMetricSetDAOToDTO(&result), nil
 }
 
-func (dao *dao) getAnyDocumentUsingFilter(filter interface{}) (*[]abstract.MetricSet, error) {
+func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, limit int, page int) (*abstract.PaginatedMetricSets, error) {
 	var metrics []metricSetMongoDao
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	cursor, err := dao.Connector.Collection.Find(ctx, filter)
-	// return if any error during get
+	/*
+		cursor, err := dao.Connector.Collection.Find(ctx, filter)
+		// return if any error during get
+		if err != nil {
+			return nil, fmt.Errorf("Error while retrieving metricset :: %v", err)
+		}
+		// return if any error while getting a cursor
+		if err = cursor.All(ctx, &metrics); err != nil {
+			return nil, fmt.Errorf("Error while retrieving metricset :: %v", err)
+		}
+	*/
+	paginatedData, err := paginate.New(dao.Connector.Collection).Context(ctx).
+		Limit(int64(limit)).Page(int64(page)).Filter(filter).
+		Decode(&metrics).Find()
 	if err != nil {
-		return nil, fmt.Errorf("Error while retrieving metricset :: %v", err)
+		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
 	}
-	// return if any error while getting a cursor
-	if err = cursor.All(ctx, &metrics); err != nil {
-		return nil, fmt.Errorf("Error while retrieving metricset :: %v", err)
-	}
-
 	if metrics == nil {
 		return nil, fmt.Errorf("Error while retrieving metrics using filter :: empty result set")
 	}
 
 	var resultMetrics []abstract.MetricSet = convertAllMetricSetsDAOToDTO(&metrics)
-	return &resultMetrics, nil
+	//return &resultMetrics, nil
+	return &abstract.PaginatedMetricSets{
+		Data:       &resultMetrics,
+		Pagination: abstract.FromMongoPaginationData(paginatedData.Pagination),
+	}, nil
 }
 
 // GetById ... Retrieve document by given id
@@ -288,13 +300,13 @@ func (dao *dao) GetById(id string) (*abstract.MetricSet, error) {
 }
 
 // GetByName ... Retrieve document by given name
-func (dao *dao) GetByName(name string) (*[]abstract.MetricSet, error) {
+func (dao *dao) GetByName(name string, limit int, page int) (*abstract.PaginatedMetricSets, error) {
 	filter := bson.M{"name": name}
-	return dao.getAnyDocumentUsingFilter(filter)
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }
 
 // SearchMetricSetsByLabels ... Retrieve assets by given labels
-func (dao *dao) SearchMetricSetsByLabels(labels map[string]string) (*[]abstract.MetricSet, error) {
+func (dao *dao) SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedMetricSets, error) {
 	// https://docs.mongodb.com/manual/reference/operator/query/
 	// we can not simply use filter := bson.M{"labels": bson.M{"$eq": labels}} since the order of the keys would matter
 	// using this the result would be non-deterministic (empty, and not empty)
@@ -305,11 +317,11 @@ func (dao *dao) SearchMetricSetsByLabels(labels map[string]string) (*[]abstract.
 	for k, v := range labels {
 		filter["labels."+k] = v
 	}
-	return dao.getAnyDocumentUsingFilter(filter)
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }
 
 // ListAllMetricSets ... Return all MetricSets in index
-func (dao *dao) ListAllMetricSets() (*[]abstract.MetricSet, error) {
+func (dao *dao) ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, error) {
 	filter := bson.M{}
-	return dao.getAnyDocumentUsingFilter(filter)
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }

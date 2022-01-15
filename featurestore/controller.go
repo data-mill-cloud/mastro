@@ -21,6 +21,17 @@ const (
 	pageParam  string = "page"
 )
 
+func getLimitAndPageNumber(req *http.Request) (limit int, page int, err error) {
+	if limit, err = strconv.Atoi(req.URL.Query().Get(limitParam)); err != nil {
+		err = fmt.Errorf(fmt.Sprintf("%s parameter is not a valid integer number", limitParam))
+		return
+	}
+	if page, err = strconv.Atoi(req.URL.Query().Get(pageParam)); err != nil {
+		err = fmt.Errorf(fmt.Sprintf("%s parameter is not a valid integer number", pageParam))
+	}
+	return
+}
+
 // Ping ... replies to a ping message for healthcheck purposes
 func Ping(c *gin.Context) {
 	c.String(http.StatusOK, "pong")
@@ -62,17 +73,6 @@ func GetFeatureSetByID(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, fs)
 	}
-}
-
-func getLimitAndPageNumber(req *http.Request) (limit int, page int, err error) {
-	if limit, err = strconv.Atoi(req.URL.Query().Get(limitParam)); err != nil {
-		err = fmt.Errorf(fmt.Sprintf("%s parameter is not a valid integer number", limitParam))
-		return
-	}
-	if page, err = strconv.Atoi(req.URL.Query().Get(pageParam)); err != nil {
-		err = fmt.Errorf(fmt.Sprintf("%s parameter is not a valid integer number", pageParam))
-	}
-	return
 }
 
 // GetFeatureSetByName ... retrieves a featureSet by the provided Name

@@ -14,9 +14,9 @@ type Service interface {
 	Init(cfg *conf.Config) *errors.RestErr
 	CreateMetricSet(ms abstract.MetricSet) (*abstract.MetricSet, *errors.RestErr)
 	GetMetricSetByID(msID string) (*abstract.MetricSet, *errors.RestErr)
-	GetMetricSetByName(msName string) (*[]abstract.MetricSet, *errors.RestErr)
-	SearchMetricSetsByLabels(labels map[string]string) (*[]abstract.MetricSet, *errors.RestErr)
-	ListAllMetricSets() (*[]abstract.MetricSet, *errors.RestErr)
+	GetMetricSetByName(msName string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
+	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
+	ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
 }
 
 // metricStoreServiceType ... Service Type
@@ -66,8 +66,8 @@ func (s *metricStoreServiceType) GetMetricSetByID(msID string) (*abstract.Metric
 }
 
 // GetMetricSetByName ... Retrieves a MetricSet by Name
-func (s *metricStoreServiceType) GetMetricSetByName(msName string) (*[]abstract.MetricSet, *errors.RestErr) {
-	mset, err := dao.GetByName(msName)
+func (s *metricStoreServiceType) GetMetricSetByName(msName string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr) {
+	mset, err := dao.GetByName(msName, limit, page)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
 	}
@@ -75,8 +75,8 @@ func (s *metricStoreServiceType) GetMetricSetByName(msName string) (*[]abstract.
 }
 
 // SearchMetricSetsByLabels ... Retrieve MetricSets by Labels
-func (s *metricStoreServiceType) SearchMetricSetsByLabels(labels map[string]string) (*[]abstract.MetricSet, *errors.RestErr) {
-	ms, err := dao.SearchMetricSetsByLabels(labels)
+func (s *metricStoreServiceType) SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr) {
+	ms, err := dao.SearchMetricSetsByLabels(labels, limit, page)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
 	}
@@ -84,14 +84,14 @@ func (s *metricStoreServiceType) SearchMetricSetsByLabels(labels map[string]stri
 }
 
 // ListAllMetricSets ... Retrieves all MetricSets
-func (s *metricStoreServiceType) ListAllMetricSets() (*[]abstract.MetricSet, *errors.RestErr) {
-	msets, err := dao.ListAllMetricSets()
+func (s *metricStoreServiceType) ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr) {
+	msets, err := dao.ListAllMetricSets(limit, page)
 	if err != nil {
 		return nil, errors.GetInternalServerError(err.Error())
 	}
 	// n.b. - fsets empty if collection is empty
 	// better to return an error or an empty list?
-	if msets == nil || len(*msets) == 0 {
+	if msets == nil || len(*msets.Data) == 0 {
 		return nil, errors.GetNotFoundError("No metricsets in given collection")
 	}
 	return msets, nil

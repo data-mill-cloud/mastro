@@ -7,8 +7,8 @@ type MetricSetDAOProvider interface {
 	Init(*conf.DataSourceDefinition)
 	Create(m *MetricSet) error
 	GetById(id string) (*MetricSet, error)
-	GetByName(name string) (*[]MetricSet, error)
-	SearchMetricSetsByLabels(labels map[string]string) (*[]MetricSet, error)
-	ListAllMetricSets() (*[]MetricSet, error)
+	GetByName(name string, limit int, page int) (*PaginatedMetricSets, error)
+	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*PaginatedMetricSets, error)
+	ListAllMetricSets(limit int, page int) (*PaginatedMetricSets, error)
 	CloseConnection()
 }
