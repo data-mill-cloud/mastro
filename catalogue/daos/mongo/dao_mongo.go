@@ -176,17 +176,9 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, limit int, page in
 	}
 	*/
 
-	paginatedData, err := paginate.
-		New(dao.Connector.Collection).
-		Context(ctx).
-		Limit(int64(limit)).
-		Page(int64(page)).
-		//Sort("price", -1).
-		//Sort("quantity", -1).
-		//Select(projection).
-		Filter(filter).
-		Decode(&assets).
-		Find()
+	paginatedData, err := paginate.New(dao.Connector.Collection).Context(ctx).
+		Limit(int64(limit)).Page(int64(page)).Filter(filter).
+		Decode(&assets).Find()
 	if err != nil {
 		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
 	}

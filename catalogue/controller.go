@@ -19,6 +19,9 @@ const (
 	// placeholders for the values actually passed to the endpoint
 	assetIDParam   string = "asset_id"
 	assetNameParam string = "asset_name"
+
+	limitParam string = "limit"
+	pageParam  string = "page"
 )
 
 // Ping ... replies to a ping message for healthcheck purposes
@@ -121,24 +124,27 @@ func SearchAssetsByTags(c *gin.Context) {
 
 // ListAllAssets ... returns all assets
 func ListAllAssets(c *gin.Context) {
-	limit, err := strconv.Atoi(c.Request.URL.Query().Get("limit"))
-	//limit, err := strconv.ParseInt(c.Request.URL.Query().Get("limit"), 10, 64)
+
+	limit, page, err := getLimitAndPageNumber(c.Request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	//page, err := strconv.ParseInt(c.Request.URL.Query().Get("page"), 10, 64)
-	page, err := strconv.Atoi(c.Request.URL.Query().Get("page"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
+
 	assets, getErr := assetService.ListAllAssets(limit, page)
 	if err != nil {
-		c.JSON(getErr.Status, err)
+		c.JSON(getErr.Status, getErr)
 	} else {
 		c.JSON(http.StatusOK, assets)
 	}
+}
+
+func getLimitAndPageNumber(req *http.Request) (limit int, page int, err error) {
+	if limit, err = strconv.Atoi(req.URL.Query().Get(limitParam)); err != nil {
+		return
+	}
+	page, err = strconv.Atoi(req.URL.Query().Get(pageParam))
+	return
 }
 
 var router = gin.Default()

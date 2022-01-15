@@ -18,6 +18,16 @@ type PaginatedAssets struct {
 	Pagination PaginationData `json:"pagination"`
 }
 
+type PaginatedFeatureSets struct {
+	Data       *[]FeatureSet  `json:"data"`
+	Pagination PaginationData `json:"pagination"`
+}
+
+type PaginatedMetricSets struct {
+	Data       *[]MetricSet   `json:"data"`
+	Pagination PaginationData `json:"pagination"`
+}
+
 func FromMongoPaginationData(pagination paginate.PaginationData) PaginationData {
 	return PaginationData{
 		Total:     pagination.Total,

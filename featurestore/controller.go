@@ -16,6 +16,9 @@ const (
 	featureSetRestEndpoint string = "featureset"
 	featureSetIDParam      string = "featureset_id"
 	featureSetNameParam    string = "featureset_name"
+
+	limitParam string = "limit"
+	pageParam  string = "page"
 )
 
 // Ping ... replies to a ping message for healthcheck purposes
@@ -53,43 +56,56 @@ func parseFeatureSetID(param string) (int64, *errors.RestErr) {
 func GetFeatureSetByID(c *gin.Context) {
 	//id, err := parseFeatureSetID(c.Param(featureSetIDParam))
 	id := c.Param(featureSetIDParam)
-	/*
-		if err != nil {
-			c.JSON(err.Status, err)
-		} else {
-	*/
 	fs, getErr := featureSetService.GetFeatureSetByID(id)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
 		c.JSON(http.StatusOK, fs)
 	}
-	//}
+}
+
+func getLimitAndPageNumber(req *http.Request) (limit int, page int, err error) {
+	if limit, err = strconv.Atoi(req.URL.Query().Get(limitParam)); err != nil {
+		err = fmt.Errorf(fmt.Sprintf("%s parameter is not a valid integer number", limitParam))
+		return
+	}
+	if page, err = strconv.Atoi(req.URL.Query().Get(pageParam)); err != nil {
+		err = fmt.Errorf(fmt.Sprintf("%s parameter is not a valid integer number", pageParam))
+	}
+	return
 }
 
 // GetFeatureSetByName ... retrieves a featureSet by the provided Name
 func GetFeatureSetByName(c *gin.Context) {
 	//id, err := parseFeatureSetName(c.Param(featureSetNameParam))
 	name := c.Param(featureSetNameParam)
-	/*
-		if err != nil {
-			c.JSON(err.Status, err)
-		} else {
-	*/
-	fs, getErr := featureSetService.GetFeatureSetByName(name)
+
+	limit, page, err := getLimitAndPageNumber(c.Request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	fs, getErr := featureSetService.GetFeatureSetByName(name, limit, page)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
 		c.JSON(http.StatusOK, fs)
 	}
-	//}
 }
 
 // ListAllFeatureSets ... lists all featuresets in the DB
 func ListAllFeatureSets(c *gin.Context) {
-	fsets, err := featureSetService.ListAllFeatureSets()
+
+	limit, page, err := getLimitAndPageNumber(c.Request)
 	if err != nil {
-		c.JSON(err.Status, err)
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	fsets, svcErr := featureSetService.ListAllFeatureSets(limit, page)
+	if svcErr != nil {
+		c.JSON(svcErr.Status, svcErr)
 	} else {
 		c.JSON(http.StatusOK, fsets)
 	}

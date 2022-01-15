@@ -9,8 +9,8 @@ import (
 
 	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/sources/mongo"
-
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
+	paginate "github.com/gobeam/mongo-go-pagination"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -177,20 +177,29 @@ func (dao *dao) getOneDocumentUsingFilter(filter interface{}) (*abstract.Feature
 	return convertFeatureSetDAOToDTO(&result), nil
 }
 
-func (dao *dao) getAnyDocumentUsingFilter(filter interface{}) (*[]abstract.FeatureSet, error) {
+func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
 	var features []featureSetMongoDao
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	cursor, err := dao.Connector.Collection.Find(ctx, filter)
-	// return if any error during get
-	if err != nil {
-		return nil, fmt.Errorf("Error while retrieving featureset :: %v", err)
-	}
+	/*
+		cursor, err := dao.Connector.Collection.Find(ctx, filter)
+		// return if any error during get
+		if err != nil {
+			return nil, fmt.Errorf("Error while retrieving featureset :: %v", err)
+		}
 
-	// return if any error while getting a cursor
-	if err = cursor.All(ctx, &features); err != nil {
-		return nil, fmt.Errorf("Error while retrieving featureset :: %v", err)
+		// return if any error while getting a cursor
+		if err = cursor.All(ctx, &features); err != nil {
+			return nil, fmt.Errorf("Error while retrieving featureset :: %v", err)
+		}
+	*/
+
+	paginatedData, err := paginate.New(dao.Connector.Collection).Context(ctx).
+		Limit(int64(limit)).Page(int64(page)).Filter(filter).
+		Decode(&features).Find()
+	if err != nil {
+		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
 	}
 
 	if features == nil {
@@ -198,7 +207,11 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}) (*[]abstract.Featu
 	}
 
 	var resultFeats []abstract.FeatureSet = convertAllFeatureSets(&features)
-	return &resultFeats, nil
+	//return &resultFeats, nil
+	return &abstract.PaginatedFeatureSets{
+		Data:       &resultFeats,
+		Pagination: abstract.FromMongoPaginationData(paginatedData.Pagination),
+	}, nil
 }
 
 // GetById ... Retrieve document by given id
@@ -208,13 +221,13 @@ func (dao *dao) GetById(id string) (*abstract.FeatureSet, error) {
 }
 
 // GetByName ... Retrieve document by given name
-func (dao *dao) GetByName(name string) (*[]abstract.FeatureSet, error) {
+func (dao *dao) GetByName(name string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
 	filter := bson.M{"name": name}
-	return dao.getAnyDocumentUsingFilter(filter)
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }
 
 // ListAllFeatureSets ... Return all feature sets available in collection
-func (dao *dao) ListAllFeatureSets() (*[]abstract.FeatureSet, error) {
+func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, error) {
 	filter := bson.M{}
-	return dao.getAnyDocumentUsingFilter(filter)
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }

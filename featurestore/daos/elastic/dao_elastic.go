@@ -307,7 +307,8 @@ func (dao *dao) GetById(id string) (*abstract.FeatureSet, error) {
 }
 
 // GetByName ... Retrieve document by given name
-func (dao *dao) GetByName(name string) (*[]abstract.FeatureSet, error) {
+func (dao *dao) GetByName(name string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+	// todo: add paging using limit and page params
 
 	var buf bytes.Buffer
 	// use a term query to do an exact match of the name
@@ -336,14 +337,14 @@ func (dao *dao) GetByName(name string) (*[]abstract.FeatureSet, error) {
 			return nil, err
 		}
 		//return &((*hitDocs)[0]), nil
-		return hitDocs, nil
+		return &abstract.PaginatedFeatureSets{Data: hitDocs}, nil
 	}
 	// else return an empty feature set
 	return nil, fmt.Errorf("No document found for name %s", name)
 }
 
 // ListAllFeatureSets ... Return all featuresets in index
-func (dao *dao) ListAllFeatureSets() (*[]abstract.FeatureSet, error) {
+func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, error) {
 
 	// in ES to return all documents in an index we need the following query:
 	/*
@@ -376,7 +377,7 @@ func (dao *dao) ListAllFeatureSets() (*[]abstract.FeatureSet, error) {
 		if err != nil {
 			return nil, err
 		}
-		return fsColl, nil
+		return &abstract.PaginatedFeatureSets{Data: fsColl}, nil
 	}
 	// else return an empty feature set
 	return nil, fmt.Errorf("No document found in index %s", dao.Connector.IndexName)

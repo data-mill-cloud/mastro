@@ -59,7 +59,7 @@ function Search() {
                         </div>
                     </form>
                 </div>
-                { searchText !== "" && (
+                { searchText && searchText !== "" && (
                     <div>
                         <button onClick={handleClearSearch} className="btn btn-ghost btn-lg rounded-btn">Clear</button>
                     </div>

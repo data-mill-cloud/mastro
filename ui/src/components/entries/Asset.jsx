@@ -13,7 +13,6 @@ function Asset({asset}) {
                         <div className="flex-row">
                             <Link className="card-title" to={`/asset/${asset.name}`}>
                                 {asset.name}
-                                
                             </Link>
                         </div>
                         <p className="text-base-content text-opacity-40">{asset["last-discovered-at"]}</p>

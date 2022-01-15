@@ -7,7 +7,7 @@ type FeatureSetDAOProvider interface {
 	Init(*conf.DataSourceDefinition)
 	Create(fs *FeatureSet) error
 	GetById(id string) (*FeatureSet, error)
-	GetByName(name string) (*[]FeatureSet, error)
-	ListAllFeatureSets() (*[]FeatureSet, error)
+	GetByName(name string, limit int, page int) (*PaginatedFeatureSets, error)
+	ListAllFeatureSets(limit int, page int) (*PaginatedFeatureSets, error)
 	CloseConnection()
 }

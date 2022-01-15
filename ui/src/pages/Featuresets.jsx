@@ -4,6 +4,8 @@ import {useParams} from 'react-router-dom'
 import {BiError} from 'react-icons/bi'
 import Featureset from '../components/featuresets/Featureset'
 import {Link} from 'react-router-dom';
+import Slider from '../components/pagination/Slider'
+import PageSelector from '../components/pagination/PageSelector'
 
 function Featuresets() {
     const { v4: uuidv4 } = require('uuid');
@@ -13,6 +15,9 @@ function Featuresets() {
     const featuresets = featuresetState.featuresets
     const loading = featuresetState.loading
     const errorMessage = featuresetState.errorMessage
+
+    const pagination = featuresetState.pagination
+    const limit = featuresetState.limit
 
     useEffect(() => {
         dispatch({type: 'featureset/get', payload: params.assetid})
@@ -42,9 +47,11 @@ function Featuresets() {
                             </Link>
                         </h1>
                     </div>
+                    <Slider pagination={pagination} limit={limit} resizeTarget={'featureset/resizemaxitems'} />
                     <div className="grid grid-cols-1 gap-8 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
                         {featuresets.map(featureset => <Featureset key={uuidv4()} featureset={featureset} />)}    
                     </div>
+                    <PageSelector pagination={pagination} pageTarget={'featureset/gotopage'}/>                        
                 </div>
             )
         }
