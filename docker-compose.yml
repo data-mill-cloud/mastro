@@ -53,6 +53,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8088:80
+    environment:
+      - NGINX_PORT=80
+      - CATALOGUE_URL="http://catalogue:8085/"
+      - FEATURESTORE_URL="http://featurestore:8085/"
+      - METRICSTORE_URL="http://metricstore:8085/"
     depends_on:
       - mongo
       - catalogue
