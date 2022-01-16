@@ -12,8 +12,8 @@ type Service interface {
 	UpsertAssets(assets *[]abstract.Asset) (*[]abstract.Asset, *errors.RestErr)
 	GetAssetByID(assetID string) (*abstract.Asset, *errors.RestErr)
 	GetAssetByName(name string) (*abstract.Asset, *errors.RestErr)
-	SearchAssetsByTags(tags []string) (*[]abstract.Asset, *errors.RestErr)
-	ListAllAssets() (*[]abstract.Asset, *errors.RestErr)
+	SearchAssetsByTags(tags []string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
+	ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
 }
 ```
 
@@ -24,8 +24,8 @@ type AssetDAOProvider interface {
 	Upsert(asset *Asset) error
 	GetById(id string) (*Asset, error)
 	GetByName(id string) (*Asset, error)
-	SearchAssetsByTags(tags []string) (*[]Asset, error)
-	ListAllAssets() (*[]Asset, error)
+	SearchAssetsByTags(tags []string, limit int, page int) (*PaginatedAssets, error)
+	ListAllAssets(limit int, page int) (*PaginatedAssets, error)
 	CloseConnection()
 }
 ```
@@ -92,7 +92,9 @@ GetByName - *GET* on `localhost:8085/asset/example_featureset` has now result:
 SearchAssetsByTags - *POST* on `localhost:8085/assets/tags` passing a Json body of kind:
 ```json
 {
-    "tags" : ["something"]
+    "tags" : ["something"],
+	"limit": 4,
+    "page": 1
 }
 ```
 
@@ -108,25 +110,68 @@ returns an HTTP error status with a Json body of kind:
 while with body:
 ```json
 {
-    "tags" : ["featureset"]
+    "tags" : ["featureset"],
+	"limit": 4,
+    "page": 1
 }
 ```
 
-we get a list of all assets having the provided tags:
+we get a paginated list of all assets having the provided tags:
 ```json
-[
-	{
-		"last-discovered-at": "2021-03-23T13:52:43.787Z",
-		"published-on": "0001-01-01T00:00:00Z",
-		"name": "example_featureset",
-		"description": "my first featureset pushed to the catalogue",
-		"depends-on": [
-			"table.mydb.mytable"
-		],
-		"type": "featureset",
-		"tags": [
-			"featureset"
-		]
-	}
-]
+{
+    "data": [
+        {
+            "last-discovered-at": "2021-03-23T13:52:43.787Z",
+            "published-on": "0001-01-01T00:00:00Z",
+            "name": "example_featureset",
+            "description": "my first featureset pushed to the catalogue",
+            "depends-on": [
+                "table.mydb.mytable",
+                "example_featureset1",
+                "otherdep2"
+            ],
+            "type": "featureset",
+            "labels": {
+                "environment": "test",
+                "instance": "2020_08",
+                "project": "example"
+            },
+            "tags": [
+                "featureset",
+                "example"
+            ],
+            "versions": {}
+        },
+        {
+            "last-discovered-at": "2021-03-23T13:52:43.788Z",
+            "published-on": "0001-01-01T00:00:00Z",
+            "name": "example_featureset1",
+            "description": "my second featureset pushed to the catalogue",
+            "depends-on": [
+                "table.mydb.mytable",
+                "example_featureset2",
+                "otherdep2"
+            ],
+            "type": "featureset",
+            "labels": {
+                "environment": "test",
+                "instance": "2020_08",
+                "project": "example"
+            },
+            "tags": [
+                "featureset",
+                "example"
+            ],
+            "versions": {}
+        },
+    ],
+    "pagination": {
+        "total": 15,
+        "page": 1,
+        "perPage": 4,
+        "prev": 0,
+        "next": 2,
+        "totalPage": 4
+    }
+}
 ```

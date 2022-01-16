@@ -33,8 +33,8 @@ type FeatureSetDAOProvider interface {
 	Init(*conf.DataSourceDefinition)
 	Create(fs *FeatureSet) error
 	GetById(id string) (*FeatureSet, error)
-	GetByName(name string) (*[]FeatureSet, error)
-	ListAllFeatureSets() (*[]FeatureSet, error)
+	GetByName(name string, limit int, page int) (*PaginatedFeatureSets, error)
+	ListAllFeatureSets(limit int, page int) (*PaginatedFeatureSets, error)
 	CloseConnection()
 }
 ```
@@ -60,8 +60,8 @@ type Service interface {
 	Init(cfg *conf.Config) *errors.RestErr
 	CreateFeatureSet(fs abstract.FeatureSet) (*abstract.FeatureSet, *errors.RestErr)
 	GetFeatureSetByID(fsID string) (*abstract.FeatureSet, *errors.RestErr)
-	GetFeatureSetByName(fsName string) (*[]abstract.FeatureSet, *errors.RestErr)
-	ListAllFeatureSets() (*[]abstract.FeatureSet, *errors.RestErr)
+	GetFeatureSetByName(fsName string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
+	ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
 }
 ```
 

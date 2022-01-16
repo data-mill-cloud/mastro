@@ -33,14 +33,13 @@ type Metric struct {
 A data access object (DAO) for a metricSet is defined as follows:
 
 ```go
-// MetricSetDAOProvider ... The interface each dao must implement
 type MetricSetDAOProvider interface {
 	Init(*conf.DataSourceDefinition)
 	Create(m *MetricSet) error
 	GetById(id string) (*MetricSet, error)
-	GetByName(name string) (*[]MetricSet, error)
-	SearchMetricSetsByLabels(labels map[string]string) (*[]MetricSet, error)
-	ListAllMetricSets() (*[]MetricSet, error)
+	GetByName(name string, limit int, page int) (*PaginatedMetricSets, error)
+	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*PaginatedMetricSets, error)
+	ListAllMetricSets(limit int, page int) (*PaginatedMetricSets, error)
 	CloseConnection()
 }
 ```
@@ -66,9 +65,9 @@ type Service interface {
 	Init(cfg *conf.Config) *errors.RestErr
 	CreateMetricSet(ms abstract.MetricSet) (*abstract.MetricSet, *errors.RestErr)
 	GetMetricSetByID(msID string) (*abstract.MetricSet, *errors.RestErr)
-	GetMetricSetByName(msName string) (*[]abstract.MetricSet, *errors.RestErr)
-	SearchMetricSetsByLabels(labels map[string]string) (*[]abstract.MetricSet, *errors.RestErr)
-	ListAllMetricSets() (*[]abstract.MetricSet, *errors.RestErr)
+	GetMetricSetByName(msName string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
+	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
+	ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
 }
 ```
 
@@ -147,13 +146,15 @@ where metrics can be of various types. For instance, Deequ returns an AnalysisRe
 To retrieve metric sets by labels we can either use a POST to `metricstore/labels` and provide a JSON dict of label	values, for instance:
 
 ```bash
- {
-     "labels": {
+{
+   "labels": {
          "environment": "test",
          "refers-to": "project-gilberto"
-    }
+    },
+    "limit": 4,
+    "page": 1
 }
 ```
 
-or use a GET to the same URL with a query string of the form `?label1=value1&label2=value2`, such as `localhost:8087/metricstore/labels?environment=test&refers-to=project-gilberto`.
+or use a GET to the same URL with a query string of the form `?label1=value1&label2=value2`, such as `localhost:8087/metricstore/labels?environment=test&refers-to=project-gilberto&limit=4&page=1`.
 
