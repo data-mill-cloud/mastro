@@ -76,6 +76,15 @@ const KafkaConnectReducer = (state = initialKafkaConnectState, {type, payload}) 
             }
         case 'kafkaconnect/error':
             return {...state, loading : false, errorMessage: payload.statusText}
+        case 'kafkaconnect/restart':
+            restartConnector(payload)
+            return {...state}
+        case 'kafkaconnect/restartsuccess':
+            alert(payload.statusText)
+            return {...state }
+        case 'kafkaconnect/restarterror':
+            alert(payload.statusText)
+            return {...state }
         default:
             return state
     }
@@ -113,5 +122,21 @@ const getKafkaConnector = async (connectorId) => {
     }
 }
 
+const restartConnector = async (connectorID) => {
+    try {
+        const request = {
+            method : 'POST',
+            url : `${getSvcHost('kafka_connect')}/connectors/${connectorID}/restart?includeTasks=true&onlyFailed=true`
+        }
+        const response = await fetch(request.url, request.options)
+        if(response.ok){
+            store.dispatch({type: "kafkaconnect/restartsuccess", payload: {status:response.status, statusText: `${response.statusText}`}})    
+        }else{
+            store.dispatch({type: "kafkaconnect/restarterror", payload: {status:response.status, statusText: `${response.statusText}`}})    
+        }
+    }catch(error){
+        store.dispatch({type: "kafkaconnect/restarterror", payload: {statusText: error.message}})
+    }
+}
 
 export default KafkaConnectReducer
