@@ -25,7 +25,7 @@ function Navbar({title}) {
 }
 
 Navbar.defaultProps = {
-    title: 'Mastro',
+    title: 'MASTRO',
 }
 
 Navbar.propTypes = {
