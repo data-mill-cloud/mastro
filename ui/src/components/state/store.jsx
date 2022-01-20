@@ -4,6 +4,7 @@ import AssetDetailReducer from './AssetDetailReducer'
 import FeaturesetReducer from './FeaturesetReducer'
 import MetricsetReducer from './MetricsetReducer'
 import KafkaConnectReducer from './KafkaConnectReducer'
+import KafkaSchemaReducer from './KafkaSchemaReducer'
 
 const rootReducer = combineReducers({
         searchState : SearchReducer,
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
         featuresetState : FeaturesetReducer,
         metricsetState : MetricsetReducer,
         kafkaconnectState : KafkaConnectReducer,
+        kafkaSchemaState : KafkaSchemaReducer,
     }
 )
 

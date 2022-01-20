@@ -10,7 +10,7 @@ function Connector({name, connector}) {
     const [selectedTab, setSelectedTab] = useState('status')
     const { v4: uuidv4 } = require('uuid');
 
-    const onTabClick = (target) => setSelectedTab(target)    
+    const onTabClick = (target) => setSelectedTab(target)
 
     const handleRestart = () => {
         if (window.confirm(`Are you sure you want to restart all failing tasks for the ${name} connector?`)) {
