@@ -11,7 +11,10 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/sources/mongo"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	paginate "github.com/gobeam/mongo-go-pagination"
-	"go.mongodb.org/mongo-driver/bson"
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
+	
+	"go.mongodb.org/mongo-driver/x/bsonx"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // metricSetMongoDao ... DAO for the MetricSet in Mongo
@@ -220,6 +223,22 @@ func (dao *dao) Init(def *conf.DataSourceDefinition) {
 	}
 	// init mongo connector
 	dao.Connector.InitConnection(def)
+	
+	if err:= dao.EnsureIndexesExist(); err != nil {
+		panic(err)
+	}
+}
+
+func (dao *dao) EnsureIndexesExist() error{
+	ctx := context.Background()
+	// make sure a full text index exists on the description
+	indexModel := mongodriver.IndexModel{
+		Keys:    bsonx.Doc{{Key: "description", Value: bsonx.String("text")}},
+	}
+	if _, err := dao.Connector.Collection.Indexes().CreateOne(ctx, indexModel); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (dao *dao) Create(ms *abstract.MetricSet) error {
@@ -323,5 +342,13 @@ func (dao *dao) SearchMetricSetsByLabels(labels map[string]string, limit int, pa
 // ListAllMetricSets ... Return all MetricSets in index
 func (dao *dao) ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, error) {
 	filter := bson.M{}
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+}
+
+// Search ... Return all metric sets matching the text search query
+func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedMetricSets, error){
+	filter := bson.M{
+		"$text": bson.M{ "$search": query },
+	}
 	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }

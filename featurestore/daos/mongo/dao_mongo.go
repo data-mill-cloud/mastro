@@ -11,8 +11,11 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/sources/mongo"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	paginate "github.com/gobeam/mongo-go-pagination"
-	"go.mongodb.org/mongo-driver/bson"
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
+	
+	"go.mongodb.org/mongo-driver/x/bsonx"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // featureSetMongoDao ... DAO for the FeatureSet in Mongo
@@ -136,6 +139,22 @@ func (dao *dao) Init(def *conf.DataSourceDefinition) {
 	}
 	// init mongo connector
 	dao.Connector.InitConnection(def)
+
+	if err:= dao.EnsureIndexesExist(); err != nil {
+		panic(err)
+	}
+}
+
+func (dao *dao) EnsureIndexesExist() error{
+	ctx := context.Background()
+	// make sure a full text index exists on the description
+	indexModel := mongodriver.IndexModel{
+		Keys:    bsonx.Doc{{Key: "description", Value: bsonx.String("text")}},
+	}
+	if _, err := dao.Connector.Collection.Indexes().CreateOne(ctx, indexModel); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (dao *dao) CloseConnection() {
@@ -182,18 +201,6 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, limit int, page in
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	/*
-		cursor, err := dao.Connector.Collection.Find(ctx, filter)
-		// return if any error during get
-		if err != nil {
-			return nil, fmt.Errorf("Error while retrieving featureset :: %v", err)
-		}
-
-		// return if any error while getting a cursor
-		if err = cursor.All(ctx, &features); err != nil {
-			return nil, fmt.Errorf("Error while retrieving featureset :: %v", err)
-		}
-	*/
 
 	paginatedData, err := paginate.New(dao.Connector.Collection).Context(ctx).
 		Limit(int64(limit)).Page(int64(page)).Filter(filter).
@@ -207,7 +214,6 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, limit int, page in
 	}
 
 	var resultFeats []abstract.FeatureSet = convertAllFeatureSets(&features)
-	//return &resultFeats, nil
 	return &abstract.PaginatedFeatureSets{
 		Data:       &resultFeats,
 		Pagination: abstract.FromMongoPaginationData(paginatedData.Pagination),
@@ -229,5 +235,13 @@ func (dao *dao) GetByName(name string, limit int, page int) (*abstract.Paginated
 // ListAllFeatureSets ... Return all feature sets available in collection
 func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, error) {
 	filter := bson.M{}
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+}
+
+// Search ... Return all featuresets matching the text search query
+func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, error){
+	filter := bson.M{
+		"$text": bson.M{ "$search": query },
+	}
 	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }

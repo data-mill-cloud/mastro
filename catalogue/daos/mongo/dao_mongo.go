@@ -11,7 +11,9 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/sources/mongo"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	paginate "github.com/gobeam/mongo-go-pagination"
+	mongodriver "go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 
 	"gopkg.in/mgo.v2/bson"
 )
@@ -102,13 +104,29 @@ func GetSingleton() abstract.AssetDAOProvider {
 	return instance
 }
 
-// Init ... Initialize connection to elastic search and target index
+// Init ... Initialize connection to db and target index
 func (dao *dao) Init(def *conf.DataSourceDefinition) {
 	dao.Connector = mongo.NewMongoConnector()
 	if err := dao.Connector.ValidateDataSourceDefinition(def); err != nil {
 		panic(err)
 	}
 	dao.Connector.InitConnection(def)
+	
+	if err:= dao.EnsureIndexesExist(); err != nil {
+		panic(err)
+	}
+}
+
+func (dao *dao) EnsureIndexesExist() error{
+	ctx := context.Background()
+	// make sure a full text index exists on the description
+	indexModel := mongodriver.IndexModel{
+		Keys:    bsonx.Doc{{Key: "description", Value: bsonx.String("text")}},
+	}
+	if _, err := dao.Connector.Collection.Indexes().CreateOne(ctx, indexModel); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Upsert ... Upsert asset
@@ -222,6 +240,14 @@ func (dao *dao) SearchAssetsByTags(tags []string, limit int, page int) (*abstrac
 // ListAllAssets ... Return all assets in index
 func (dao *dao) ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, error) {
 	filter := bson.M{}
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+}
+
+// Search ... Return all assets matching the text search query
+func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedAssets, error){
+	filter := bson.M{
+		"$text": bson.M{ "$search": query },
+	}
 	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }
 

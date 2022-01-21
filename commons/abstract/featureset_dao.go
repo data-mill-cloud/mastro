@@ -9,5 +9,6 @@ type FeatureSetDAOProvider interface {
 	GetById(id string) (*FeatureSet, error)
 	GetByName(name string, limit int, page int) (*PaginatedFeatureSets, error)
 	ListAllFeatureSets(limit int, page int) (*PaginatedFeatureSets, error)
+	Search(query string, limit int, page int) (*PaginatedFeatureSets, error)
 	CloseConnection()
 }
