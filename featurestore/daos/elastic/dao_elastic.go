@@ -380,10 +380,55 @@ func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFe
 	esQuery := map[string]interface{}{
 		"query": map[string]interface{}{
 			"match": map[string]interface{}{
-				"description" : query,
+				"description": query,
 			},
 		},
 	}
+	if err := json.NewEncoder(&buf).Encode(esQuery); err != nil {
+		return nil, fmt.Errorf("Error encoding query: %s", err)
+	}
+
+	searchResponse, err := dao.search(&buf)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("ListAllFeatureSets :: Retrieved", searchResponse.Hits.Total.Value, "documents")
+	if searchResponse.Hits.Total.Value > 0 {
+		fsColl, err := convertDocumentsToFeatureSetCollection(searchResponse.Hits.Hits)
+		if err != nil {
+			return nil, err
+		}
+		return &abstract.PaginatedFeatureSets{Data: fsColl}, nil
+	}
+	// else return an empty feature set
+	return nil, fmt.Errorf("No document found in index %s", dao.Connector.IndexName)
+}
+
+func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+	processedLabels := make(map[string]string)
+	for k, v := range labels {
+		processedLabels["labels."+k] = v
+	}
+
+	// match all documents matching any of the values specified in the search field
+	var buf bytes.Buffer
+	esQuery := map[string]interface{}{
+		"query": map[string]interface{}{
+			"nested": map[string]interface{}{
+				"path":       "labels",
+				"score_mode": "avg",
+				"query": map[string]interface{}{
+					"bool": map[string]interface{}{
+						"must": []map[string]interface{}{
+							{"match": processedLabels},
+						},
+					},
+				},
+			},
+		},
+	}
+
 	if err := json.NewEncoder(&buf).Encode(esQuery); err != nil {
 		return nil, fmt.Errorf("Error encoding query: %s", err)
 	}

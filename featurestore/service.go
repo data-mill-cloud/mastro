@@ -15,6 +15,8 @@ type Service interface {
 	CreateFeatureSet(fs abstract.FeatureSet) (*abstract.FeatureSet, *errors.RestErr)
 	GetFeatureSetByID(fsID string) (*abstract.FeatureSet, *errors.RestErr)
 	GetFeatureSetByName(fsName string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
+	SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
+	Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
 	ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
 }
 
@@ -74,6 +76,15 @@ func (s *featureSetServiceType) GetFeatureSetByName(fsName string, limit int, pa
 	return fset, nil
 }
 
+// SearchFeatureSetsByLabels ... Retrieve FeatureSets by Labels
+func (s *featureSetServiceType) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr) {
+	ms, err := dao.SearchFeatureSetsByLabels(labels, limit, page)
+	if err != nil {
+		return nil, errors.GetNotFoundError(err.Error())
+	}
+	return ms, nil
+}
+
 // ListAllFeatureSets ... Retrieves all FeatureSets
 func (s *featureSetServiceType) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr) {
 	fsets, err := dao.ListAllFeatureSets(limit, page)
@@ -84,6 +95,18 @@ func (s *featureSetServiceType) ListAllFeatureSets(limit int, page int) (*abstra
 	// better to return an error or an empty list?
 	if fsets == nil || len(*fsets.Data) == 0 {
 		return nil, errors.GetNotFoundError("No feature sets in given collection")
+	}
+	return fsets, nil
+}
+
+// Search ... Retrieves items by a search query
+func (s *featureSetServiceType) Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr) {
+	fsets, err := dao.Search(query, limit, page)
+	if err != nil {
+		return nil, errors.GetInternalServerError(err.Error())
+	}
+	if fsets == nil || len(*fsets.Data) == 0 {
+		return nil, errors.GetNotFoundError("No assets in given collection")
 	}
 	return fsets, nil
 }

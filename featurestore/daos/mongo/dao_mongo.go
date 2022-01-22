@@ -12,9 +12,9 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	paginate "github.com/gobeam/mongo-go-pagination"
 	mongodriver "go.mongodb.org/mongo-driver/mongo"
-	
-	"go.mongodb.org/mongo-driver/x/bsonx"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -140,16 +140,16 @@ func (dao *dao) Init(def *conf.DataSourceDefinition) {
 	// init mongo connector
 	dao.Connector.InitConnection(def)
 
-	if err:= dao.EnsureIndexesExist(); err != nil {
+	if err := dao.EnsureIndexesExist(); err != nil {
 		panic(err)
 	}
 }
 
-func (dao *dao) EnsureIndexesExist() error{
+func (dao *dao) EnsureIndexesExist() error {
 	ctx := context.Background()
 	// make sure a full text index exists on the description
 	indexModel := mongodriver.IndexModel{
-		Keys:    bsonx.Doc{{Key: "description", Value: bsonx.String("text")}},
+		Keys: bsonx.Doc{{Key: "description", Value: bsonx.String("text")}},
 	}
 	if _, err := dao.Connector.Collection.Indexes().CreateOne(ctx, indexModel); err != nil {
 		return err
@@ -239,9 +239,18 @@ func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeat
 }
 
 // Search ... Return all featuresets matching the text search query
-func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, error){
+func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
 	filter := bson.M{
-		"$text": bson.M{ "$search": query },
+		"$text": bson.M{"$search": query},
+	}
+	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+}
+
+// SearchFeatureSetsByLabels ... Return all featuresets matching the search labels
+func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+	filter := bson.M{}
+	for k, v := range labels {
+		filter["labels."+k] = v
 	}
 	return dao.getAnyDocumentUsingFilter(filter, limit, page)
 }

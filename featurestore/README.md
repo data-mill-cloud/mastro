@@ -34,6 +34,8 @@ type FeatureSetDAOProvider interface {
 	Create(fs *FeatureSet) error
 	GetById(id string) (*FeatureSet, error)
 	GetByName(name string, limit int, page int) (*PaginatedFeatureSets, error)
+	SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*PaginatedFeatureSets, error)
+	Search(query string, limit int, page int) (*PaginatedFeatureSets, error)
 	ListAllFeatureSets(limit int, page int) (*PaginatedFeatureSets, error)
 	CloseConnection()
 }
@@ -61,6 +63,8 @@ type Service interface {
 	CreateFeatureSet(fs abstract.FeatureSet) (*abstract.FeatureSet, *errors.RestErr)
 	GetFeatureSetByID(fsID string) (*abstract.FeatureSet, *errors.RestErr)
 	GetFeatureSetByName(fsName string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
+	SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
+	Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
 	ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
 }
 ```
@@ -68,13 +72,16 @@ type Service interface {
 This is translated to the following endpoint:
 
 
-| Verb        | Endpoint                          | Maps to                                                       |
-|-------------|-----------------------------------|---------------------------------------------------------------|
-| **GET**     | /healthcheck/featureset           | github.com/data-mill-cloud/mastro/featurestore.Ping                   |
-| ~~**GET**~~ | ~~/featureset/id/:featureset_id~~ | ~~github.com/data-mill-cloud/mastro/featurestore.GetFeatureSetByID~~  |
-| **GET**     | /featureset/name/:featureset_name | github.com/data-mill-cloud/mastro/featurestore.GetFeatureSetByName    |
-| **PUT**     | /featureset/                      | github.com/data-mill-cloud/mastro/featurestore.CreateFeatureSet       |
-| ~~**GET**~~ | ~~/featureset/~~                  | ~~github.com/data-mill-cloud/mastro/featurestore.ListAllFeatureSets~~ | 
+| Verb        | Endpoint                          | Maps to                                                                        |
+|-------------|-----------------------------------|--------------------------------------------------------------------------------|
+| **GET**     | /healthcheck/featureset           | github.com/data-mill-cloud/mastro/featurestore.Ping                            |
+| ~~**GET**~~ | ~~/featureset/id/:featureset_id~~ | ~~github.com/data-mill-cloud/mastro/featurestore.GetFeatureSetByID~~           |
+| **GET**     | /featureset/name/:featureset_name | github.com/data-mill-cloud/mastro/featurestore.GetFeatureSetByName             |
+| **PUT**     | /featureset/                      | github.com/data-mill-cloud/mastro/featurestore.CreateFeatureSet                |
+| **GET**     | /labels                           | github.com/data-mill-cloud/mastro/featurestore.SearchFeatureSetsByQueryLabels  |
+| **POST**    | /labels                           | github.com/data-mill-cloud/mastro/featurestore.SearchFeatureSetsByLabels       |
+| **POST**    | /search                           | github.com/data-mill-cloud/mastro/featurestore.Search	                       |
+| ~~**GET**~~ | ~~/featureset/~~                  | ~~github.com/data-mill-cloud/mastro/featurestore.ListAllFeatureSets~~          | 
 
 ### Examples
 

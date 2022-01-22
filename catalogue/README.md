@@ -13,6 +13,7 @@ type Service interface {
 	GetAssetByID(assetID string) (*abstract.Asset, *errors.RestErr)
 	GetAssetByName(name string) (*abstract.Asset, *errors.RestErr)
 	SearchAssetsByTags(tags []string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
+	Search(query string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
 	ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
 }
 ```
@@ -26,6 +27,7 @@ type AssetDAOProvider interface {
 	GetByName(id string) (*Asset, error)
 	SearchAssetsByTags(tags []string, limit int, page int) (*PaginatedAssets, error)
 	ListAllAssets(limit int, page int) (*PaginatedAssets, error)
+	Search(query string, limit int, page int) (*PaginatedAssets, error)
 	CloseConnection()
 }
 ```
@@ -42,6 +44,7 @@ This is translated to the following endpoint:
 | **PUT**     | /asset/                 | github.com/data-mill-cloud/mastro/catalogue.UpsertAsset         |
 | **PUT**     | /assets/                | github.com/data-mill-cloud/mastro/catalogue.BulkUpsert          |
 | **POST**    | /assets/tags            | github.com/data-mill-cloud/mastro/catalogue.SearchAssetsByTags  |
+| **POST**    | /assets/search          | github.com/data-mill-cloud/mastro/catalogue.Search              |
 | ~~**GET**~~ | ~~/assets/~~            | ~~github.com/data-mill-cloud/mastro/catalogue.ListAllAssets~~   | 
 
 Those crossed out are meant for testing purposes and will be removed in the following releases.
