@@ -21,7 +21,9 @@ const SearchReducer = (state = initialSearchState, {type, payload}) => {
                 ...state,
                 query : payload,
                 loading : true,
-                errorMessage : ""
+                errorMessage : "",
+                assets : [],
+                pagination : null
             }
         case 'search/gotopage':        
             search(state.query, state.limit, payload)
@@ -57,12 +59,13 @@ const SearchReducer = (state = initialSearchState, {type, payload}) => {
 const getRequest = (query, limit, page) => {
     var elements = query.split(",");
     // get by name is 1 element only without #
-    if(elements.length === 1 && !elements[0].includes("#")) {
+    if(elements.length === 1 && !elements[0].includes("#") && !elements[0].includes(" ")) {
         return {
             url : `${getSvcHost('catalogue')}/asset/name/${elements[0]}`,
             options : null
         }
-    }else{
+
+    }else if(elements[0].includes("#")){
         // we either have a list of tags (>1) or whatever having # inside
         for (var i = 0; i < elements.length; i++) {
             elements[i] = elements[i].trim().replace("#", "");
@@ -74,6 +77,15 @@ const getRequest = (query, limit, page) => {
                 method : 'POST',
                 headers : { 'Content-Type': 'application/json' },
                 body : JSON.stringify({ tags: elements, limit : limit, page : page })
+            }
+        }
+    }else{
+        return {
+            url : `${getSvcHost('catalogue')}/assets/search`,
+            options : { 
+                method : 'POST',
+                headers : { 'Content-Type': 'application/json' },
+                body : JSON.stringify({ query: query, limit : limit, page : page })
             }
         }
     }
