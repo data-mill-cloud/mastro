@@ -35,9 +35,14 @@ Add the helm repo:
 helm repo add mastro https://data-mill-cloud.github.io/mastro/helm-charts
 ```
 
-Start using the Chart:
+Search the chart on the repo:
 ```
 ❯ helm search repo mastro
 NAME            CHART VERSION   APP VERSION     DESCRIPTION            
 mastro/mastro   0.1.0           0.3.1           A Helm chart for Mastro
+```
+
+Use the chart:
+```
+helm install mastro mastro/mastro
 ```
