@@ -9,6 +9,8 @@ import Asset from './pages/Asset';
 import Explorer from './pages/Explorer';
 import Featuresets from './pages/Featuresets';
 import Metricsets from './pages/Metricsets';
+import KafkaConnectors from './pages/KafkaConnectors';
+import KafkaSchema from './pages/KafkaSchema';
 
 function App() {
   return (
@@ -22,6 +24,10 @@ function App() {
             <Route path="/asset/:assetid" element={<Asset />} />
             <Route path="/featureset/:assetid" element={<Featuresets />} />
             <Route path="/metricset/:assetid" element={<Metricsets />} />
+            <Route path="/kafkaconnectors" element={<KafkaConnectors />} />
+            <Route path="/kafkaconnector/:assetid" element={<KafkaConnectors />} />
+            <Route path="/kafkaschema/:assetid" element={<KafkaSchema />} />
+            <Route path="/kafkaschemas" element={<KafkaSchema />} />
             <Route path="/about" element={<About />} />
             <Route path="/notfound" element={<NotFound />} />
             <Route path="/*" element={<NotFound />} />

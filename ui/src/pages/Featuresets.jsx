@@ -58,7 +58,7 @@ function Featuresets() {
                             <FeatureViewer featureset={selectedFeatureset} />
                         </div>
                     )}
-                    <PageSelector pagination={pagination} pageTarget={'featureset/gotopage'}/>                        
+                    <PageSelector pagination={pagination} pageTarget={'featureset/gotopage'}/>         
                 </div>
             )
         }
