@@ -12,7 +12,7 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	paginate "github.com/gobeam/mongo-go-pagination"
 	mongodriver "go.mongodb.org/mongo-driver/mongo"
-	
+
 	"go.mongodb.org/mongo-driver/x/bsonx"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -223,17 +223,17 @@ func (dao *dao) Init(def *conf.DataSourceDefinition) {
 	}
 	// init mongo connector
 	dao.Connector.InitConnection(def)
-	
-	if err:= dao.EnsureIndexesExist(); err != nil {
+
+	if err := dao.EnsureIndexesExist(); err != nil {
 		panic(err)
 	}
 }
 
-func (dao *dao) EnsureIndexesExist() error{
+func (dao *dao) EnsureIndexesExist() error {
 	ctx := context.Background()
 	// make sure a full text index exists on the description
 	indexModel := mongodriver.IndexModel{
-		Keys:    bsonx.Doc{{Key: "description", Value: bsonx.String("text")}},
+		Keys: bsonx.Doc{{Key: "description", Value: bsonx.String("text")}},
 	}
 	if _, err := dao.Connector.Collection.Indexes().CreateOne(ctx, indexModel); err != nil {
 		return err
@@ -278,25 +278,22 @@ func (dao *dao) getOneDocumentUsingFilter(filter interface{}) (*abstract.MetricS
 	return convertMetricSetDAOToDTO(&result), nil
 }
 
-func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, limit int, page int) (*abstract.PaginatedMetricSets, error) {
+type sorter struct {
+	sortField string
+	sortValue interface{}
+}
+
+func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, limit int, page int) (*abstract.PaginatedMetricSets, error) {
 	var metrics []metricSetMongoDao
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	/*
-		cursor, err := dao.Connector.Collection.Find(ctx, filter)
-		// return if any error during get
-		if err != nil {
-			return nil, fmt.Errorf("Error while retrieving metricset :: %v", err)
-		}
-		// return if any error while getting a cursor
-		if err = cursor.All(ctx, &metrics); err != nil {
-			return nil, fmt.Errorf("Error while retrieving metricset :: %v", err)
-		}
-	*/
-	paginatedData, err := paginate.New(dao.Connector.Collection).Context(ctx).
-		Limit(int64(limit)).Page(int64(page)).Filter(filter).
-		Decode(&metrics).Find()
+
+	paginator := paginate.New(dao.Connector.Collection).Context(ctx).Limit(int64(limit)).Page(int64(page)).Filter(filter)
+	if sorter != nil {
+		paginator = paginator.Sort(sorter.sortField, sorter.sortValue)
+	}
+	paginatedData, err := paginator.Decode(&metrics).Find()
 	if err != nil {
 		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
 	}
@@ -321,7 +318,8 @@ func (dao *dao) GetById(id string) (*abstract.MetricSet, error) {
 // GetByName ... Retrieve document by given name
 func (dao *dao) GetByName(name string, limit int, page int) (*abstract.PaginatedMetricSets, error) {
 	filter := bson.M{"name": name}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	sorter := &sorter{"inserted-at", -1}
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // SearchMetricSetsByLabels ... Retrieve assets by given labels
@@ -336,19 +334,22 @@ func (dao *dao) SearchMetricSetsByLabels(labels map[string]string, limit int, pa
 	for k, v := range labels {
 		filter["labels."+k] = v
 	}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	sorter := &sorter{"inserted-at", -1}
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // ListAllMetricSets ... Return all MetricSets in index
 func (dao *dao) ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, error) {
 	filter := bson.M{}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	var sorter *sorter = nil
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // Search ... Return all metric sets matching the text search query
-func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedMetricSets, error){
+func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedMetricSets, error) {
 	filter := bson.M{
-		"$text": bson.M{ "$search": query },
+		"$text": bson.M{"$search": query},
 	}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	sorter := &sorter{sortField: "score", sortValue: bson.M{"$meta": "textScore"}}
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }

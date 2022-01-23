@@ -196,15 +196,23 @@ func (dao *dao) getOneDocumentUsingFilter(filter interface{}) (*abstract.Feature
 	return convertFeatureSetDAOToDTO(&result), nil
 }
 
-func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+type sorter struct {
+	sortField string
+	sortValue interface{}
+}
+
+func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
 	var features []featureSetMongoDao
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	paginatedData, err := paginate.New(dao.Connector.Collection).Context(ctx).
-		Limit(int64(limit)).Page(int64(page)).Filter(filter).
-		Decode(&features).Find()
+	paginator := paginate.New(dao.Connector.Collection).Context(ctx).Limit(int64(limit)).Page(int64(page)).Filter(filter)
+	if sorter != nil {
+		paginator = paginator.Sort(sorter.sortField, sorter.sortValue)
+	}
+
+	paginatedData, err := paginator.Decode(&features).Find()
 	if err != nil {
 		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
 	}
@@ -229,13 +237,15 @@ func (dao *dao) GetById(id string) (*abstract.FeatureSet, error) {
 // GetByName ... Retrieve document by given name
 func (dao *dao) GetByName(name string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
 	filter := bson.M{"name": name}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	sorter := &sorter{"inserted-at", -1}
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // ListAllFeatureSets ... Return all feature sets available in collection
 func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, error) {
 	filter := bson.M{}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	var sorter *sorter = nil
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // Search ... Return all featuresets matching the text search query
@@ -243,7 +253,8 @@ func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFe
 	filter := bson.M{
 		"$text": bson.M{"$search": query},
 	}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	sorter := &sorter{sortField: "score", sortValue: bson.M{"$meta": "textScore"}}
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // SearchFeatureSetsByLabels ... Return all featuresets matching the search labels
@@ -252,5 +263,6 @@ func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, p
 	for k, v := range labels {
 		filter["labels."+k] = v
 	}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	sorter := &sorter{"inserted-at", -1}
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }

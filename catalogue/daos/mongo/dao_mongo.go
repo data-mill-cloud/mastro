@@ -111,17 +111,17 @@ func (dao *dao) Init(def *conf.DataSourceDefinition) {
 		panic(err)
 	}
 	dao.Connector.InitConnection(def)
-	
-	if err:= dao.EnsureIndexesExist(); err != nil {
+
+	if err := dao.EnsureIndexesExist(); err != nil {
 		panic(err)
 	}
 }
 
-func (dao *dao) EnsureIndexesExist() error{
+func (dao *dao) EnsureIndexesExist() error {
 	ctx := context.Background()
 	// make sure a full text index exists on the description
 	indexModel := mongodriver.IndexModel{
-		Keys:    bsonx.Doc{{Key: "description", Value: bsonx.String("text")}},
+		Keys: bsonx.Doc{{Key: "description", Value: bsonx.String("text")}},
 	}
 	if _, err := dao.Connector.Collection.Indexes().CreateOne(ctx, indexModel); err != nil {
 		return err
@@ -178,25 +178,24 @@ func (dao *dao) getOneDocumentUsingFilter(filter interface{}) (*abstract.Asset, 
 	return convertAssetDAOtoDTO(&result), nil
 }
 
-func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, limit int, page int) (*abstract.PaginatedAssets, error) {
+type sorter struct {
+	sortField string
+	sortValue interface{}
+}
+
+func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, limit int, page int) (*abstract.PaginatedAssets, error) {
 	var assets []assetMongoDao
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	/* cursor, err := dao.Connector.Collection.Find(ctx, filter)
-	// return if any error during get
-	if err != nil {
-		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
-	}
-	// return if any error while getting a cursor
-	if err = cursor.All(ctx, &assets); err != nil {
-		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
-	}
-	*/
 
-	paginatedData, err := paginate.New(dao.Connector.Collection).Context(ctx).
-		Limit(int64(limit)).Page(int64(page)).Filter(filter).
-		Decode(&assets).Find()
+	paginator := paginate.New(dao.Connector.Collection).Context(ctx).Limit(int64(limit)).Page(int64(page))
+	if sorter != nil {
+		paginator = paginator.Sort(sorter.sortField, sorter.sortValue)
+	}
+	paginator = paginator.Filter(filter)
+
+	paginatedData, err := paginator.Decode(&assets).Find()
 	if err != nil {
 		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
 	}
@@ -206,7 +205,7 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, limit int, page in
 	}
 
 	var resultAssets []abstract.Asset = convertAllAssets(&assets)
-	//return &resultAssets, nil
+
 	return &abstract.PaginatedAssets{
 		Data:       &resultAssets,
 		Pagination: abstract.FromMongoPaginationData(paginatedData.Pagination),
@@ -234,21 +233,24 @@ func (dao *dao) SearchAssetsByTags(tags []string, limit int, page int) (*abstrac
 	// find all docs whose tags field contains all the elements provided as tags []string in input
 	// without regard of the order
 	filter := bson.M{"tags": bson.M{"$all": tags}}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	var sorter *sorter = nil
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // ListAllAssets ... Return all assets in index
 func (dao *dao) ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, error) {
 	filter := bson.M{}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	var sorter *sorter = nil
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // Search ... Return all assets matching the text search query
-func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedAssets, error){
+func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedAssets, error) {
 	filter := bson.M{
-		"$text": bson.M{ "$search": query },
+		"$text": bson.M{"$search": query},
 	}
-	return dao.getAnyDocumentUsingFilter(filter, limit, page)
+	sorter := &sorter{sortField: "score", sortValue: bson.M{"$meta": "textScore"}}
+	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // CloseConnection ... Terminates the connection to ES for the DAO
