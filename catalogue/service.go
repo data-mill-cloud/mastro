@@ -16,6 +16,7 @@ type Service interface {
 	GetAssetByID(assetID string) (*abstract.Asset, *errors.RestErr)
 	GetAssetByName(name string) (*abstract.Asset, *errors.RestErr)
 	SearchAssetsByTags(tags []string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
+	Search(query string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
 	ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
 }
 
@@ -90,6 +91,20 @@ func (s *assetServiceType) SearchAssetsByTags(tags []string, limit int, page int
 // ListAllAssets ... Retrieves all stored assets
 func (s *assetServiceType) ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr) {
 	assets, err := dao.ListAllAssets(limit, page)
+	if err != nil {
+		return nil, errors.GetInternalServerError(err.Error())
+	}
+	// n.b. - assets empty if collection is empty
+	// better to return an error or an empty list?
+	if assets == nil || len(*assets.Data) == 0 {
+		return nil, errors.GetNotFoundError("No assets in given collection")
+	}
+	return assets, nil
+}
+
+// Search ... Retrieves items by a search query
+func (s *assetServiceType) Search(query string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr) {
+	assets, err := dao.Search(query, limit, page)
 	if err != nil {
 		return nil, errors.GetInternalServerError(err.Error())
 	}

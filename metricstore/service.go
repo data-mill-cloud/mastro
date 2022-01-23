@@ -16,6 +16,7 @@ type Service interface {
 	GetMetricSetByID(msID string) (*abstract.MetricSet, *errors.RestErr)
 	GetMetricSetByName(msName string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
 	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
+	Search(query string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
 	ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
 }
 
@@ -89,10 +90,20 @@ func (s *metricStoreServiceType) ListAllMetricSets(limit int, page int) (*abstra
 	if err != nil {
 		return nil, errors.GetInternalServerError(err.Error())
 	}
-	// n.b. - fsets empty if collection is empty
-	// better to return an error or an empty list?
 	if msets == nil || len(*msets.Data) == 0 {
 		return nil, errors.GetNotFoundError("No metricsets in given collection")
+	}
+	return msets, nil
+}
+
+// Search ... Retrieves items by a search query
+func (s *metricStoreServiceType) Search(query string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr) {
+	msets, err := dao.Search(query, limit, page)
+	if err != nil {
+		return nil, errors.GetInternalServerError(err.Error())
+	}
+	if msets == nil || len(*msets.Data) == 0 {
+		return nil, errors.GetNotFoundError("No assets in given collection")
 	}
 	return msets, nil
 }

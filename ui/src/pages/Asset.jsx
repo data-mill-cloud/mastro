@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useParams} from 'react-router-dom'
 import AssetIcon from '../components/entries/AssetIcon'
-import {FaLink} from 'react-icons/fa'
 import {BiError} from 'react-icons/bi'
 import LineageChart from '../components/lineage/LineageChart';
 import {Link} from 'react-router-dom';
@@ -20,33 +19,30 @@ function Asset() {
         dispatch({type: 'assetdetail/get', payload: params.assetid})
     }, [dispatch, params.assetid])
 
-    const getUpwardLineage = (asset) => {
-        var lineageData = {name : asset.name, children : []}
-        if (asset['depends-on']){
-            lineageData.children = asset['depends-on'].map(parent => {
-                return {name : parent, children : []}
+    const getLineage = (asset) => {
+        const currentAssetId = uuidv4()
+        const lineageData = [{
+            id : currentAssetId, data : { label: asset.name }, position : {x : 400, y : 150},
+            //sourcePosition: 'top', targetPosition: 'top'
+         }
+        ]
+        if('depends-on' in asset){
+            asset['depends-on'].forEach(function (parent, i) {
+                let parentId = uuidv4()
+                lineageData.push({
+                    id: parentId, data : {label : parent}, type : 'input', position : {x : i*250, y:0}, //sourcePosition: 'bottom'
+                })
+                lineageData.push({
+                    id: `edge-${parentId}-to-${currentAssetId}`,
+                    source: parentId,
+                    type: 'smoothstep',
+                    target: currentAssetId,
+                    animated: true,
+                })
             })
         }
         return lineageData
     }
-    
-    /*
-    const getDownwardLineage = (asset) => {
-        var lineageData = {name : "root", children : []}
-
-        if (asset['depends-on']){
-            lineageData.children = asset['depends-on'].map(parentDependency => {
-                return {
-                    name : parentDependency,
-                    children : [
-                        { name : asset.name, children : [] }
-                    ]
-                }
-            })
-        }
-        return lineageData
-    }
-    */
 
     if (!loading){
         if(errorMessage){
@@ -106,16 +102,14 @@ function Asset() {
                                     </div>
                                 ))}
 
-                    <div className="w-full rounded-lg shadow-md bg-base-100 stats py-5 mb-6">
-                        <div className="stat">
-                            <div className="stat-figure text-secondary">
-                                <FaLink className="text-3xl md:text-5xl" />
-                            </div>
-                            <div className="stat-title text-md">Depends on</div>
-                            <LineageChart lineageData={getUpwardLineage(asset)} width={1024} height={400}/>    
+                    <div className="w-full rounded-lg shadow-md bg-base-100 py-5 mb-6">        
+                        <div className="stat-title ml-5">Depends on</div>
+                        <div className="stat h-72">
+                            <LineageChart lineageData={getLineage(asset)}/>    
                         </div>
-                        
                     </div>
+
+                    
                 </div>
             )
         }

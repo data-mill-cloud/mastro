@@ -10,5 +10,6 @@ type MetricSetDAOProvider interface {
 	GetByName(name string, limit int, page int) (*PaginatedMetricSets, error)
 	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*PaginatedMetricSets, error)
 	ListAllMetricSets(limit int, page int) (*PaginatedMetricSets, error)
+	Search(query string, limit int, page int) (*PaginatedMetricSets, error)
 	CloseConnection()
 }

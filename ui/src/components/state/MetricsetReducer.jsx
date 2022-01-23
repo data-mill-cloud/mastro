@@ -19,16 +19,17 @@ const MetricsetReducer = (state = initialMetricsetState, {type, payload}) => {
             return {
                 ...state,
                 query: payload,
-                loading : true
+                loading : true,
+                selectedMetricset : null,
             }
         case 'metricset/gotopage':        
             getMetricset(state.query, state.limit, payload)
-            return {...state, page : payload}
+            return {...state, page : payload, selectedMetricset : null,}
         case 'metricset/resizemaxitems':
             if(state.pagination && state.pagination.total >= state.limit){
                 getMetricset(state.query, payload, state.page)
             }
-            return {...state, limit : payload}
+            return {...state, limit : payload, selectedMetricset : null,}
         case 'metricset/show':
             return {
                 ...state,

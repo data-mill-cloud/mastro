@@ -11,3 +11,9 @@ type ByLabels struct {
 	Limit  int               `json:"limit,omitempty"`
 	Page   int               `json:"page,omitempty"`
 }
+
+type ByText struct {
+	Query string `json:"query,omitempty"`
+	Limit  int   `json:"limit,omitempty"`
+	Page   int   `json:"page,omitempty"`
+}

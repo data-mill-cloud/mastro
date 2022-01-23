@@ -139,6 +139,29 @@ func ListAllAssets(c *gin.Context) {
 	}
 }
 
+// Search ... search by a full text query param
+func Search(c *gin.Context) {
+	query := queries.ByText{}
+	err := c.BindJSON(&query)
+	if err != nil {
+		restErr := errors.GetBadRequestError("Invalid text query :: invalid input json format")
+		c.JSON(restErr.Status, restErr)
+	} else {
+		if len(query.Query) == 0 {
+			restErr := errors.GetBadRequestError("Invalid text query :: empty text")
+			c.JSON(restErr.Status, restErr)
+		} else {
+			assets, getErr := assetService.Search(query.Query, query.Limit, query.Page)
+			if getErr != nil {
+				c.JSON(getErr.Status, getErr)
+			} else {
+				c.JSON(http.StatusOK, assets)
+			}
+		}
+	}
+
+}
+
 func getLimitAndPageNumber(req *http.Request) (limit int, page int, err error) {
 	if limit, err = strconv.Atoi(req.URL.Query().Get(limitParam)); err != nil {
 		return
@@ -172,6 +195,7 @@ func StartEndpoint(cfg *conf.Config) {
 
 	// get any asset matching tags
 	router.POST(fmt.Sprintf("%s/tags", assetsRestEndpoint), SearchAssetsByTags)
+	router.POST(fmt.Sprintf("%s/search", assetsRestEndpoint), Search)
 
 	// list all assets
 	router.GET(fmt.Sprintf("%s/", assetsRestEndpoint), ListAllAssets)

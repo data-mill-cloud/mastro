@@ -40,6 +40,7 @@ type MetricSetDAOProvider interface {
 	GetByName(name string, limit int, page int) (*PaginatedMetricSets, error)
 	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*PaginatedMetricSets, error)
 	ListAllMetricSets(limit int, page int) (*PaginatedMetricSets, error)
+	Search(query string, limit int, page int) (*PaginatedMetricSets, error)
 	CloseConnection()
 }
 ```
@@ -67,6 +68,7 @@ type Service interface {
 	GetMetricSetByID(msID string) (*abstract.MetricSet, *errors.RestErr)
 	GetMetricSetByName(msName string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
 	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
+	Search(query string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
 	ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
 }
 ```
@@ -82,6 +84,7 @@ This is translated to the following endpoint:
 | **PUT**     | /metricstore/                      | github.com/data-mill-cloud/mastro/metricstore.CreateMetricSet               |
 | **POST**    | /metricstore/labels                | github.com/data-mill-cloud/mastro/metricstore.SearchMetricSetsByLabels      |
 | **GET**     | /metricstore/labels                | github.com/data-mill-cloud/mastro/metricStore.SearchMetricSetsByQueryLabels |
+| **POST**    | /metricstore/search                | github.com/data-mill-cloud/mastro/metricstore.Search                        |
 | ~~**GET**~~ | ~~/metricstore/~~                  | ~~github.com/data-mill-cloud/mastro/metricstore.ListAllMetricSets~~         | 
 
 ### Examples

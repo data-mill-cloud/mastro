@@ -8,6 +8,8 @@ type FeatureSetDAOProvider interface {
 	Create(fs *FeatureSet) error
 	GetById(id string) (*FeatureSet, error)
 	GetByName(name string, limit int, page int) (*PaginatedFeatureSets, error)
+	SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*PaginatedFeatureSets, error)
+	Search(query string, limit int, page int) (*PaginatedFeatureSets, error)
 	ListAllFeatureSets(limit int, page int) (*PaginatedFeatureSets, error)
 	CloseConnection()
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	"github.com/data-mill-cloud/mastro/commons/utils/errors"
+	"github.com/data-mill-cloud/mastro/commons/utils/queries"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -94,6 +95,81 @@ func GetFeatureSetByName(c *gin.Context) {
 	}
 }
 
+// SearchFeatureSetsByLabels ... retrieves any featureset matching all specified labels or error if empty
+func SearchFeatureSetsByLabels(c *gin.Context) {
+	query := queries.ByLabels{}
+	err := c.BindJSON(&query)
+
+	if err != nil {
+		restErr := errors.GetBadRequestError("Invalid query by labels :: invalid input json format")
+		c.JSON(restErr.Status, restErr)
+	} else {
+		if query.Labels == nil || len(query.Labels) == 0 {
+			restErr := errors.GetBadRequestError("Invalid query by labels :: empty label dict")
+			c.JSON(restErr.Status, restErr)
+		} else {
+			fsets, getErr := featureSetService.SearchFeatureSetsByLabels(query.Labels, query.Limit, query.Page)
+			if getErr != nil {
+				c.JSON(getErr.Status, getErr)
+			} else {
+				c.JSON(http.StatusOK, fsets)
+			}
+		}
+	}
+}
+
+func SearchFeatureSetsByQueryLabels(c *gin.Context) {
+	limit, page, err := getLimitAndPageNumber(c.Request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	query := c.Request.URL.Query()
+
+	if len(query) == 0 {
+		restErr := errors.GetBadRequestError("Invalid query by labels :: empty label dict")
+		c.JSON(restErr.Status, restErr)
+	} else {
+		q := make(map[string]string)
+		for k, l := range query {
+			if k != limitParam && k != pageParam {
+				q[k] = l[0]
+			}
+		}
+		fsets, getErr := featureSetService.SearchFeatureSetsByLabels(q, limit, page)
+		if getErr != nil {
+			c.JSON(getErr.Status, getErr)
+		} else {
+			c.JSON(http.StatusOK, fsets)
+		}
+
+	}
+}
+
+// Search ... search by a full text query param
+func Search(c *gin.Context) {
+	query := queries.ByText{}
+	err := c.BindJSON(&query)
+	if err != nil {
+		restErr := errors.GetBadRequestError("Invalid text query :: invalid input json format")
+		c.JSON(restErr.Status, restErr)
+	} else {
+		if len(query.Query) == 0 {
+			restErr := errors.GetBadRequestError("Invalid text query :: empty text")
+			c.JSON(restErr.Status, restErr)
+		} else {
+			fsets, getErr := featureSetService.Search(query.Query, query.Limit, query.Page)
+			if getErr != nil {
+				c.JSON(getErr.Status, getErr)
+			} else {
+				c.JSON(http.StatusOK, fsets)
+			}
+		}
+	}
+
+}
+
 // ListAllFeatureSets ... lists all featuresets in the DB
 func ListAllFeatureSets(c *gin.Context) {
 
@@ -130,8 +206,14 @@ func StartEndpoint(cfg *conf.Config) {
 	// get feature set as featureset/name/:fs_name with :fs_name being a placeholder for the value passed
 	router.GET(fmt.Sprintf("%s/name/:%s", featureSetRestEndpoint, featureSetNameParam), GetFeatureSetByName)
 
+	// search by query string
+	router.POST(fmt.Sprintf("%s/search", featureSetRestEndpoint), Search)
+
 	// put feature set as featureset/
 	router.PUT(fmt.Sprintf("%s/", featureSetRestEndpoint), CreateFeatureSet)
+
+	router.POST(fmt.Sprintf("%s/labels", featureSetRestEndpoint), SearchFeatureSetsByLabels)
+	router.GET(fmt.Sprintf("%s/labels", featureSetRestEndpoint), SearchFeatureSetsByQueryLabels)
 
 	// list all feature sets
 	router.GET(fmt.Sprintf("%s/", featureSetRestEndpoint), ListAllFeatureSets)

@@ -10,5 +10,6 @@ type AssetDAOProvider interface {
 	GetByName(id string) (*Asset, error)
 	SearchAssetsByTags(tags []string, limit int, page int) (*PaginatedAssets, error)
 	ListAllAssets(limit int, page int) (*PaginatedAssets, error)
+	Search(query string, limit int, page int) (*PaginatedAssets, error)
 	CloseConnection()
 }
