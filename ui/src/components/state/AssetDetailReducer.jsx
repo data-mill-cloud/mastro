@@ -37,7 +37,9 @@ const getAsset = async (query) => {
     try {
         const request =  {
             url : `${getSvcHost('catalogue')}/asset/name/${query}`,
-            options : null
+            options : {
+                method : "GET"
+            }
         }
         const response = await fetch(request.url, request.options)
         const data = await response.json()

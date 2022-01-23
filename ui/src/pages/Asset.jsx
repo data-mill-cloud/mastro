@@ -103,7 +103,7 @@ function Asset() {
                                 ))}
 
                     <div className="w-full rounded-lg shadow-md bg-base-100 py-5 mb-6">        
-                        <div className="stat-title text-md">Depends on</div>
+                        <div className="stat-title ml-5">Depends on</div>
                         <div className="stat h-72">
                             <LineageChart lineageData={getLineage(asset)}/>    
                         </div>
