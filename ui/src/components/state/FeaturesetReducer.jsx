@@ -20,16 +20,17 @@ const FeaturesetReducer = (state = initialFeaturesetState, {type, payload}) => {
             return {
                 ...state,
                 query : payload,
-                loading : true
+                loading : true,
+                selectedFeatureset : null
             }
         case 'featureset/gotopage':        
             getFeatureset(state.query, state.limit, payload)
-            return {...state, page : payload}
+            return {...state, page : payload, selectedFeatureset : null}
         case 'featureset/resizemaxitems':
             if(state.pagination && state.pagination.total >= state.limit){
                 getFeatureset(state.query, payload, state.page)
             }
-            return {...state, limit : payload}
+            return {...state, limit : payload, selectedFeatureset : null}
         case 'featureset/show':
             return {
                 ...state,
