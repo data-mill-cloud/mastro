@@ -22,7 +22,7 @@ catalogue:
   image:
     repository: datamillcloud/mastro-catalogue
     pullPolicy: IfNotPresent
-    tag: "v0.4"
+    tag: "v0.5"
   replicaCount: 1
   autoscaling:
     enabled: false
@@ -93,7 +93,7 @@ featurestore:
   image:
     repository: datamillcloud/mastro-featurestore
     pullPolicy: IfNotPresent
-    tag: "v0.4"
+    tag: "v0.5"
   replicaCount: 1
   autoscaling:
     enabled: false
@@ -164,7 +164,7 @@ metricstore:
   image:
     repository: datamillcloud/mastro-metricstore
     pullPolicy: IfNotPresent
-    tag: "v0.4"
+    tag: "v0.5"
   replicaCount: 1
   autoscaling:
     enabled: false
@@ -230,7 +230,7 @@ ui:
   image:
     repository: datamillcloud/mastro-ui
     pullPolicy: IfNotPresent
-    tag: "v0.4"
+    tag: "v0.5"
   replicaCount: 1
   autoscaling:
     enabled: false
