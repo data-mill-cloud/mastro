@@ -7,9 +7,10 @@ Minimal UI for the Mastro Catalogue
 - Query by: i) asset "`name`" or ii) "`#tag, ...`";
 
 ## Screenshot
-![Screenshot](screenshot_search.png)
-![Screenshot](screenshot_assetview.png)
-![Screenshot](screenshot_explore.png)
+<img src="screenshot_search.png" alt="screenshot" width="800"/>
+<img src="screenshot_assetview.png" alt="screenshot" width="800"/>
+<img src="screenshot_featuresetview.png" alt="screenshot" width="800"/>
+<img src="screenshot_explore.png" alt="screenshot" width="800"/>
 
 ## Development
 
