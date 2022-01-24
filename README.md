@@ -1,7 +1,7 @@
 # Mastro
-<div style="width: 50%; display: table;">
+<div style="width: 30%; display: table;">
     <div style="display: table-row">
-        <div style="width: 5rem; display: table-cell;">
+        <div style="width: 1rem; display: table-cell;">
             <img src="docs/images/mastro_gopher.png" alt="Mastro logo" />
         </div>
         <div style="display: table-cell; vertical-align:middle;">Metadata management in Go </div>
