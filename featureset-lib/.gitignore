@@ -1,0 +1,11 @@
+# Ignore everything
+*
+
+# but
+!.gitignore
+!setup.py
+!Makefile
+!README.md
+!tests
+!mastro-fs
+!examples
