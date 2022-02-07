@@ -13,7 +13,6 @@ import (
 	paginate "github.com/gobeam/mongo-go-pagination"
 	mongodriver "go.mongodb.org/mongo-driver/mongo"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/x/bsonx"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -31,10 +30,10 @@ type featureSetMongoDao struct {
 
 // featureMongoDao ... a named variable with a data type
 type featureMongoDao struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	Name     string             `bson:"name,omitempty"`
-	Value    interface{}        `bson:"value,omitempty"`
-	DataType string             `bson:"data-type,omitempty"`
+	//ID       primitive.ObjectID `bson:"_id,omitempty"`
+	Name     string      `bson:"name,omitempty"`
+	Value    interface{} `bson:"value,omitempty"`
+	DataType string      `bson:"data-type,omitempty"`
 }
 
 type dao struct {
