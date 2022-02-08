@@ -7,7 +7,7 @@ function FeatureViewer({featureset}) {
                 <div key={uuidv4()} className="stat">
                     <div className="stat-title">{f.name}</div> 
                     <div className="stat-value">{`${f.value}`}</div>
-                    <div className="stat-desc">{f['data-type']}</div>
+                    <div className="stat-desc">{f['data_type']}</div>
                 </div>
             ))}
         </div>
