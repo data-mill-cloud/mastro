@@ -6,7 +6,9 @@ import { CSVLink } from "react-csv";
 function Featureset({featureset}) {
     const { v4: uuidv4 } = require('uuid');
     const featureKeys = Array.from(new Set(featureset.features.map(feature => Object.keys(feature)).flat().sort()));
-    const csvData = featureset.features //.map(feature => featureKeys.map(fk => feature[fk]))
+    //const csvData = featureset.features 
+    const csvData = featureset.features.filter(f => !f.data_type.includes("dataframe")) 
+    //.map(feature => featureKeys.map(fk => feature[fk]))
 
     const dispatch = useDispatch()
     const featuresetState = useSelector(state => state.featuresetState)
