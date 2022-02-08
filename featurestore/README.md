@@ -22,7 +22,7 @@ type FeatureSet struct {
 type Feature struct {
 	Name     string      `json:"name,omitempty"`
 	Value    interface{} `json:"value,omitempty"`
-	DataType string      `json:"data-type,omitempty"`
+	DataType string      `json:"data_type,omitempty"`
 }
 ```
 
@@ -102,12 +102,12 @@ This is for instance how to add a new featureSet calculated in the test environm
 		{
 			"name":"feature1",
 			"value":10,
-			"data-type":"int"
+			"data_type":"int"
 		},
 		{
 			"name":"feature2",
 			"value":true,
-			"data-type":"bool"
+			"data_type":"bool"
 		}
 	]
 }
@@ -123,12 +123,12 @@ with the service adding a date time for additional versioning and finally replyi
         {
             "name": "feature1",
             "value": 10,
-            "data-type": "int"
+            "data_type": "int"
         },
         {
             "name": "feature2",
             "value": true,
-            "data-type": "bool"
+            "data_type": "bool"
         }
     ],
     "description": "example feature set for testing purposes",
@@ -139,5 +139,5 @@ with the service adding a date time for additional versioning and finally replyi
 }
 ```
 
-Mind that the `data-type` is provided as additional information, while go(lang) can correctly deserialize primitive values from Json.
+Mind that the `data_type` is provided as additional information, while go(lang) can correctly deserialize primitive values from Json.
 Moreover, the name here is used to group featuresets computed by the same process and it is therefore not to be considered as unique.

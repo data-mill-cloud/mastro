@@ -1,0 +1,13 @@
+# Ignore everything
+*
+
+# but
+!.gitignore
+!setup.py
+!Makefile
+!README.md
+!tests
+!mastro_fs
+!mastro_fs/*.py
+!examples
+!examples/*.ipynb

@@ -22,7 +22,7 @@ type FeatureSet struct {
 type Feature struct {
 	Name     string      `json:"name,omitempty"`
 	Value    interface{} `json:"value,omitempty"`
-	DataType string      `json:"data-type,omitempty"`
+	DataType string      `json:"data_type,omitempty"`
 }
 
 // Validate ... validate a featureSet
