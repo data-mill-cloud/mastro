@@ -10,3 +10,4 @@
 !mastro_fs
 !mastro_fs/*.py
 !examples
+!examples/*.ipynb
