@@ -7,5 +7,6 @@
 !Makefile
 !README.md
 !tests
-!mastro-fs
+!mastro_fs
+!mastro_fs/*.py
 !examples
