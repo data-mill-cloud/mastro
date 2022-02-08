@@ -6,7 +6,7 @@ function FeatureViewer({featureset}) {
             { featureset.features.map(f => (
                 <div key={uuidv4()} className="stat">
                     <div className="stat-title">{f.name}</div> 
-                    <div className="stat-value">{`${f.value}`}</div>
+                    {!f['data_type'].includes("dataframe") && (<div className="stat-value">{`${f.value}`}</div>)}
                     <div className="stat-desc">{f['data_type']}</div>
                 </div>
             ))}
