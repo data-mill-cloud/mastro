@@ -30,7 +30,7 @@ Terminology:
 * [MetricStore](metricstore/README.md) - service to manage metrics (i.e., metricSets);
 * [Catalogue](catalogue/README.md) - service to manage data assets (i.e., static data definitions and their relationships);
 * [Crawler](crawlers/README.md) - any agent able to list and walk a file system, filter and parse asset definitions (i.e. manifest files) and push them to the catalogue;
-* [UI](ui/README.md) - basic user interface to search assets by name and tags
+* [UI](ui/README.md) - user interface to search assets by name, tags or description
 * [MVC](mvc/README.md) - data versioning tool for various storage - based on the `commons.abstract.sources` package
 
 Help:
