@@ -148,20 +148,33 @@ func (dao *dao) Upsert(as *abstract.Asset) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	//filter := bson.M{"name": as.Name}
-	filter := bson.M{"_id": as.Name}
-	result, err := dao.Connector.Collection.ReplaceOne(ctx, filter, bsonVal, opts)
+	session, err := dao.Connector.Client.StartSession()
 	if err != nil {
-		return fmt.Errorf("Error while upserting asset :: %v", err)
+		return err
 	}
-	//id := result.UpsertedID.(primitive.ObjectID).Hex()
+	defer session.EndSession(ctx)
 
-	if result.MatchedCount > 0 {
-		// we are updating an existing asset
-		log.Printf("Matched %d Asset(s) :: Modified %d documents", result.MatchedCount, result.ModifiedCount)
-	} else {
-		// upsert/insert
-		log.Printf("Upserted %d Asset(s) :: id = '%v'", result.UpsertedCount, result.UpsertedID)
+	callback := func(sessionContext mongodriver.SessionContext) (interface{}, error) {
+		//filter := bson.M{"name": as.Name}
+		filter := bson.M{"_id": as.Name}
+		result, err := dao.Connector.Collection.ReplaceOne(ctx, filter, bsonVal, opts)
+		if err != nil {
+			return nil, err
+		}
+		//id := result.UpsertedID.(primitive.ObjectID).Hex()
+
+		if result.MatchedCount > 0 {
+			// we are updating an existing asset
+			log.Printf("Matched %d Asset(s) :: Modified %d documents", result.MatchedCount, result.ModifiedCount)
+		} else {
+			// upsert/insert
+			log.Printf("Upserted %d Asset(s) :: id = '%v'", result.UpsertedCount, result.UpsertedID)
+		}
+		return result, nil
+	}
+
+	if _, err = session.WithTransaction(context.Background(), callback); err != nil {
+		return fmt.Errorf("error while upserting asset :: %v", err)
 	}
 
 	return nil

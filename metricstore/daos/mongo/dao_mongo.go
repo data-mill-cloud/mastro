@@ -252,12 +252,26 @@ func (dao *dao) Create(ms *abstract.MetricSet) error {
 	// insert
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	res, err := dao.Connector.Collection.InsertOne(ctx, bsonVal)
+
+	session, err := dao.Connector.Client.StartSession()
 	if err != nil {
-		return fmt.Errorf("Error while creating metric set :: %v", err)
+		return err
 	}
-	id := res.InsertedID
-	log.Printf("Inserted MetricSet %d", id)
+	defer session.EndSession(ctx)
+
+	callback := func(sessionContext mongodriver.SessionContext) (interface{}, error) {
+		res, err := dao.Connector.Collection.InsertOne(ctx, bsonVal)
+		if err != nil {
+			return nil, err
+		}
+		//id := res.InsertedID
+		log.Printf("Inserted MetricSet %s", ms.Name)
+		return res, nil
+	}
+
+	if _, err = session.WithTransaction(context.Background(), callback); err != nil {
+		return fmt.Errorf("error while creating metric set :: %v", err)
+	}
 	return nil
 }
 
