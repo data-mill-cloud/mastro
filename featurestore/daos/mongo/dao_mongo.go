@@ -173,12 +173,27 @@ func (dao *dao) Create(fs *abstract.FeatureSet) error {
 	// insert
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	res, err := dao.Connector.Collection.InsertOne(ctx, bsonVal)
+
+	session, err := dao.Connector.Client.StartSession()
 	if err != nil {
-		return fmt.Errorf("Error while creating feature set :: %v", err)
+		return err
 	}
-	id := res.InsertedID
-	log.Printf("Inserted FeatureSet %d", id)
+	defer session.EndSession(ctx)
+
+	callback := func(sessionContext mongodriver.SessionContext) (interface{}, error) {
+		res, err := dao.Connector.Collection.InsertOne(ctx, bsonVal)
+		if err != nil {
+			return nil, err
+		}
+		//id := res.InsertedID
+		log.Printf("Inserted FeatureSet %s", fs.Name)
+		return res, nil
+	}
+
+	if _, err = session.WithTransaction(context.Background(), callback); err != nil {
+		return fmt.Errorf("error while creating feature set :: %v", err)
+	}
+
 	return nil
 }
 
@@ -188,7 +203,7 @@ func (dao *dao) getOneDocumentUsingFilter(filter interface{}) (*abstract.Feature
 	defer cancel()
 	err := dao.Connector.Collection.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
-		return nil, fmt.Errorf("Error while retrieving feature set :: %v", err)
+		return nil, fmt.Errorf("error while retrieving feature set :: %v", err)
 	}
 
 	// convert DAO to DTO
@@ -213,11 +228,11 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, li
 
 	paginatedData, err := paginator.Decode(&features).Find()
 	if err != nil {
-		return nil, fmt.Errorf("Error while retrieving asset :: %v", err)
+		return nil, fmt.Errorf("error while retrieving asset :: %v", err)
 	}
 
 	if features == nil {
-		return nil, fmt.Errorf("Error while retrieving featuresets using filter :: empty result set")
+		return nil, fmt.Errorf("error while retrieving featuresets using filter :: empty result set")
 	}
 
 	var resultFeats []abstract.FeatureSet = convertAllFeatureSets(&features)
