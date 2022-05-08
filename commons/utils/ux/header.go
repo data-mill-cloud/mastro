@@ -11,5 +11,5 @@ const (
 	|_|  |_|\__,_|___/\__|_|  \___/ 
 	`
 	// Description ... Application Description
-	Description string = "Mastro - Data and Feature Catalogue in Go"
+	Description string = "Mastro - Metadata management in Go"
 )

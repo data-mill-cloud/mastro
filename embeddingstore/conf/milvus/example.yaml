@@ -1,0 +1,12 @@
+type: embeddingstore
+details:
+  port: 8085
+backend:
+  name: test-milvus
+  type: milvus
+  settings:
+    description: mastro embedding store
+    endpoint: "0.0.0.0:19530"
+    collection: mastro
+    shards-num: 2
+    dense-vector-size: 2

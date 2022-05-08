@@ -28,6 +28,11 @@ type PaginatedMetricSets struct {
 	Pagination PaginationData `json:"pagination"`
 }
 
+type PaginatedEmbeddings struct {
+	Data       *[]Embedding   `json:"data"`
+	Pagination PaginationData `json:"pagination"`
+}
+
 func FromMongoPaginationData(pagination paginate.PaginationData) PaginationData {
 	return PaginationData{
 		Total:     pagination.Total,

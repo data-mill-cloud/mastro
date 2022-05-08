@@ -38,6 +38,7 @@ const (
 	_Database   AssetType = "database"
 	_Dataset              = "dataset"
 	_FeatureSet           = "featureset"
+	_Embedding            = "embedding"
 	_Model                = "model"
 	_Notebook             = "notebook"
 	_Pipeline             = "pipeline"
@@ -61,6 +62,7 @@ var assetTypes = []AssetType{
 	_Database,
 	_Dataset,
 	_FeatureSet,
+	_Embedding,
 	_Model,
 	_Notebook,
 	_Pipeline,
