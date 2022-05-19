@@ -47,6 +47,18 @@ services:
       - MASTRO_CONFIG=/conf/mongo-ms.yml
     depends_on:
       - mongo
+  embeddingstore:
+    build: 
+      context: .
+      dockerfile: embeddingstore/Dockerfile
+    ports:
+      - 8089:8085
+    volumes:
+      - ./compose-confs/milvus-es.yml:/conf/milvus-es.yml
+    environment:
+      - MASTRO_CONFIG=/conf/milvus-es.yml
+    depends_on:
+      - mongo
   ui:
     build:
       context: ui

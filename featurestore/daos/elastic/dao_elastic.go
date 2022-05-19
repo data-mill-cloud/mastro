@@ -307,7 +307,7 @@ func (dao *dao) GetById(id string) (*abstract.FeatureSet, error) {
 }
 
 // GetByName ... Retrieve document by given name
-func (dao *dao) GetByName(name string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) GetByName(name string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	// todo: add paging using limit and page params
 
 	var buf bytes.Buffer
@@ -337,14 +337,14 @@ func (dao *dao) GetByName(name string, limit int, page int) (*abstract.Paginated
 			return nil, err
 		}
 		//return &((*hitDocs)[0]), nil
-		return &abstract.PaginatedFeatureSets{Data: hitDocs}, nil
+		return &abstract.Paginated[abstract.FeatureSet]{Data: hitDocs}, nil
 	}
 	// else return an empty feature set
 	return nil, fmt.Errorf("No document found for name %s", name)
 }
 
 // ListAllFeatureSets ... Return all featuresets in index
-func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	// prepare search query
 	var buf bytes.Buffer
 	query := map[string]interface{}{
@@ -367,13 +367,13 @@ func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeat
 		if err != nil {
 			return nil, err
 		}
-		return &abstract.PaginatedFeatureSets{Data: fsColl}, nil
+		return &abstract.Paginated[abstract.FeatureSet]{Data: fsColl}, nil
 	}
 	// else return an empty feature set
 	return nil, fmt.Errorf("No document found in index %s", dao.Connector.IndexName)
 }
 
-func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) Search(query string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 
 	// match all documents matching any of the values specified in the search field
 	var buf bytes.Buffer
@@ -399,13 +399,13 @@ func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFe
 		if err != nil {
 			return nil, err
 		}
-		return &abstract.PaginatedFeatureSets{Data: fsColl}, nil
+		return &abstract.Paginated[abstract.FeatureSet]{Data: fsColl}, nil
 	}
 	// else return an empty feature set
 	return nil, fmt.Errorf("No document found in index %s", dao.Connector.IndexName)
 }
 
-func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	processedLabels := make(map[string]string)
 	for k, v := range labels {
 		processedLabels["labels."+k] = v
@@ -444,7 +444,7 @@ func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, p
 		if err != nil {
 			return nil, err
 		}
-		return &abstract.PaginatedFeatureSets{Data: fsColl}, nil
+		return &abstract.Paginated[abstract.FeatureSet]{Data: fsColl}, nil
 	}
 	// else return an empty feature set
 	return nil, fmt.Errorf("No document found in index %s", dao.Connector.IndexName)

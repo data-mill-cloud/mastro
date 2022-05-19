@@ -109,12 +109,12 @@ func (c *Connector) ensureCollectionExists(def *conf.DataSourceDefinition) error
 					PrimaryKey: true,
 					AutoID:     false,
 				},
-				{
+				/*{
 					Name:       "name",
 					DataType:   entity.FieldTypeString,
 					PrimaryKey: false,
 					AutoID:     false,
-				},
+				},*/
 				{
 					Name:     c.DenseVectorFieldName,
 					DataType: entity.FieldTypeFloatVector,

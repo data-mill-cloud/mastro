@@ -36,7 +36,7 @@ func UpsertAsset(c *gin.Context) {
 		restErr := errors.GetBadRequestError("Invalid JSON Body")
 		c.JSON(restErr.Status, restErr)
 	} else {
-		result, saveErr := assetService.UpsertAssets(&[]abstract.Asset{asset})
+		result, saveErr := catalogueService.UpsertAssets(&[]abstract.Asset{asset})
 		if saveErr != nil {
 			c.JSON(saveErr.Status, saveErr)
 		} else {
@@ -52,7 +52,7 @@ func BulkUpsert(c *gin.Context) {
 		restErr := errors.GetBadRequestError("Invalid JSON Body")
 		c.JSON(restErr.Status, restErr)
 	} else {
-		result, saveErr := assetService.UpsertAssets(&assets)
+		result, saveErr := catalogueService.UpsertAssets(&assets)
 		if saveErr != nil {
 			c.JSON(saveErr.Status, saveErr)
 		} else {
@@ -64,7 +64,7 @@ func BulkUpsert(c *gin.Context) {
 // GetAssetByID ... retrieves an asset description by its Unique Name ID
 func GetAssetByID(c *gin.Context) {
 	nameID := c.Param(assetIDParam)
-	asset, getErr := assetService.GetAssetByID(nameID)
+	asset, getErr := catalogueService.GetAssetByID(nameID)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
@@ -75,7 +75,7 @@ func GetAssetByID(c *gin.Context) {
 // GetAssetByName ... retrieves an asset description by its Unique Name
 func GetAssetByName(c *gin.Context) {
 	nameID := c.Param(assetNameParam)
-	asset, getErr := assetService.GetAssetByName(nameID)
+	asset, getErr := catalogueService.GetAssetByName(nameID)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
@@ -107,7 +107,7 @@ func SearchAssetsByTags(c *gin.Context) {
 			restErr := errors.GetBadRequestError("Invalid query by tag :: empty tag list")
 			c.JSON(restErr.Status, restErr)
 		} else {
-			assets, getErr := assetService.SearchAssetsByTags(query.Tags,
+			assets, getErr := catalogueService.SearchAssetsByTags(query.Tags,
 				//limit,
 				query.Limit,
 				//page,
@@ -131,7 +131,7 @@ func ListAllAssets(c *gin.Context) {
 		return
 	}
 
-	assets, getErr := assetService.ListAllAssets(limit, page)
+	assets, getErr := catalogueService.ListAllAssets(limit, page)
 	if err != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
@@ -151,7 +151,7 @@ func Search(c *gin.Context) {
 			restErr := errors.GetBadRequestError("Invalid text query :: empty text")
 			c.JSON(restErr.Status, restErr)
 		} else {
-			assets, getErr := assetService.Search(query.Query, query.Limit, query.Page)
+			assets, getErr := catalogueService.Search(query.Query, query.Limit, query.Page)
 			if getErr != nil {
 				c.JSON(getErr.Status, getErr)
 			} else {
@@ -179,7 +179,7 @@ func StartEndpoint(cfg *conf.Config) {
 	router.Use(cors.Default())
 
 	// init service
-	assetService.Init(cfg)
+	catalogueService.Init(cfg)
 
 	// add an healthcheck for the endpoint
 	router.GET(fmt.Sprintf("healthcheck/%s", assetRestEndpoint), Ping)

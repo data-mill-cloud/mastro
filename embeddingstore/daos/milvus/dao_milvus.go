@@ -2,7 +2,8 @@ package milvus
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"strconv"
 	"sync"
 
 	"github.com/data-mill-cloud/mastro/commons/abstract"
@@ -62,19 +63,43 @@ func (dao *dao) Create(embedding *abstract.Embedding) error {
 		"", // partitionName // TODO: fixme
 		columns...,
 	); err != nil {
-		log.Fatal("failed to insert data:", err.Error())
+		return fmt.Errorf("failed to insert data: %v", err.Error())
 	}
 	return nil
 }
 
-func (dao *dao) GetById(id string) (*abstract.Embedding, error) {
+func (dao *dao) GetById(id string, partitions []string) (*abstract.Embedding, error) {
+	intId, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("%s of type %T", id, id)
+	}
+
+	queryResult, err := dao.Connector.Client.QueryByPks(
+		context.Background(),
+		dao.Connector.Collection,
+		partitions,
+		entity.NewColumnInt64("id", []int64{intId}),
+		[]string{"id", "name"},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("fail to query collection: %v", err.Error())
+	}
+
+	if len(queryResult) == 0 {
+		return nil, fmt.Errorf("query result for %s is empty", id)
+	}
+
+	return &abstract.Embedding{
+		Id:     queryResult[0].FieldData().GetFieldId(),
+		Name:   queryResult[1].Name(),
+		Vector: queryResult[2].FieldData().GetScalars().GetFloatData().GetData(),
+	}, nil
+}
+
+func (dao *dao) GetByName(name string, limit int, page int) (*abstract.Paginated[abstract.Embedding], error) {
 	return nil, nil
 }
 
-func (dao *dao) GetByName(name string, limit int, page int) (*abstract.PaginatedEmbeddings, error) {
-	return nil, nil
-}
-
-func (dao *dao) SimilarToThis(id string, limit int, page int) (*abstract.PaginatedEmbeddings, error) {
+func (dao *dao) SimilarToThisId(id string, limit int, page int) (*abstract.Paginated[abstract.Embedding], error) {
 	return nil, nil
 }

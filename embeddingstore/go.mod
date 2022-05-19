@@ -1,6 +1,6 @@
 module github.com/data-mill-cloud/mastro/embeddingstore
 
-go 1.17
+go 1.18
 
 replace github.com/data-mill-cloud/mastro/commons => ../commons
 

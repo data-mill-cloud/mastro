@@ -6,6 +6,9 @@ import (
 	"strings"
 	"time"
 
+	resterrors "github.com/data-mill-cloud/mastro/commons/utils/errors"
+
+	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	"gopkg.in/yaml.v2"
 )
 
@@ -129,3 +132,26 @@ func (asset *Asset) Validate() error {
 const (
 	L_SCHEMA = "schema"
 )
+
+// AssetDAOProvider ... The interface each dao must implement
+type AssetDAOProvider interface {
+	Init(*conf.DataSourceDefinition)
+	Upsert(asset *Asset) error
+	GetById(id string) (*Asset, error)
+	GetByName(id string) (*Asset, error)
+	SearchAssetsByTags(tags []string, limit int, page int) (*Paginated[Asset], error)
+	ListAllAssets(limit int, page int) (*Paginated[Asset], error)
+	Search(query string, limit int, page int) (*Paginated[Asset], error)
+	CloseConnection()
+}
+
+// CatalogueService ... CatalogueService Interface listing service methods
+type CatalogueService interface {
+	Init(cfg *conf.Config) *resterrors.RestErr
+	UpsertAssets(assets *[]Asset) (*[]Asset, *resterrors.RestErr)
+	GetAssetByID(assetID string) (*Asset, *resterrors.RestErr)
+	GetAssetByName(name string) (*Asset, *resterrors.RestErr)
+	SearchAssetsByTags(tags []string, limit int, page int) (*Paginated[Asset], *resterrors.RestErr)
+	Search(query string, limit int, page int) (*Paginated[Asset], *resterrors.RestErr)
+	ListAllAssets(limit int, page int) (*Paginated[Asset], *resterrors.RestErr)
+}

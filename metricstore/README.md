@@ -37,10 +37,10 @@ type MetricSetDAOProvider interface {
 	Init(*conf.DataSourceDefinition)
 	Create(m *MetricSet) error
 	GetById(id string) (*MetricSet, error)
-	GetByName(name string, limit int, page int) (*PaginatedMetricSets, error)
-	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*PaginatedMetricSets, error)
-	ListAllMetricSets(limit int, page int) (*PaginatedMetricSets, error)
-	Search(query string, limit int, page int) (*PaginatedMetricSets, error)
+	GetByName(name string, limit int, page int) (*Paginated[MetricSet], error)
+	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*Paginated[MetricSet], error)
+	ListAllMetricSets(limit int, page int) (*Paginated[MetricSet], error)
+	Search(query string, limit int, page int) (*Paginated[MetricSet], error)
 	CloseConnection()
 }
 ```
@@ -59,17 +59,17 @@ var availableDAOs = map[string]func() abstract.MetricSetDAOProvider{
 
 ## Service
 
-As for the exposed service, the `metricstore/service.go` defines a basic interface to retrieve metricSets:
+A basic interface is defined to retrieve metricSets:
 
 ```go
-type Service interface {
-	Init(cfg *conf.Config) *errors.RestErr
-	CreateMetricSet(ms abstract.MetricSet) (*abstract.MetricSet, *errors.RestErr)
-	GetMetricSetByID(msID string) (*abstract.MetricSet, *errors.RestErr)
-	GetMetricSetByName(msName string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
-	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
-	Search(query string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
-	ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
+type MetricStoreService interface {
+	Init(cfg *conf.Config) *resterrors.RestErr
+	CreateMetricSet(ms MetricSet) (*MetricSet, *resterrors.RestErr)
+	GetMetricSetByID(msID string) (*MetricSet, *resterrors.RestErr)
+	GetMetricSetByName(msName string, limit int, page int) (*Paginated[MetricSet], *resterrors.RestErr)
+	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*Paginated[MetricSet], *resterrors.RestErr)
+	Search(query string, limit int, page int) (*Paginated[MetricSet], *resterrors.RestErr)
+	ListAllMetricSets(limit int, page int) (*Paginated[MetricSet], *resterrors.RestErr)
 }
 ```
 

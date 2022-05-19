@@ -215,7 +215,7 @@ type sorter struct {
 	sortValue interface{}
 }
 
-func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	var features []featureSetMongoDao
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -236,7 +236,7 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, li
 	}
 
 	var resultFeats []abstract.FeatureSet = convertAllFeatureSets(&features)
-	return &abstract.PaginatedFeatureSets{
+	return &abstract.Paginated[abstract.FeatureSet]{
 		Data:       &resultFeats,
 		Pagination: abstract.FromMongoPaginationData(paginatedData.Pagination),
 	}, nil
@@ -249,21 +249,21 @@ func (dao *dao) GetById(id string) (*abstract.FeatureSet, error) {
 }
 
 // GetByName ... Retrieve document by given name
-func (dao *dao) GetByName(name string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) GetByName(name string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	filter := bson.M{"name": name}
 	sorter := &sorter{"inserted-at", -1}
 	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // ListAllFeatureSets ... Return all feature sets available in collection
-func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	filter := bson.M{}
 	var sorter *sorter = nil
 	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // Search ... Return all featuresets matching the text search query
-func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) Search(query string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	filter := bson.M{
 		"$text": bson.M{"$search": query},
 	}
@@ -272,7 +272,7 @@ func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFe
 }
 
 // SearchFeatureSetsByLabels ... Return all featuresets matching the search labels
-func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	filter := bson.M{}
 	for k, v := range labels {
 		filter["labels."+k] = v

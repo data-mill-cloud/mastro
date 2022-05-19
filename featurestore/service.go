@@ -9,28 +9,17 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/utils/errors"
 )
 
-// Service ... Service Interface listing implemented methods
-type Service interface {
-	Init(cfg *conf.Config) *errors.RestErr
-	CreateFeatureSet(fs abstract.FeatureSet) (*abstract.FeatureSet, *errors.RestErr)
-	GetFeatureSetByID(fsID string) (*abstract.FeatureSet, *errors.RestErr)
-	GetFeatureSetByName(fsName string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
-	SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
-	Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
-	ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
-}
+// featureStoreServiceType ... Service Type
+type featureStoreServiceType struct{}
 
-// featureSetServiceType ... Service Type
-type featureSetServiceType struct{}
-
-// FeatureSetService ... Group all service methods in a kind FeatureSetServiceType implementing the FeatureSetService
-var featureSetService Service = &featureSetServiceType{}
+// featureStoreService ... Group all service methods in a kind FeatureSetServiceType implementing the FeatureSetService
+var featureStoreService abstract.FeatureStoreService = &featureStoreServiceType{}
 
 // selected dao for the featureSetService
 var dao abstract.FeatureSetDAOProvider
 
 // Init ... Initializes the connector by validating the config and initializing the connection
-func (s *featureSetServiceType) Init(cfg *conf.Config) *errors.RestErr {
+func (s *featureStoreServiceType) Init(cfg *conf.Config) *errors.RestErr {
 	// select target DAO based on used connector
 	// set a connector to the selected backend here
 	var err error
@@ -44,7 +33,7 @@ func (s *featureSetServiceType) Init(cfg *conf.Config) *errors.RestErr {
 }
 
 // CreateFeatureSet ... Create a FeatureSet entry
-func (s *featureSetServiceType) CreateFeatureSet(fs abstract.FeatureSet) (*abstract.FeatureSet, *errors.RestErr) {
+func (s *featureStoreServiceType) CreateFeatureSet(fs abstract.FeatureSet) (*abstract.FeatureSet, *errors.RestErr) {
 	if err := fs.Validate(); err != nil {
 		return nil, errors.GetBadRequestError(err.Error())
 	}
@@ -59,7 +48,7 @@ func (s *featureSetServiceType) CreateFeatureSet(fs abstract.FeatureSet) (*abstr
 }
 
 // GetFeatureSetByID ... Retrieves a FeatureSet
-func (s *featureSetServiceType) GetFeatureSetByID(fsID string) (*abstract.FeatureSet, *errors.RestErr) {
+func (s *featureStoreServiceType) GetFeatureSetByID(fsID string) (*abstract.FeatureSet, *errors.RestErr) {
 	fset, err := dao.GetById(fsID)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
@@ -68,7 +57,7 @@ func (s *featureSetServiceType) GetFeatureSetByID(fsID string) (*abstract.Featur
 }
 
 // GetFeatureSetByName ... Retrieves a FeatureSet
-func (s *featureSetServiceType) GetFeatureSetByName(fsName string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr) {
+func (s *featureStoreServiceType) GetFeatureSetByName(fsName string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], *errors.RestErr) {
 	fset, err := dao.GetByName(fsName, limit, page)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
@@ -77,7 +66,7 @@ func (s *featureSetServiceType) GetFeatureSetByName(fsName string, limit int, pa
 }
 
 // SearchFeatureSetsByLabels ... Retrieve FeatureSets by Labels
-func (s *featureSetServiceType) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr) {
+func (s *featureStoreServiceType) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], *errors.RestErr) {
 	ms, err := dao.SearchFeatureSetsByLabels(labels, limit, page)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
@@ -86,7 +75,7 @@ func (s *featureSetServiceType) SearchFeatureSetsByLabels(labels map[string]stri
 }
 
 // ListAllFeatureSets ... Retrieves all FeatureSets
-func (s *featureSetServiceType) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr) {
+func (s *featureStoreServiceType) ListAllFeatureSets(limit int, page int) (*abstract.Paginated[abstract.FeatureSet], *errors.RestErr) {
 	fsets, err := dao.ListAllFeatureSets(limit, page)
 	if err != nil {
 		return nil, errors.GetInternalServerError(err.Error())
@@ -100,13 +89,13 @@ func (s *featureSetServiceType) ListAllFeatureSets(limit int, page int) (*abstra
 }
 
 // Search ... Retrieves items by a search query
-func (s *featureSetServiceType) Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr) {
+func (s *featureStoreServiceType) Search(query string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], *errors.RestErr) {
 	fsets, err := dao.Search(query, limit, page)
 	if err != nil {
 		return nil, errors.GetInternalServerError(err.Error())
 	}
 	if fsets == nil || len(*fsets.Data) == 0 {
-		return nil, errors.GetNotFoundError("No assets in given collection")
+		return nil, errors.GetNotFoundError("No feature sets in given collection")
 	}
 	return fsets, nil
 }

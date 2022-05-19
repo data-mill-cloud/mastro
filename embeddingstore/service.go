@@ -9,20 +9,11 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/utils/errors"
 )
 
-// Service ... Service Interface listing implemented methods
-type Service interface {
-	Init(cfg *conf.Config) *errors.RestErr
-	CreateEmbedding(em abstract.Embedding) (*abstract.Embedding, *errors.RestErr)
-	GetEmbeddingByID(emID string) (*abstract.Embedding, *errors.RestErr)
-	GetEmbeddingByName(emName string, limit int, page int) (*abstract.PaginatedEmbeddings, *errors.RestErr)
-	SimilarToThis(emId string, limit int, page int) (*abstract.PaginatedEmbeddings, *errors.RestErr)
-}
-
 // embeddingServiceType ... Service Type
 type embeddingServiceType struct{}
 
 // embeddingService ... Group all service methods in a kind embeddingServiceType implementing the embeddingService
-var embeddingService Service = &embeddingServiceType{}
+var embeddingService abstract.EmbeddingStoreService = &embeddingServiceType{}
 
 // selected dao for the embeddingService
 var dao abstract.EmbeddingDAOProvider
@@ -57,8 +48,8 @@ func (s *embeddingServiceType) CreateEmbedding(em abstract.Embedding) (*abstract
 }
 
 // GetEmbeddingByID ... Retrieves an embedding
-func (s *embeddingServiceType) GetEmbeddingByID(emID string) (*abstract.Embedding, *errors.RestErr) {
-	em, err := dao.GetById(emID)
+func (s *embeddingServiceType) GetEmbeddingByID(emID string, partitions []string) (*abstract.Embedding, *errors.RestErr) {
+	em, err := dao.GetById(emID, partitions)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
 	}
@@ -66,7 +57,7 @@ func (s *embeddingServiceType) GetEmbeddingByID(emID string) (*abstract.Embeddin
 }
 
 // GetEmbeddingByName ... Retrieves an embedding
-func (s *embeddingServiceType) GetEmbeddingByName(emName string, limit int, page int) (*abstract.PaginatedEmbeddings, *errors.RestErr) {
+func (s *embeddingServiceType) GetEmbeddingByName(emName string, limit int, page int) (*abstract.Paginated[abstract.Embedding], *errors.RestErr) {
 	em, err := dao.GetByName(emName, limit, page)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
@@ -74,9 +65,9 @@ func (s *embeddingServiceType) GetEmbeddingByName(emName string, limit int, page
 	return em, nil
 }
 
-// GetEmbeddingByName ... Retrieves an embedding
-func (s *embeddingServiceType) SimilarToThis(emId string, limit int, page int) (*abstract.PaginatedEmbeddings, *errors.RestErr) {
-	em, err := dao.SimilarToThis(emId, limit, page)
+// SimilarToThisId ... Retrieves embeddings similar to the one provided as id
+func (s *embeddingServiceType) SimilarToThisId(emId string, limit int, page int) (*abstract.Paginated[abstract.Embedding], *errors.RestErr) {
+	em, err := dao.SimilarToThisId(emId, limit, page)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
 	}
