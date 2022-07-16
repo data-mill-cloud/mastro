@@ -46,7 +46,7 @@ func CreateFeatureSet(c *gin.Context) {
 		c.JSON(restErr.Status, restErr)
 	} else {
 		// call service to add the featureset
-		result, saveErr := featureSetService.CreateFeatureSet(fs)
+		result, saveErr := featureStoreService.CreateFeatureSet(fs)
 		if saveErr != nil {
 			c.JSON(saveErr.Status, saveErr)
 		} else {
@@ -68,7 +68,7 @@ func parseFeatureSetID(param string) (int64, *errors.RestErr) {
 func GetFeatureSetByID(c *gin.Context) {
 	//id, err := parseFeatureSetID(c.Param(featureSetIDParam))
 	id := c.Param(featureSetIDParam)
-	fs, getErr := featureSetService.GetFeatureSetByID(id)
+	fs, getErr := featureStoreService.GetFeatureSetByID(id)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
@@ -83,11 +83,11 @@ func GetFeatureSetByName(c *gin.Context) {
 
 	limit, page, err := getLimitAndPageNumber(c.Request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, errors.GetBadRequestError(err.Error()))
 		return
 	}
 
-	fs, getErr := featureSetService.GetFeatureSetByName(name, limit, page)
+	fs, getErr := featureStoreService.GetFeatureSetByName(name, limit, page)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
@@ -108,7 +108,7 @@ func SearchFeatureSetsByLabels(c *gin.Context) {
 			restErr := errors.GetBadRequestError("Invalid query by labels :: empty label dict")
 			c.JSON(restErr.Status, restErr)
 		} else {
-			fsets, getErr := featureSetService.SearchFeatureSetsByLabels(query.Labels, query.Limit, query.Page)
+			fsets, getErr := featureStoreService.SearchFeatureSetsByLabels(query.Labels, query.Limit, query.Page)
 			if getErr != nil {
 				c.JSON(getErr.Status, getErr)
 			} else {
@@ -121,7 +121,7 @@ func SearchFeatureSetsByLabels(c *gin.Context) {
 func SearchFeatureSetsByQueryLabels(c *gin.Context) {
 	limit, page, err := getLimitAndPageNumber(c.Request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, errors.GetBadRequestError(err.Error()))
 		return
 	}
 
@@ -137,7 +137,7 @@ func SearchFeatureSetsByQueryLabels(c *gin.Context) {
 				q[k] = l[0]
 			}
 		}
-		fsets, getErr := featureSetService.SearchFeatureSetsByLabels(q, limit, page)
+		fsets, getErr := featureStoreService.SearchFeatureSetsByLabels(q, limit, page)
 		if getErr != nil {
 			c.JSON(getErr.Status, getErr)
 		} else {
@@ -159,7 +159,7 @@ func Search(c *gin.Context) {
 			restErr := errors.GetBadRequestError("Invalid text query :: empty text")
 			c.JSON(restErr.Status, restErr)
 		} else {
-			fsets, getErr := featureSetService.Search(query.Query, query.Limit, query.Page)
+			fsets, getErr := featureStoreService.Search(query.Query, query.Limit, query.Page)
 			if getErr != nil {
 				c.JSON(getErr.Status, getErr)
 			} else {
@@ -175,11 +175,11 @@ func ListAllFeatureSets(c *gin.Context) {
 
 	limit, page, err := getLimitAndPageNumber(c.Request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, errors.GetBadRequestError(err.Error()))
 		return
 	}
 
-	fsets, svcErr := featureSetService.ListAllFeatureSets(limit, page)
+	fsets, svcErr := featureStoreService.ListAllFeatureSets(limit, page)
 	if svcErr != nil {
 		c.JSON(svcErr.Status, svcErr)
 	} else {
@@ -196,7 +196,7 @@ func StartEndpoint(cfg *conf.Config) {
 	router.Use(cors.Default())
 
 	// init service
-	featureSetService.Init(cfg)
+	featureStoreService.Init(cfg)
 
 	// add an healthcheck for the endpoint
 	router.GET(fmt.Sprintf("healthcheck/%s", featureSetRestEndpoint), Ping)

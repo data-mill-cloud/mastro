@@ -4,59 +4,41 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strings"
 
+	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var requiredFields = map[string]string{
-	// surely needed the DB and the target collection
-	"database":   "database",
-	"collection": "collection",
-}
-
-var optionalFields = map[string]string{
-	// connect either by providing the credentials separately
-	"username": "username",
-	"password": "password",
-	"host":     "host",
-	// or else by specifying the connection string
-	"connectionString": "connection-string",
-}
-
 // NewMongoConnector ... Factory
 func NewMongoConnector() *Connector {
-	return &Connector{}
+	return &Connector{
+		ConfigurableConnector: abstract.ConfigurableConnector{
+			RequiredFields: map[string]string{
+				// surely needed the DB and the target collection
+				"database":   "database",
+				"collection": "collection",
+			},
+			OptionalFields: map[string]string{
+				// connect either by providing the credentials separately
+				"username": "username",
+				"password": "password",
+				"host":     "host",
+				// or else by specifying the connection string
+				"connectionString": "connection-string",
+			},
+		},
+	}
 }
-
-// todo: find a way not to export this struct outside
 
 // Connector ... struct containing info on how to connect to a mongo db
 type Connector struct {
+	abstract.ConfigurableConnector
 	Client     *mongo.Client
 	Database   *mongo.Database
 	Collection *mongo.Collection
-}
-
-// ValidateDataSourceDefinition ... validates the provided data source definition
-func (c *Connector) ValidateDataSourceDefinition(def *conf.DataSourceDefinition) error {
-	// check all required fields are available
-	var missingFields []string
-	for _, reqvalue := range requiredFields {
-		if _, exist := def.Settings[reqvalue]; !exist {
-			missingFields = append(missingFields, reqvalue)
-		}
-	}
-
-	if len(missingFields) > 0 {
-		return fmt.Errorf("The following %d fields are missing from the data source configuration: %s", len(missingFields), strings.Join(missingFields[:], ","))
-	}
-
-	log.Println("Successfully validated data source definition")
-	return nil
 }
 
 // InitConnection ... Instantiate the connection with the remote DB
@@ -65,16 +47,16 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	var exist bool
 
 	// if connectionString is provided then use it
-	if connectionString, exist = def.Settings[optionalFields["connectionString"]]; exist {
+	if connectionString, exist = def.Settings[c.OptionalFields["connectionString"]]; exist {
 		log.Println("Using provided connection string")
 	} else {
 		log.Println("No connection string, building from mandatory fields")
 		// todo: mongo connection string varies a lot, maybe just pass the whole string from a secret rather than composing it here??
 		connectionString = fmt.Sprintf(
 			"mongodb://%s:%s@%s",
-			def.Settings[optionalFields["username"]],
-			def.Settings[optionalFields["password"]],
-			def.Settings[optionalFields["host"]],
+			def.Settings[c.OptionalFields["username"]],
+			def.Settings[c.OptionalFields["password"]],
+			def.Settings[c.OptionalFields["host"]],
 		)
 	}
 
@@ -95,8 +77,8 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	}
 
 	// set target db and connections
-	c.Database = c.Client.Database(def.Settings[requiredFields["database"]])
-	c.Collection = c.Database.Collection(def.Settings[requiredFields["collection"]])
+	c.Database = c.Client.Database(def.Settings[c.RequiredFields["database"]])
+	c.Collection = c.Database.Collection(def.Settings[c.RequiredFields["collection"]])
 }
 
 // CloseConnection ... Disconnects and deallocates resources

@@ -9,28 +9,14 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/utils/errors"
 )
 
-// Service ... Service Interface listing implemented methods
-type Service interface {
-	Init(cfg *conf.Config) *errors.RestErr
-	UpsertAssets(assets *[]abstract.Asset) (*[]abstract.Asset, *errors.RestErr)
-	GetAssetByID(assetID string) (*abstract.Asset, *errors.RestErr)
-	GetAssetByName(name string) (*abstract.Asset, *errors.RestErr)
-	SearchAssetsByTags(tags []string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
-	Search(query string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
-	ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
-}
+// catalogueServiceType ... Service Type
+type catalogueServiceType struct{}
 
-// assetServiceType ... Service Type
-type assetServiceType struct{}
-
-// assetService ... Group all service methods in a kind FeatureSetServiceType implementing the FeatureSetService
-var assetService Service = &assetServiceType{}
-
-// selected dao for the featureSetService
+var catalogueService abstract.CatalogueService = &catalogueServiceType{}
 var dao abstract.AssetDAOProvider
 
 // Init ... initializes the service
-func (s *assetServiceType) Init(cfg *conf.Config) *errors.RestErr {
+func (s *catalogueServiceType) Init(cfg *conf.Config) *errors.RestErr {
 	// select target DAO based on used connector
 	// set a connector to the selected backend here
 	var err error
@@ -44,7 +30,7 @@ func (s *assetServiceType) Init(cfg *conf.Config) *errors.RestErr {
 }
 
 // UpsertAsset ... Adds and asset description
-func (s *assetServiceType) UpsertAssets(assets *[]abstract.Asset) (*[]abstract.Asset, *errors.RestErr) {
+func (s *catalogueServiceType) UpsertAssets(assets *[]abstract.Asset) (*[]abstract.Asset, *errors.RestErr) {
 	for _, a := range *assets {
 		if err := a.Validate(); err != nil {
 			return nil, errors.GetBadRequestError(err.Error())
@@ -63,7 +49,7 @@ func (s *assetServiceType) UpsertAssets(assets *[]abstract.Asset) (*[]abstract.A
 }
 
 // GetAssetById ... Retrieves an asset by its unique id
-func (s *assetServiceType) GetAssetByID(assetID string) (*abstract.Asset, *errors.RestErr) {
+func (s *catalogueServiceType) GetAssetByID(assetID string) (*abstract.Asset, *errors.RestErr) {
 	asset, err := dao.GetById(assetID)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
@@ -72,7 +58,7 @@ func (s *assetServiceType) GetAssetByID(assetID string) (*abstract.Asset, *error
 }
 
 // GetAssetByName ... Retrieves an asset by its unique name
-func (s *assetServiceType) GetAssetByName(name string) (*abstract.Asset, *errors.RestErr) {
+func (s *catalogueServiceType) GetAssetByName(name string) (*abstract.Asset, *errors.RestErr) {
 	asset, err := dao.GetByName(name)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
@@ -80,7 +66,7 @@ func (s *assetServiceType) GetAssetByName(name string) (*abstract.Asset, *errors
 	return asset, nil
 }
 
-func (s *assetServiceType) SearchAssetsByTags(tags []string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr) {
+func (s *catalogueServiceType) SearchAssetsByTags(tags []string, limit int, page int) (*abstract.Paginated[abstract.Asset], *errors.RestErr) {
 	assets, err := dao.SearchAssetsByTags(tags, limit, page)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
@@ -89,7 +75,7 @@ func (s *assetServiceType) SearchAssetsByTags(tags []string, limit int, page int
 }
 
 // ListAllAssets ... Retrieves all stored assets
-func (s *assetServiceType) ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr) {
+func (s *catalogueServiceType) ListAllAssets(limit int, page int) (*abstract.Paginated[abstract.Asset], *errors.RestErr) {
 	assets, err := dao.ListAllAssets(limit, page)
 	if err != nil {
 		return nil, errors.GetInternalServerError(err.Error())
@@ -103,7 +89,7 @@ func (s *assetServiceType) ListAllAssets(limit int, page int) (*abstract.Paginat
 }
 
 // Search ... Retrieves items by a search query
-func (s *assetServiceType) Search(query string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr) {
+func (s *catalogueServiceType) Search(query string, limit int, page int) (*abstract.Paginated[abstract.Asset], *errors.RestErr) {
 	assets, err := dao.Search(query, limit, page)
 	if err != nil {
 		return nil, errors.GetInternalServerError(err.Error())

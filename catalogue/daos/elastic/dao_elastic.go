@@ -29,21 +29,6 @@ func (dao *dao) Init(def *conf.DataSourceDefinition) {
 	return
 }
 
-// Create ... Create asset on ES
-func (dao *dao) Upsert(fs *abstract.Asset) error {
-	return nil
-}
-
-// SearchAssetsByTags ... search for the provided tags
-func (dao *dao) SearchAssetsByTags(tags []string, limit int64, page int64) (*[]abstract.Asset, error) {
-	return nil, nil
-}
-
-// ListAllFeatureSets ... Return all assets in index
-func (dao *dao) ListAllAssets(limit int64, page int64) (*[]abstract.Asset, error) {
-	return nil, nil
-}
-
 // GetById ... Retrieve document by given id
 func (dao *dao) GetById(id string) (*abstract.Asset, error) {
 	return nil, nil
@@ -51,6 +36,25 @@ func (dao *dao) GetById(id string) (*abstract.Asset, error) {
 
 // GetByName ... Retrieve document by given id
 func (dao *dao) GetByName(id string) (*abstract.Asset, error) {
+	return nil, nil
+}
+
+// Create ... Create asset on ES
+func (dao *dao) Upsert(fs *abstract.Asset) error {
+	return nil
+}
+
+// SearchAssetsByTags ... search for the provided tags
+func (dao *dao) SearchAssetsByTags(tags []string, limit int, page int) (*abstract.Paginated[abstract.Asset], error) {
+	return nil, nil
+}
+
+func (dao *dao) Search(query string, limit int, page int) (*abstract.Paginated[abstract.Asset], error) {
+	return nil, nil
+}
+
+// ListAllFeatureSets ... Return all assets in index
+func (dao *dao) ListAllAssets(limit int, page int) (*abstract.Paginated[abstract.Asset], error) {
 	return nil, nil
 }
 

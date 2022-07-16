@@ -18,7 +18,7 @@ services:
     ports:
       - 8085:8085
     volumes:
-      - ./compose-confs/mongo-catalogue.yml:/conf/mongo-catalogue.yml
+      - ./compose-confs/mongo/mongo-catalogue.yml:/conf/mongo-catalogue.yml
     environment:
       - MASTRO_CONFIG=/conf/mongo-catalogue.yml
     depends_on:
@@ -30,7 +30,7 @@ services:
     ports:
       - 8086:8085
     volumes:
-      - ./compose-confs/mongo-fs.yml:/conf/mongo-fs.yml
+      - ./compose-confs/mongo/mongo-fs.yml:/conf/mongo-fs.yml
     environment:
       - MASTRO_CONFIG=/conf/mongo-fs.yml
     depends_on:
@@ -42,11 +42,33 @@ services:
     ports:
       - 8087:8085
     volumes:
-      - ./compose-confs/mongo-ms.yml:/conf/mongo-ms.yml
+      - ./compose-confs/mongo/mongo-ms.yml:/conf/mongo-ms.yml
     environment:
       - MASTRO_CONFIG=/conf/mongo-ms.yml
     depends_on:
       - mongo
+  qdrant:
+    image: qdrant/qdrant:v0.8.4
+    ports:
+      - 6333:6333
+      - 6334:6334
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    volumes:
+      - qdrant-data:/qdrant/storage
+      - ./compose-confs/qdrant/qdrant-config.yaml:/qdrant/config/production.yaml
+  embeddingstore:
+    build: 
+      context: .
+      dockerfile: embeddingstore/Dockerfile
+    ports:
+      - 8089:8085
+    volumes:
+      - ./compose-confs/qdrant/qdrant-es.yml:/conf/qdrant-es.yml
+    environment:
+      - MASTRO_CONFIG=/conf/qdrant-es.yml
+    depends_on:
+      - qdrant
   ui:
     build:
       context: ui
@@ -58,11 +80,14 @@ services:
       - CATALOGUE_URL="http://catalogue:8085/"
       - FEATURESTORE_URL="http://featurestore:8085/"
       - METRICSTORE_URL="http://metricstore:8085/"
+      - EMBEDDINGSTORE_URL="http://embeddingstore:8085/"
     depends_on:
       - mongo
       - catalogue
       - featurestore
+      - embeddingstore
 
 volumes:
   mongo-data:
   mongo-config:
+  qdrant-data:

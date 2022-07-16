@@ -7,14 +7,14 @@ Consequently, data definitions can be crawled from networked and distributed fil
 A Catalogue service endpoint implements the following interface:
 
 ```go
-type Service interface {
-	Init(cfg *conf.Config) *errors.RestErr
-	UpsertAssets(assets *[]abstract.Asset) (*[]abstract.Asset, *errors.RestErr)
-	GetAssetByID(assetID string) (*abstract.Asset, *errors.RestErr)
-	GetAssetByName(name string) (*abstract.Asset, *errors.RestErr)
-	SearchAssetsByTags(tags []string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
-	Search(query string, limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
-	ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, *errors.RestErr)
+type CatalogueService interface {
+	Init(cfg *conf.Config) *resterrors.RestErr
+	UpsertAssets(assets *[]Asset) (*[]Asset, *resterrors.RestErr)
+	GetAssetByID(assetID string) (*Asset, *resterrors.RestErr)
+	GetAssetByName(name string) (*Asset, *resterrors.RestErr)
+	SearchAssetsByTags(tags []string, limit int, page int) (*Paginated[Asset], *resterrors.RestErr)
+	Search(query string, limit int, page int) (*Paginated[Asset], *resterrors.RestErr)
+	ListAllAssets(limit int, page int) (*Paginated[Asset], *resterrors.RestErr)
 }
 ```
 
@@ -25,9 +25,9 @@ type AssetDAOProvider interface {
 	Upsert(asset *Asset) error
 	GetById(id string) (*Asset, error)
 	GetByName(id string) (*Asset, error)
-	SearchAssetsByTags(tags []string, limit int, page int) (*PaginatedAssets, error)
-	ListAllAssets(limit int, page int) (*PaginatedAssets, error)
-	Search(query string, limit int, page int) (*PaginatedAssets, error)
+	SearchAssetsByTags(tags []string, limit int, page int) (*Paginated[Asset], error)
+	ListAllAssets(limit int, page int) (*Paginated[Asset], error)
+	Search(query string, limit int, page int) (*Paginated[Asset], error)
 	CloseConnection()
 }
 ```

@@ -196,7 +196,7 @@ type sorter struct {
 	sortValue interface{}
 }
 
-func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, limit int, page int) (*abstract.PaginatedAssets, error) {
+func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, limit int, page int) (*abstract.Paginated[abstract.Asset], error) {
 	var assets []assetMongoDao
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -219,7 +219,7 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, li
 
 	var resultAssets []abstract.Asset = convertAllAssets(&assets)
 
-	return &abstract.PaginatedAssets{
+	return &abstract.Paginated[abstract.Asset]{
 		Data:       &resultAssets,
 		Pagination: abstract.FromMongoPaginationData(paginatedData.Pagination),
 	}, nil
@@ -240,7 +240,7 @@ func (dao *dao) GetByName(name string) (*abstract.Asset, error) {
 }
 
 // SearchAssetsByTags ... Retrieve assets by given tags
-func (dao *dao) SearchAssetsByTags(tags []string, limit int, page int) (*abstract.PaginatedAssets, error) {
+func (dao *dao) SearchAssetsByTags(tags []string, limit int, page int) (*abstract.Paginated[abstract.Asset], error) {
 	// https://www.mongodb.com/blog/post/quick-start-golang--mongodb--data-aggregation-pipeline
 	// https://docs.mongodb.com/manual/tutorial/query-arrays/#match-an-array
 	// find all docs whose tags field contains all the elements provided as tags []string in input
@@ -251,14 +251,14 @@ func (dao *dao) SearchAssetsByTags(tags []string, limit int, page int) (*abstrac
 }
 
 // ListAllAssets ... Return all assets in index
-func (dao *dao) ListAllAssets(limit int, page int) (*abstract.PaginatedAssets, error) {
+func (dao *dao) ListAllAssets(limit int, page int) (*abstract.Paginated[abstract.Asset], error) {
 	filter := bson.M{}
 	var sorter *sorter = nil
 	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // Search ... Return all assets matching the text search query
-func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedAssets, error) {
+func (dao *dao) Search(query string, limit int, page int) (*abstract.Paginated[abstract.Asset], error) {
 	filter := bson.M{
 		"$text": bson.M{"$search": query},
 	}

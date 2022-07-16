@@ -14,6 +14,11 @@ type ByLabels struct {
 
 type ByText struct {
 	Query string `json:"query,omitempty"`
-	Limit  int   `json:"limit,omitempty"`
-	Page   int   `json:"page,omitempty"`
+	Limit int    `json:"limit,omitempty"`
+	Page  int    `json:"page,omitempty"`
+}
+
+type ByVector struct {
+	Vector []float32 `json:"vector,omitempty"`
+	K      int       `json:"k,omitempty"`
 }

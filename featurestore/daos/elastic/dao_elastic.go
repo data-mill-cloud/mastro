@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -107,15 +106,13 @@ type ResponseDoc struct {
 
 // FeatureSet ... a versioned set of features
 type FeatureSet struct {
+	Name        string            `json:"name,omitempty"`
 	InsertedAt  time.Time         `json:"inserted_at,omitempty"`
 	Version     string            `json:"version,omitempty"`
 	Features    []Feature         `json:"features,omitempty"`
 	Description string            `json:"description,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"`
 }
-
-// Version ... definition of version for a feature set
-type Version struct{}
 
 // Feature ... a named variable with a data type
 type Feature struct {
@@ -129,7 +126,7 @@ func (dao *dao) checkIndex(def *conf.DataSourceDefinition) error {
 	indexDefFilePath := def.Settings["index-def"]
 
 	// if the def is indicated without an actual path (parent is itself and dir is ., or directly as ./file)
-	if filepath.Dir(indexDefFilePath) == "." || filepath.Dir(indexDefFilePath) == "." {
+	if filepath.Dir(indexDefFilePath) == "." {
 		// look for the index def in the same location of the application config
 		indexDefFilePath = filepath.Join(filepath.Dir(conf.Args.Config), indexDefFilePath)
 	}
@@ -168,22 +165,56 @@ func (dao *dao) Init(def *conf.DataSourceDefinition) {
 	}
 	// init connector
 	dao.Connector.InitConnection(def)
-	// make sure the target index exists
-	//err := dao.checkIndex(def)
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
+	/*
+		// make sure the target index exists
+		err := dao.checkIndex(def)
+		if err != nil {
+			log.Fatalln(err)
+		}*/
+}
+
+func convertDtoToDao(fs *abstract.FeatureSet) (result *FeatureSet, err error) {
+	features := []Feature{}
+	var b []byte
+	for _, f := range fs.Features {
+
+		if b, err = json.Marshal(f.Value); err != nil {
+			return
+		}
+
+		features = append(features, Feature{
+			Name:     f.Name,
+			Value:    string(b),
+			DataType: f.DataType,
+		})
+	}
+
+	result = &FeatureSet{
+		Name:        fs.Name,
+		InsertedAt:  fs.InsertedAt,
+		Version:     fs.Version,
+		Features:    features,
+		Description: fs.Description,
+		Labels:      fs.Labels,
+	}
+
+	return
 }
 
 // Create ... Create featureset on ES
 func (dao *dao) Create(fs *abstract.FeatureSet) error {
+	daoFs, err := convertDtoToDao(fs)
+	if err != nil {
+		return err
+	}
 
-	jsonVal, err := json.Marshal(fs)
+	jsonVal, err := json.Marshal(daoFs)
 	if err != nil {
 		return err
 	}
 
 	body := string(jsonVal)
+
 	// Instantiate an indexRequest object
 	req := esapi.IndexRequest{
 		Index: dao.Connector.IndexName,
@@ -307,7 +338,7 @@ func (dao *dao) GetById(id string) (*abstract.FeatureSet, error) {
 }
 
 // GetByName ... Retrieve document by given name
-func (dao *dao) GetByName(name string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) GetByName(name string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	// todo: add paging using limit and page params
 
 	var buf bytes.Buffer
@@ -337,14 +368,14 @@ func (dao *dao) GetByName(name string, limit int, page int) (*abstract.Paginated
 			return nil, err
 		}
 		//return &((*hitDocs)[0]), nil
-		return &abstract.PaginatedFeatureSets{Data: hitDocs}, nil
+		return &abstract.Paginated[abstract.FeatureSet]{Data: hitDocs}, nil
 	}
 	// else return an empty feature set
 	return nil, fmt.Errorf("No document found for name %s", name)
 }
 
 // ListAllFeatureSets ... Return all featuresets in index
-func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	// prepare search query
 	var buf bytes.Buffer
 	query := map[string]interface{}{
@@ -367,13 +398,13 @@ func (dao *dao) ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeat
 		if err != nil {
 			return nil, err
 		}
-		return &abstract.PaginatedFeatureSets{Data: fsColl}, nil
+		return &abstract.Paginated[abstract.FeatureSet]{Data: fsColl}, nil
 	}
 	// else return an empty feature set
 	return nil, fmt.Errorf("No document found in index %s", dao.Connector.IndexName)
 }
 
-func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) Search(query string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 
 	// match all documents matching any of the values specified in the search field
 	var buf bytes.Buffer
@@ -393,19 +424,19 @@ func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedFe
 		return nil, err
 	}
 
-	log.Println("ListAllFeatureSets :: Retrieved", searchResponse.Hits.Total.Value, "documents")
+	log.Println("Search :: Retrieved", searchResponse.Hits.Total.Value, "documents")
 	if searchResponse.Hits.Total.Value > 0 {
 		fsColl, err := convertDocumentsToFeatureSetCollection(searchResponse.Hits.Hits)
 		if err != nil {
 			return nil, err
 		}
-		return &abstract.PaginatedFeatureSets{Data: fsColl}, nil
+		return &abstract.Paginated[abstract.FeatureSet]{Data: fsColl}, nil
 	}
 	// else return an empty feature set
 	return nil, fmt.Errorf("No document found in index %s", dao.Connector.IndexName)
 }
 
-func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, error) {
+func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.Paginated[abstract.FeatureSet], error) {
 	processedLabels := make(map[string]string)
 	for k, v := range labels {
 		processedLabels["labels."+k] = v
@@ -433,18 +464,20 @@ func (dao *dao) SearchFeatureSetsByLabels(labels map[string]string, limit int, p
 		return nil, fmt.Errorf("Error encoding query: %s", err)
 	}
 
+	log.Println(buf)
+
 	searchResponse, err := dao.search(&buf)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("ListAllFeatureSets :: Retrieved", searchResponse.Hits.Total.Value, "documents")
+	log.Println("SearchFeatureSetsByLabels :: Retrieved", searchResponse.Hits.Total.Value, "documents")
 	if searchResponse.Hits.Total.Value > 0 {
 		fsColl, err := convertDocumentsToFeatureSetCollection(searchResponse.Hits.Hits)
 		if err != nil {
 			return nil, err
 		}
-		return &abstract.PaginatedFeatureSets{Data: fsColl}, nil
+		return &abstract.Paginated[abstract.FeatureSet]{Data: fsColl}, nil
 	}
 	// else return an empty feature set
 	return nil, fmt.Errorf("No document found in index %s", dao.Connector.IndexName)
@@ -464,6 +497,7 @@ func convertDocumentsToFeatureSetCollection(documents []ResponseDoc) (*[]abstrac
 
 func convertDocumentToFeatureSet(document ResponseDoc) (*abstract.FeatureSet, error) {
 	fs := abstract.FeatureSet{}
+	fs.Name = document.Source.Name
 	fs.InsertedAt = document.Source.InsertedAt
 	fs.Version = document.Source.Version
 	features, err := convertDaoFeaturesToFeatures(document.Source.Features)
@@ -482,28 +516,28 @@ func convertDaoFeaturesToFeatures(features []Feature) (*[]abstract.Feature, erro
 		af := abstract.Feature{}
 		af.Name = f.Name
 		af.DataType = f.DataType
+
 		switch af.DataType {
 		case "bool":
-			b, err := strconv.ParseBool(f.Value)
-			if err != nil {
-				return nil, err
-			}
-			af.Value = b
+			var r bool
+			json.Unmarshal([]byte(f.Value), &r)
+			af.Value = r
 		case "int":
-			n, err := strconv.ParseInt(f.Value, 10, 64)
-			if err != nil {
-				return nil, err
-			}
-			af.Value = n
+			var r int
+			json.Unmarshal([]byte(f.Value), &r)
+			af.Value = r
 		case "float":
-			f, err := strconv.ParseFloat(f.Value, 64)
-			if err != nil {
-				return nil, err
-			}
-			af.Value = f
+			var r float32
+			json.Unmarshal([]byte(f.Value), &r)
+			af.Value = r
 		case "string":
 			af.Value = f.Value
+		default:
+			var r map[string]interface{}
+			json.Unmarshal([]byte(f.Value), &r)
+			af.Value = r
 		}
+
 		result = append(result, af)
 	}
 	return &result, nil

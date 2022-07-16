@@ -1,11 +1,10 @@
 package git
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"strings"
 
+	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 
 	"github.com/go-git/go-billy/v5"
@@ -21,46 +20,29 @@ import (
 	"github.com/go-git/go-git/v5/storage/memory"
 )
 
-var requiredFields = map[string]string{
-	"gitPwdOrToken": "pwd-token-var",
-	"repo":          "repo",
-}
-
-var optionalFields = map[string]string{
-	"storageType": "storage-type",
-	"gitUser":     "username-var",
-	"pemFile":     "pem-file",
-}
-
 // NewGitConnector factory
 func NewGitConnector() *Connector {
-	return &Connector{}
+	return &Connector{
+		ConfigurableConnector: abstract.ConfigurableConnector{
+			RequiredFields: map[string]string{
+				"gitPwdOrToken": "pwd-token-var",
+				"repo":          "repo",
+			},
+			OptionalFields: map[string]string{
+				"storageType": "storage-type",
+				"gitUser":     "username-var",
+				"pemFile":     "pem-file",
+			},
+		},
+	}
 }
 
 // Connector ... Connector type
 type Connector struct {
+	abstract.ConfigurableConnector
 	storage storage.Storer
 	Fs      billy.Filesystem
 	Repo    *git.Repository
-}
-
-// ValidateDataSourceDefinition ... Validates the input data source definition
-func (c *Connector) ValidateDataSourceDefinition(def *conf.DataSourceDefinition) error {
-	// check all required fields are available
-	var missingFields []string
-	for _, reqvalue := range requiredFields {
-		if _, exist := def.Settings[reqvalue]; !exist {
-			missingFields = append(missingFields, reqvalue)
-		}
-	}
-
-	if len(missingFields) > 0 {
-		// https://stackoverflow.com/questions/28799110/how-to-join-a-slice-of-strings-into-a-single-string
-		return fmt.Errorf("The following fields are missing from the data source configuration: %s", strings.Join(missingFields, ","))
-	}
-
-	log.Println("Successfully validated data source definition")
-	return nil
 }
 
 // InitConnection ... Starts a connection with Git
@@ -68,7 +50,7 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	var err error
 
 	// get storage to where to clone all repositories
-	if storageType, exist := def.Settings[optionalFields["storageType"]]; exist {
+	if storageType, exist := def.Settings[c.OptionalFields["storageType"]]; exist {
 		if storageType == "memory" {
 			c.storage = memory.NewStorage()
 		} else {
@@ -91,8 +73,8 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	}
 
 	// retrieve repo auth info
-	repoUrl := def.Settings[requiredFields["repo"]]
-	password := os.Getenv(def.Settings[requiredFields["gitPwdOrToken"]])
+	repoUrl := def.Settings[c.RequiredFields["repo"]]
+	password := os.Getenv(def.Settings[c.RequiredFields["gitPwdOrToken"]])
 
 	// basic conn opts
 	options := &git.CloneOptions{URL: repoUrl}
@@ -101,7 +83,7 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	// https://github.com/go-git/go-git/blob/master/_examples/clone/auth/basic/username_password/main.go
 	// https://github.com/go-git/go-git/blob/master/_examples/clone/auth/ssh/main.go
 	// if a pem and a password are provided then use them
-	if pemFile, exist := def.Settings[optionalFields["pemFile"]]; exist {
+	if pemFile, exist := def.Settings[c.OptionalFields["pemFile"]]; exist {
 		publicKeys, err := ssh.NewPublicKeysFromFile("git", pemFile, password)
 		if err != nil {
 			log.Fatal(err)
@@ -109,13 +91,13 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 		options.Auth = publicKeys
 	} else {
 		// default to username and password
-		if userEnv, exist := def.Settings[optionalFields["gitUser"]]; exist {
+		if userEnv, exist := def.Settings[c.OptionalFields["gitUser"]]; exist {
 			options.Auth = &http.BasicAuth{
 				Username: os.Getenv(userEnv),
 				Password: password,
 			}
 		} else {
-			log.Fatalf("Unset field %s", optionalFields["gitUser"])
+			log.Fatalf("Unset field %s", c.OptionalFields["gitUser"])
 		}
 	}
 

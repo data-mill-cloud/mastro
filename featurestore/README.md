@@ -33,10 +33,10 @@ type FeatureSetDAOProvider interface {
 	Init(*conf.DataSourceDefinition)
 	Create(fs *FeatureSet) error
 	GetById(id string) (*FeatureSet, error)
-	GetByName(name string, limit int, page int) (*PaginatedFeatureSets, error)
-	SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*PaginatedFeatureSets, error)
-	Search(query string, limit int, page int) (*PaginatedFeatureSets, error)
-	ListAllFeatureSets(limit int, page int) (*PaginatedFeatureSets, error)
+	GetByName(name string, limit int, page int) (*Paginated[FeatureSet], error)
+	SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*Paginated[FeatureSet], error)
+	Search(query string, limit int, page int) (*Paginated[FeatureSet], error)
+	ListAllFeatureSets(limit int, page int) (*Paginated[FeatureSet], error)
 	CloseConnection()
 }
 ```
@@ -55,17 +55,17 @@ var availableDAOs = map[string]func() abstract.FeatureSetDAOProvider{
 
 ## Service
 
-As for the exposed service, the `featurestore/service.go` defines a basic interface to retrieve featureSets:
+A basic interface is defined to retrieve featureSets:
 
 ```go
-type Service interface {
-	Init(cfg *conf.Config) *errors.RestErr
-	CreateFeatureSet(fs abstract.FeatureSet) (*abstract.FeatureSet, *errors.RestErr)
-	GetFeatureSetByID(fsID string) (*abstract.FeatureSet, *errors.RestErr)
-	GetFeatureSetByName(fsName string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
-	SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
-	Search(query string, limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
-	ListAllFeatureSets(limit int, page int) (*abstract.PaginatedFeatureSets, *errors.RestErr)
+type FeatureStoreService interface {
+	Init(cfg *conf.Config) *resterrors.RestErr
+	CreateFeatureSet(fs FeatureSet) (*FeatureSet, *resterrors.RestErr)
+	GetFeatureSetByID(fsID string) (*FeatureSet, *resterrors.RestErr)
+	GetFeatureSetByName(fsName string, limit int, page int) (*Paginated[FeatureSet], *resterrors.RestErr)
+	SearchFeatureSetsByLabels(labels map[string]string, limit int, page int) (*Paginated[FeatureSet], *resterrors.RestErr)
+	Search(query string, limit int, page int) (*Paginated[FeatureSet], *resterrors.RestErr)
+	ListAllFeatureSets(limit int, page int) (*Paginated[FeatureSet], *resterrors.RestErr)
 }
 ```
 

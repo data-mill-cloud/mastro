@@ -13,18 +13,12 @@ type PaginationData struct {
 	TotalPage int64 `json:"totalPage"`
 }
 
-type PaginatedAssets struct {
-	Data       *[]Asset       `json:"data"`
-	Pagination PaginationData `json:"pagination"`
+type Paginable interface {
+	Asset | FeatureSet | MetricSet | Embedding
 }
 
-type PaginatedFeatureSets struct {
-	Data       *[]FeatureSet  `json:"data"`
-	Pagination PaginationData `json:"pagination"`
-}
-
-type PaginatedMetricSets struct {
-	Data       *[]MetricSet   `json:"data"`
+type Paginated[T Paginable] struct {
+	Data       *[]T           `json:"data"`
 	Pagination PaginationData `json:"pagination"`
 }
 

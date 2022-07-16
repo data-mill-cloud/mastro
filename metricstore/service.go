@@ -9,22 +9,11 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/utils/errors"
 )
 
-// Service ... Service Interface listing implemented methods
-type Service interface {
-	Init(cfg *conf.Config) *errors.RestErr
-	CreateMetricSet(ms abstract.MetricSet) (*abstract.MetricSet, *errors.RestErr)
-	GetMetricSetByID(msID string) (*abstract.MetricSet, *errors.RestErr)
-	GetMetricSetByName(msName string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
-	SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
-	Search(query string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
-	ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr)
-}
-
 // metricStoreServiceType ... Service Type
 type metricStoreServiceType struct{}
 
 // metricStoreService ... Group all service methods in a kind metricStoreServiceType implementing the metricStoreService
-var metricStoreService Service = &metricStoreServiceType{}
+var metricStoreService abstract.MetricStoreService = &metricStoreServiceType{}
 
 // selected dao for the metricStoreService
 var dao abstract.MetricSetDAOProvider
@@ -67,7 +56,7 @@ func (s *metricStoreServiceType) GetMetricSetByID(msID string) (*abstract.Metric
 }
 
 // GetMetricSetByName ... Retrieves a MetricSet by Name
-func (s *metricStoreServiceType) GetMetricSetByName(msName string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr) {
+func (s *metricStoreServiceType) GetMetricSetByName(msName string, limit int, page int) (*abstract.Paginated[abstract.MetricSet], *errors.RestErr) {
 	mset, err := dao.GetByName(msName, limit, page)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
@@ -76,7 +65,7 @@ func (s *metricStoreServiceType) GetMetricSetByName(msName string, limit int, pa
 }
 
 // SearchMetricSetsByLabels ... Retrieve MetricSets by Labels
-func (s *metricStoreServiceType) SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr) {
+func (s *metricStoreServiceType) SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.Paginated[abstract.MetricSet], *errors.RestErr) {
 	ms, err := dao.SearchMetricSetsByLabels(labels, limit, page)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
@@ -85,7 +74,7 @@ func (s *metricStoreServiceType) SearchMetricSetsByLabels(labels map[string]stri
 }
 
 // ListAllMetricSets ... Retrieves all MetricSets
-func (s *metricStoreServiceType) ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr) {
+func (s *metricStoreServiceType) ListAllMetricSets(limit int, page int) (*abstract.Paginated[abstract.MetricSet], *errors.RestErr) {
 	msets, err := dao.ListAllMetricSets(limit, page)
 	if err != nil {
 		return nil, errors.GetInternalServerError(err.Error())
@@ -97,7 +86,7 @@ func (s *metricStoreServiceType) ListAllMetricSets(limit int, page int) (*abstra
 }
 
 // Search ... Retrieves items by a search query
-func (s *metricStoreServiceType) Search(query string, limit int, page int) (*abstract.PaginatedMetricSets, *errors.RestErr) {
+func (s *metricStoreServiceType) Search(query string, limit int, page int) (*abstract.Paginated[abstract.MetricSet], *errors.RestErr) {
 	msets, err := dao.Search(query, limit, page)
 	if err != nil {
 		return nil, errors.GetInternalServerError(err.Error())

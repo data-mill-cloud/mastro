@@ -28,6 +28,7 @@ Terminology:
 * [Connector](commons/CONNECTORS.md) - component handling the connection to volumes and data bases
 * [FeatureStore](featurestore/README.md) - service to manage features (i.e., featureSets);
 * [MetricStore](metricstore/README.md) - service to manage metrics (i.e., metricSets);
+* [EmbeddingStore](embeddingstore/README.md) - service to manage vector embeddings;
 * [Catalogue](catalogue/README.md) - service to manage data assets (i.e., static data definitions and their relationships);
 * [Crawler](crawlers/README.md) - any agent able to list and walk a file system, filter and parse asset definitions (i.e. manifest files) and push them to the catalogue;
 * [UI](ui/README.md) - user interface to search assets by name, tags or description

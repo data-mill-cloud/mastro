@@ -1,6 +1,6 @@
 ARG SOURCE_FOLDER=catalogue
 ARG ARTIFACT=catalogue
-FROM golang:1.15-alpine AS builder
+FROM golang:1.18-alpine AS builder
 
 ARG SOURCE_FOLDER
 ARG ARTIFACT

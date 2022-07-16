@@ -2,57 +2,42 @@ package impala
 
 import (
 	"fmt"
-	"log"
 	"strconv"
-	"strings"
 
 	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	"github.com/koblas/impalathing"
 )
 
-var requiredFields = map[string]string{
-	"host":         "host",
-	"port":         "port",
-	"use-kerberos": "use-kerberos",
-}
-
 func NewImpalaConnector() *Connector {
-	return &Connector{}
+	return &Connector{
+		ConfigurableConnector: abstract.ConfigurableConnector{
+			RequiredFields: map[string]string{
+				"host":         "host",
+				"port":         "port",
+				"use-kerberos": "use-kerberos",
+			},
+			OptionalFields: map[string]string{},
+		},
+	}
 }
 
 type Connector struct {
+	abstract.ConfigurableConnector
 	connection *impalathing.Connection
-}
-
-func (c *Connector) ValidateDataSourceDefinition(def *conf.DataSourceDefinition) error {
-	// check all required fields are available
-	var missingFields []string
-	for _, reqvalue := range requiredFields {
-		if _, exist := def.Settings[reqvalue]; !exist {
-			missingFields = append(missingFields, reqvalue)
-		}
-	}
-
-	if len(missingFields) > 0 {
-		return fmt.Errorf("The following fields are missing from the data source configuration: %s", strings.Join(missingFields, ","))
-	}
-
-	log.Println("Successfully validated data source definition")
-	return nil
 }
 
 func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	var err error
 
-	host := def.Settings[requiredFields["host"]]
-	port, err := strconv.Atoi(def.Settings[requiredFields["port"]])
+	host := def.Settings[c.RequiredFields["host"]]
+	port, err := strconv.Atoi(def.Settings[c.RequiredFields["port"]])
 	if err != nil {
 		panic(err)
 	}
 
 	// todo: convert all settings to map[string]interface{}
-	if def.Settings[requiredFields["use-kerberos"]] == "true" {
+	if def.Settings[c.RequiredFields["use-kerberos"]] == "true" {
 		options := impalathing.WithGSSAPISaslTransport()
 		c.connection, err = impalathing.Connect(host, port, options)
 	} else {

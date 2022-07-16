@@ -1,6 +1,6 @@
 module github.com/data-mill-cloud/mastro/crawlers
 
-go 1.17
+go 1.18
 
 replace github.com/data-mill-cloud/mastro/commons => ../commons
 
@@ -27,7 +27,7 @@ require (
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/go-zookeeper/zk v1.0.1 // indirect
 	github.com/gobeam/mongo-go-pagination v0.0.8 // indirect
-	github.com/golang/protobuf v1.4.2 // indirect
+	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/google/uuid v1.1.1 // indirect

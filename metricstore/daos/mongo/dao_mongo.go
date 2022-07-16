@@ -297,7 +297,7 @@ type sorter struct {
 	sortValue interface{}
 }
 
-func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, limit int, page int) (*abstract.PaginatedMetricSets, error) {
+func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, limit int, page int) (*abstract.Paginated[abstract.MetricSet], error) {
 	var metrics []metricSetMongoDao
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -317,7 +317,7 @@ func (dao *dao) getAnyDocumentUsingFilter(filter interface{}, sorter *sorter, li
 
 	var resultMetrics []abstract.MetricSet = convertAllMetricSetsDAOToDTO(&metrics)
 	//return &resultMetrics, nil
-	return &abstract.PaginatedMetricSets{
+	return &abstract.Paginated[abstract.MetricSet]{
 		Data:       &resultMetrics,
 		Pagination: abstract.FromMongoPaginationData(paginatedData.Pagination),
 	}, nil
@@ -330,14 +330,14 @@ func (dao *dao) GetById(id string) (*abstract.MetricSet, error) {
 }
 
 // GetByName ... Retrieve document by given name
-func (dao *dao) GetByName(name string, limit int, page int) (*abstract.PaginatedMetricSets, error) {
+func (dao *dao) GetByName(name string, limit int, page int) (*abstract.Paginated[abstract.MetricSet], error) {
 	filter := bson.M{"name": name}
 	sorter := &sorter{"inserted-at", -1}
 	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // SearchMetricSetsByLabels ... Retrieve assets by given labels
-func (dao *dao) SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.PaginatedMetricSets, error) {
+func (dao *dao) SearchMetricSetsByLabels(labels map[string]string, limit int, page int) (*abstract.Paginated[abstract.MetricSet], error) {
 	// https://docs.mongodb.com/manual/reference/operator/query/
 	// we can not simply use filter := bson.M{"labels": bson.M{"$eq": labels}} since the order of the keys would matter
 	// using this the result would be non-deterministic (empty, and not empty)
@@ -353,14 +353,14 @@ func (dao *dao) SearchMetricSetsByLabels(labels map[string]string, limit int, pa
 }
 
 // ListAllMetricSets ... Return all MetricSets in index
-func (dao *dao) ListAllMetricSets(limit int, page int) (*abstract.PaginatedMetricSets, error) {
+func (dao *dao) ListAllMetricSets(limit int, page int) (*abstract.Paginated[abstract.MetricSet], error) {
 	filter := bson.M{}
 	var sorter *sorter = nil
 	return dao.getAnyDocumentUsingFilter(filter, sorter, limit, page)
 }
 
 // Search ... Return all metric sets matching the text search query
-func (dao *dao) Search(query string, limit int, page int) (*abstract.PaginatedMetricSets, error) {
+func (dao *dao) Search(query string, limit int, page int) (*abstract.Paginated[abstract.MetricSet], error) {
 	filter := bson.M{
 		"$text": bson.M{"$search": query},
 	}
