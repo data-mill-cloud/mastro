@@ -11,7 +11,7 @@ import (
 
 // Embedding ... a named feature vector to be used for similarity search
 type Embedding struct {
-	Id         int64     `json:"id,omitempty"`
+	Id         string    `json:"id,omitempty"`
 	Name       string    `json:"name,omitempty"`
 	InsertedAt time.Time `json:"inserted_at,omitempty"`
 	Vector     []float32 `json:"vector,omitempty"`
@@ -30,18 +30,22 @@ func (em *Embedding) Validate() error {
 // EmbeddingDAOProvider ... The interface each dao must implement
 type EmbeddingDAOProvider interface {
 	Init(*conf.DataSourceDefinition)
-	Create(e *Embedding) error
-	GetById(id string, partitions []string) (*Embedding, error)
-	GetByName(name string, limit int, page int) (*Paginated[Embedding], error)
-	SimilarToThisId(id string, limit int, page int) (*Paginated[Embedding], error)
+	Upsert(e []Embedding) error
+	GetById(id string) (*Embedding, error)
+	GetByName(name string) ([]Embedding, error)
+	SimilarToThis(vector []float32, k int) ([]Embedding, error)
+	DeleteByName(name string) error
+	DeleteByIds(ids ...string) error
 	CloseConnection()
 }
 
 // EmbeddingStoreService ... EmbeddingStoreService Interface listing service methods
 type EmbeddingStoreService interface {
 	Init(cfg *conf.Config) *resterrors.RestErr
-	CreateEmbedding(em Embedding) (*Embedding, *resterrors.RestErr)
-	GetEmbeddingByID(emID string, partitions []string) (*Embedding, *resterrors.RestErr)
-	GetEmbeddingByName(emName string, limit int, page int) (*Paginated[Embedding], *resterrors.RestErr)
-	SimilarToThisId(emId string, limit int, page int) (*Paginated[Embedding], *resterrors.RestErr)
+	UpsertEmbeddings(embeddings []Embedding) *resterrors.RestErr
+	GetEmbeddingByID(id string) (*Embedding, *resterrors.RestErr)
+	GetEmbeddingByName(name string) ([]Embedding, *resterrors.RestErr)
+	SimilarToThis(vector []float32, k int) ([]Embedding, *resterrors.RestErr)
+	DeleteEmbeddingByName(name string) *resterrors.RestErr
+	DeleteEmbeddingByIds(ids ...string) *resterrors.RestErr
 }

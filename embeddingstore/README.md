@@ -8,7 +8,7 @@ Embeddings are numerical vectors that can be extracted from unstructured data, s
 ```go
 // Embedding ... a named feature vector to be used for similarity search
 type Embedding struct {
-	Id         int64     `json:"id,omitempty"`
+	Id         string    `json:"id,omitempty"`
 	Name       string    `json:"name,omitempty"`
 	InsertedAt time.Time `json:"inserted_at,omitempty"`
 	Vector     []float32 `json:"vector,omitempty"`
@@ -21,10 +21,12 @@ A data access object (DAO) for an embedding is defined as follows:
 // EmbeddingDAOProvider ... The interface each dao must implement
 type EmbeddingDAOProvider interface {
 	Init(*conf.DataSourceDefinition)
-	Create(e *Embedding) error
-	GetById(id string, partitions []string) (*Embedding, error)
-	GetByName(name string, limit int, page int) (*PaginatedEmbeddings, error)
-	SimilarToThis(id string, limit int, page int) (*PaginatedEmbeddings, error)
+	Upsert(e []Embedding) error
+	GetById(id string) (*Embedding, error)
+	GetByName(name string) ([]Embedding, error)
+	SimilarToThis(vector []float32, k int) ([]Embedding, error)
+	DeleteByName(name string) error
+	DeleteByIds(ids ...string) error
 	CloseConnection()
 }
 ```
@@ -36,12 +38,14 @@ The interface is then implemented for specific targets in the `embeddingstore/da
 A basic interface is dedined to retrieve embeddings:
 
 ```go
-// Service
+// EmbeddingStoreService ... EmbeddingStoreService Interface listing service methods
 type EmbeddingStoreService interface {
-	Init(cfg *conf.Config) *errors.RestErr
-	CreateEmbedding(em abstract.Embedding) (*abstract.Embedding, *errors.RestErr)
-	GetEmbeddingByID(emID string, partitions []string) (*abstract.Embedding, *errors.RestErr)
-	GetEmbeddingByName(emName string, limit int, page int) (*abstract.PaginatedEmbeddings, *errors.RestErr)
-	SimilarToThis(emId string, limit int, page int) (*abstract.PaginatedEmbeddings, *errors.RestErr)
+	Init(cfg *conf.Config) *resterrors.RestErr
+	UpsertEmbeddings(embeddings []Embedding) *resterrors.RestErr
+	GetEmbeddingByID(id string) (*Embedding, *resterrors.RestErr)
+	GetEmbeddingByName(name string) ([]Embedding, *resterrors.RestErr)
+	SimilarToThis(vector []float32, k int) ([]Embedding, *resterrors.RestErr)
+	DeleteEmbeddingByName(name string) *resterrors.RestErr
+	DeleteEmbeddingByIds(ids ...string) *resterrors.RestErr
 }
 ```

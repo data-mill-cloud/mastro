@@ -5,22 +5,11 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 
 	"github.com/beltran/gohive"
 	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 )
-
-var requiredFields = map[string]string{
-	"host":      "host",
-	"port":      "port",
-	"auth-type": "auth-type",
-}
-
-var optionalFields = map[string]string{
-	"kerberos-service-name": "kerberos-service-name",
-}
 
 type authType string
 
@@ -32,38 +21,32 @@ const (
 
 // NewHiveConnector ... connector constructor
 func NewHiveConnector() *Connector {
-	return &Connector{}
+	return &Connector{
+		ConfigurableConnector: abstract.ConfigurableConnector{
+			RequiredFields: map[string]string{
+				"host":      "host",
+				"port":      "port",
+				"auth-type": "auth-type",
+			},
+			OptionalFields: map[string]string{
+				"kerberos-service-name": "kerberos-service-name",
+			},
+		},
+	}
 }
 
 // Connector ... hive connector
 type Connector struct {
+	abstract.ConfigurableConnector
 	connection *gohive.Connection
-}
-
-// ValidateDataSourceDefinition ... validated input config
-func (c *Connector) ValidateDataSourceDefinition(def *conf.DataSourceDefinition) error {
-	// check all required fields are available
-	var missingFields []string
-	for _, reqvalue := range requiredFields {
-		if _, exist := def.Settings[reqvalue]; !exist {
-			missingFields = append(missingFields, reqvalue)
-		}
-	}
-
-	if len(missingFields) > 0 {
-		return fmt.Errorf("The following fields are missing from the data source configuration: %s", strings.Join(missingFields, ","))
-	}
-
-	log.Println("Successfully validated data source definition")
-	return nil
 }
 
 // InitConnection ... init connection
 func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	var err error
 
-	host := def.Settings[requiredFields["host"]]
-	port, err := strconv.Atoi(def.Settings[requiredFields["port"]])
+	host := def.Settings[c.RequiredFields["host"]]
+	port, err := strconv.Atoi(def.Settings[c.RequiredFields["port"]])
 	if err != nil {
 		panic(err)
 	}
@@ -71,14 +54,14 @@ func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	configuration := gohive.NewConnectConfiguration()
 
 	// todo: convert all settings to map[string]interface{}
-	authType := authType(def.Settings[requiredFields["auth-type"]])
+	authType := authType(def.Settings[c.RequiredFields["auth-type"]])
 	switch authType {
 	case kerberos:
-		configuration.Service = def.Settings[optionalFields["krb-service-name"]]
+		configuration.Service = def.Settings[c.OptionalFields["krb-service-name"]]
 		c.connection, err = gohive.Connect(host, port, "KERBEROS", configuration)
 	case plain:
-		configuration.Username = def.Settings[optionalFields["username"]]
-		configuration.Password = def.Settings[optionalFields["password"]]
+		configuration.Username = def.Settings[c.OptionalFields["username"]]
+		configuration.Password = def.Settings[c.OptionalFields["password"]]
 		c.connection, err = gohive.Connect(host, port, "NONE", configuration)
 	case none:
 		c.connection, err = gohive.Connect(host, port, "NOSASL", configuration)

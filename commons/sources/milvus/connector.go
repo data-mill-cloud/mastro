@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 
+	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	"github.com/milvus-io/milvus-sdk-go/v2/client"
 	"github.com/milvus-io/milvus-sdk-go/v2/entity"
@@ -14,60 +14,47 @@ import (
 
 // NewMilvusConnector ... Factory
 func NewMilvusConnector() *Connector {
-	return &Connector{}
+	return &Connector{
+		ConfigurableConnector: abstract.ConfigurableConnector{
+			RequiredFields: map[string]string{
+				"endpoint":        "endpoint",
+				"collection":      "collection",
+				"partitions":      "partitions",
+				"shardsNum":       "shards-num",
+				"denseVectorSize": "dense-vector-size",
+			},
+			OptionalFields: map[string]string{
+				"description":          "description",
+				"denseVectorFieldName": "dense-vector-field-name",
+			},
+		},
+	}
 }
 
-var requiredFields = map[string]string{
-	"endpoint":        "endpoint",
-	"collection":      "collection",
-	"shardsNum":       "shards-num",
-	"denseVectorSize": "dense-vector-size",
-}
-
-var optionalFields = map[string]string{
-	"description":          "description",
-	"denseVectorFieldName": "dense-vector-field-name",
-}
-
-// Connector ... struct containing info on how to connect to a mongo db
+// Connector ... struct containing info on how to connect to a milvus db
 type Connector struct {
+	abstract.ConfigurableConnector
 	Client               client.Client
 	Collection           string
 	DenseVectorFieldName string
-}
-
-// ValidateDataSourceDefinition ... validates the provided data source definition
-func (c *Connector) ValidateDataSourceDefinition(def *conf.DataSourceDefinition) error {
-	// check all required fields are available
-	var missingFields []string
-	for _, reqvalue := range requiredFields {
-		if _, exist := def.Settings[reqvalue]; !exist {
-			missingFields = append(missingFields, reqvalue)
-		}
-	}
-
-	if len(missingFields) > 0 {
-		return fmt.Errorf("the following %d fields are missing from the data source configuration: %s", len(missingFields), strings.Join(missingFields[:], ","))
-	}
-
-	log.Println("Successfully validated data source definition")
-	return nil
+	Partitions           []string
 }
 
 // InitConnection ... Instantiate the connection with the remote DB
 func (c *Connector) InitConnection(def *conf.DataSourceDefinition) {
 	var err error
-	c.Collection = def.Settings[requiredFields["collection"]]
+	c.Collection = def.Settings[c.RequiredFields["collection"]]
+	c.Partitions = def.Settings[c.RequiredFields["partitions"]]
 	if c.Client, err = client.NewGrpcClient(
 		context.Background(),
-		def.Settings[requiredFields["endpoint"]],
+		def.Settings[c.RequiredFields["endpoint"]],
 	); err != nil {
 		log.Fatal("failed to connect to Milvus:", err.Error())
 	}
-	log.Printf("Connected to Milvus at %s", def.Settings[requiredFields["endpoint"]])
+	log.Printf("Connected to Milvus at %s", def.Settings[c.RequiredFields["endpoint"]])
 
 	var exists bool
-	if c.DenseVectorFieldName, exists = def.Settings[optionalFields["denseVectorFieldName"]]; !exists {
+	if c.DenseVectorFieldName, exists = def.Settings[c.OptionalFields["denseVectorFieldName"]]; !exists {
 		c.DenseVectorFieldName = "dense_vector"
 	}
 
@@ -94,11 +81,11 @@ func (c *Connector) ensureCollectionExists(def *conf.DataSourceDefinition) error
 	if exists {
 		log.Printf("Milvus collection %s already exists", c.Collection)
 	} else {
-		description, exist := def.Settings[optionalFields["description"]]
+		description, exist := def.Settings[c.OptionalFields["description"]]
 		if !exist {
 			description = ""
 		}
-		denseVectorSize := def.Settings[requiredFields["denseVectorSize"]]
+		denseVectorSize := def.Settings[c.RequiredFields["denseVectorSize"]]
 		schemaDef := &entity.Schema{
 			CollectionName: c.Collection,
 			Description:    description,
@@ -125,7 +112,7 @@ func (c *Connector) ensureCollectionExists(def *conf.DataSourceDefinition) error
 			},
 		}
 
-		shardsNum, err := strconv.ParseInt(def.Settings[requiredFields["shardsNum"]], 10, 32)
+		shardsNum, err := strconv.ParseInt(def.Settings[c.RequiredFields["shardsNum"]], 10, 32)
 		if err != nil {
 			return err
 		}

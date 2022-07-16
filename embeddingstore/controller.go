@@ -8,6 +8,7 @@ import (
 	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	"github.com/data-mill-cloud/mastro/commons/utils/errors"
+	"github.com/data-mill-cloud/mastro/commons/utils/queries"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -41,9 +42,7 @@ func Ping(c *gin.Context) {
 // GetEmbeddingByID ... retrieves an embedding by the provided ID
 func GetEmbeddingByID(c *gin.Context) {
 	id := c.Param(embeddingIDParam)
-	//partitions := c.Param(partIDParam)
-	partitions := []string{}
-	fs, getErr := embeddingService.GetEmbeddingByID(id, partitions)
+	fs, getErr := embeddingService.GetEmbeddingByID(id)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
@@ -55,13 +54,7 @@ func GetEmbeddingByID(c *gin.Context) {
 func GetEmbeddingByName(c *gin.Context) {
 	name := c.Param(embeddingNameParam)
 
-	limit, page, err := getLimitAndPageNumber(c.Request)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
-
-	fs, getErr := embeddingService.GetEmbeddingByName(name, limit, page)
+	fs, getErr := embeddingService.GetEmbeddingByName(name)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
@@ -69,38 +62,63 @@ func GetEmbeddingByName(c *gin.Context) {
 	}
 }
 
-// CreateEmbedding ... creates an embedding
-func CreateEmbedding(c *gin.Context) {
-	e := abstract.Embedding{}
-	if err := c.ShouldBindJSON(&e); err != nil {
+// Upsert ... upsert embeddings
+func UpsertEmbeddings(c *gin.Context) {
+	embeddings := []abstract.Embedding{}
+	if err := c.ShouldBindJSON(&embeddings); err != nil {
 		restErr := errors.GetBadRequestError("Invalid JSON Body")
 		c.JSON(restErr.Status, restErr)
 	} else {
 		// call service to add the embedding
-		result, saveErr := embeddingService.CreateEmbedding(e)
+		saveErr := embeddingService.UpsertEmbeddings(embeddings)
 		if saveErr != nil {
 			c.JSON(saveErr.Status, saveErr)
 		} else {
-			c.JSON(http.StatusCreated, result)
+			c.Writer.WriteHeader(http.StatusCreated)
 		}
 	}
 }
 
-// SimilarToThisId ... retrieves similar embeddings to the provided id
-func SimilarToThisId(c *gin.Context) {
-	id := c.Param(embeddingIDParam)
+// SimilarToThis ... retrieves similar embeddings to the provided one
+func SimilarToThis(c *gin.Context) {
+	query := queries.ByVector{}
+	err := c.BindJSON(&query)
 
-	limit, page, err := getLimitAndPageNumber(c.Request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
+		restErr := errors.GetBadRequestError("Invalid query by vector :: invalid input json format")
+		c.JSON(restErr.Status, restErr)
+	} else {
+		if query.Vector == nil || len(query.Vector) == 0 {
+			restErr := errors.GetBadRequestError("Invalid query by vector :: missing or empty vector embedding")
+			c.JSON(restErr.Status, restErr)
+		} else {
+			em, getErr := embeddingService.SimilarToThis(query.Vector, query.K)
+			if getErr != nil {
+				c.JSON(getErr.Status, getErr)
+			} else {
+				c.JSON(http.StatusOK, em)
+			}
+		}
 	}
+}
 
-	em, getErr := embeddingService.SimilarToThisId(id, limit, page)
+func DeleteEmbeddingByID(c *gin.Context) {
+	id := c.Param(embeddingIDParam)
+	getErr := embeddingService.DeleteEmbeddingByIds(id)
 	if getErr != nil {
 		c.JSON(getErr.Status, getErr)
 	} else {
-		c.JSON(http.StatusOK, em)
+		c.Writer.WriteHeader(http.StatusOK)
+	}
+}
+
+func DeleteEmbeddingByName(c *gin.Context) {
+	name := c.Param(embeddingNameParam)
+	getErr := embeddingService.DeleteEmbeddingByName(name)
+	if getErr != nil {
+		c.JSON(getErr.Status, getErr)
+	} else {
+		c.Writer.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -126,10 +144,13 @@ func StartEndpoint(cfg *conf.Config) {
 	router.GET(fmt.Sprintf("%s/name/:%s", embeddingRestEndpoint, embeddingNameParam), GetEmbeddingByName)
 
 	// search by query string
-	router.POST(fmt.Sprintf("%s/similarid", embeddingRestEndpoint), SimilarToThisId)
+	router.POST(fmt.Sprintf("%s/similar", embeddingRestEndpoint), SimilarToThis)
 
 	// put embedding
-	router.PUT(fmt.Sprintf("%s/", embeddingRestEndpoint), CreateEmbedding)
+	router.PUT(fmt.Sprintf("%s/", embeddingRestEndpoint), UpsertEmbeddings)
+
+	router.DELETE(fmt.Sprintf("%s/id/:%s", embeddingRestEndpoint, embeddingIDParam), DeleteEmbeddingByID)
+	router.DELETE(fmt.Sprintf("%s/name/:%s", embeddingRestEndpoint, embeddingNameParam), DeleteEmbeddingByName)
 
 	////////////////////////////////
 

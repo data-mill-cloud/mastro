@@ -32,24 +32,27 @@ func (s *embeddingServiceType) Init(cfg *conf.Config) *errors.RestErr {
 	return nil
 }
 
-// CreateEmbedding ... Create an embedding entry
-func (s *embeddingServiceType) CreateEmbedding(em abstract.Embedding) (*abstract.Embedding, *errors.RestErr) {
-	if err := em.Validate(); err != nil {
-		return nil, errors.GetBadRequestError(err.Error())
+// UpsertEmbeddings ... Create embeddings
+func (s *embeddingServiceType) UpsertEmbeddings(embeddings []abstract.Embedding) *errors.RestErr {
+	now := date.GetNow()
+	for i, em := range embeddings {
+		if err := em.Validate(); err != nil {
+			return errors.GetBadRequestError(err.Error())
+		}
+		// set insert time to current date, then insert using selected dao
+		em.InsertedAt = now
+		embeddings[i] = em
 	}
-	// set insert time to current date, then insert using selected dao
-	em.InsertedAt = date.GetNow()
-	err := dao.Create(&em)
-	if err != nil {
-		return nil, errors.GetBadRequestError(err.Error())
+
+	if err := dao.Upsert(embeddings); err != nil {
+		return errors.GetBadRequestError(err.Error())
 	}
-	// what should we actually return of the newly inserted object?
-	return &em, nil
+	return nil
 }
 
 // GetEmbeddingByID ... Retrieves an embedding
-func (s *embeddingServiceType) GetEmbeddingByID(emID string, partitions []string) (*abstract.Embedding, *errors.RestErr) {
-	em, err := dao.GetById(emID, partitions)
+func (s *embeddingServiceType) GetEmbeddingByID(id string) (*abstract.Embedding, *errors.RestErr) {
+	em, err := dao.GetById(id)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
 	}
@@ -57,19 +60,33 @@ func (s *embeddingServiceType) GetEmbeddingByID(emID string, partitions []string
 }
 
 // GetEmbeddingByName ... Retrieves an embedding
-func (s *embeddingServiceType) GetEmbeddingByName(emName string, limit int, page int) (*abstract.Paginated[abstract.Embedding], *errors.RestErr) {
-	em, err := dao.GetByName(emName, limit, page)
+func (s *embeddingServiceType) GetEmbeddingByName(emName string) ([]abstract.Embedding, *errors.RestErr) {
+	em, err := dao.GetByName(emName)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
 	}
 	return em, nil
 }
 
-// SimilarToThisId ... Retrieves embeddings similar to the one provided as id
-func (s *embeddingServiceType) SimilarToThisId(emId string, limit int, page int) (*abstract.Paginated[abstract.Embedding], *errors.RestErr) {
-	em, err := dao.SimilarToThisId(emId, limit, page)
+// SimilarToThis ... Retrieves embeddings similar to the one provided
+func (s *embeddingServiceType) SimilarToThis(vector []float32, k int) ([]abstract.Embedding, *errors.RestErr) {
+	em, err := dao.SimilarToThis(vector, k)
 	if err != nil {
 		return nil, errors.GetNotFoundError(err.Error())
 	}
 	return em, nil
+}
+
+func (s *embeddingServiceType) DeleteEmbeddingByName(name string) *errors.RestErr {
+	if err := dao.DeleteByName(name); err != nil {
+		return errors.GetBadRequestError(err.Error())
+	}
+	return nil
+}
+
+func (s *embeddingServiceType) DeleteEmbeddingByIds(ids ...string) *errors.RestErr {
+	if err := dao.DeleteByIds(ids...); err != nil {
+		return errors.GetBadRequestError(err.Error())
+	}
+	return nil
 }

@@ -1,51 +1,35 @@
 package hdfs
 
 import (
-	"fmt"
-	"log"
 	"os"
 	"os/user"
-	"strings"
 
 	gohdfs "github.com/colinmarc/hdfs/v2"
 	"github.com/colinmarc/hdfs/v2/hadoopconf"
+	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
 	"github.com/data-mill-cloud/mastro/commons/utils/kerberos"
 )
 
 // NewHDFSConnector factory
 func NewHDFSConnector() *Connector {
-	return &Connector{}
+	return &Connector{
+		ConfigurableConnector: abstract.ConfigurableConnector{
+			RequiredFields: map[string]string{},
+			OptionalFields: map[string]string{},
+		},
+	}
 }
 
 // Connector ... HDFS connector
 type Connector struct {
+	abstract.ConfigurableConnector
 	client *gohdfs.Client
 }
-
-var requiredFields = map[string]string{}
 
 // GetClient ... Returns the client from the connector
 func (c *Connector) GetClient() *gohdfs.Client {
 	return c.client
-}
-
-// ValidateDataSourceDefinition ... Validates the input data source definition
-func (c *Connector) ValidateDataSourceDefinition(def *conf.DataSourceDefinition) error {
-	// check all required fields are available
-	var missingFields []string
-	for _, reqvalue := range requiredFields {
-		if _, exist := def.Settings[reqvalue]; !exist {
-			missingFields = append(missingFields, reqvalue)
-		}
-	}
-
-	if len(missingFields) > 0 {
-		return fmt.Errorf("The following fields are missing from the data source configuration: %s", strings.Join(missingFields, ","))
-	}
-
-	log.Println("Successfully validated data source definition")
-	return nil
 }
 
 // InitConnection ... inits connection

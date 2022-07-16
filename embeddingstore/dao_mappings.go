@@ -5,12 +5,12 @@ import (
 
 	"github.com/data-mill-cloud/mastro/commons/abstract"
 	"github.com/data-mill-cloud/mastro/commons/utils/conf"
-	"github.com/data-mill-cloud/mastro/embeddingstore/daos/milvus"
+	"github.com/data-mill-cloud/mastro/embeddingstore/daos/qdrant"
 )
 
 // available backends - lazy loaded singleton DAOs
 var availableDAOs = map[string]func() abstract.EmbeddingDAOProvider{
-	"milvus": milvus.GetSingleton,
+	"qdrant": qdrant.GetSingleton,
 }
 
 func selectDao(cfg *conf.Config) (abstract.EmbeddingDAOProvider, error) {

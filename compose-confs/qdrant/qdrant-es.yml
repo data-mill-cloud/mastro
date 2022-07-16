@@ -1,0 +1,11 @@
+type: embeddingstore
+details:
+  port: 8085
+backend:
+  name: test-qdrant
+  type: qdrant
+  settings:
+    endpoint: "qdrant:6334"
+    collection: mastro
+    vector-size: 2
+    segment-number: 2

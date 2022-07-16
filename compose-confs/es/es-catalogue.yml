@@ -1,0 +1,12 @@
+type: catalogue
+details:
+  port: 8085
+backend:
+  name: test-elastic
+  type: elastic
+  settings:
+    username: elastic
+    password: test
+    hosts: "http://elastic:9200"
+    index: mastro-catalogue
+    index-def: ./index_def.json

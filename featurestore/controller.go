@@ -83,7 +83,7 @@ func GetFeatureSetByName(c *gin.Context) {
 
 	limit, page, err := getLimitAndPageNumber(c.Request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, errors.GetBadRequestError(err.Error()))
 		return
 	}
 
@@ -121,7 +121,7 @@ func SearchFeatureSetsByLabels(c *gin.Context) {
 func SearchFeatureSetsByQueryLabels(c *gin.Context) {
 	limit, page, err := getLimitAndPageNumber(c.Request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, errors.GetBadRequestError(err.Error()))
 		return
 	}
 
@@ -175,7 +175,7 @@ func ListAllFeatureSets(c *gin.Context) {
 
 	limit, page, err := getLimitAndPageNumber(c.Request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, errors.GetBadRequestError(err.Error()))
 		return
 	}
 

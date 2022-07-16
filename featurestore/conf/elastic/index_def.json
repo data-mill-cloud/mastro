@@ -2,5 +2,24 @@
   "settings":{
     "number_of_shards": 1,
     "number_of_replicas": 0
+  },
+  "mappings":{
+    "properties":{
+      "inserted_at":{
+        "type":"date"
+      },
+      "version":{
+        "type":"text"
+      },
+      "features":{
+        "type":"object"
+      },
+      "description":{
+        "type":"text"
+      },
+      "labels":{
+        "type":"object"
+      }
+    }
   }
 }

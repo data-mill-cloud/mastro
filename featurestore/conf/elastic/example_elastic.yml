@@ -5,8 +5,8 @@ backend:
   name: test-elastic
   type: elastic
   settings:
-    username: postgres
+    username: elastic
     password: test
     hosts: "http://localhost:9200"
-    index: test
+    index: mastro-featurestore
     index-def: ./index_def.json
