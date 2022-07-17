@@ -116,6 +116,20 @@ func (c *Connector) CreateCollection(parentCtx context.Context) (err error) {
 	return
 }
 
+func (c *Connector) CreateFieldIndex(parentCtx context.Context, fieldName string, fieldType *pb.FieldType) (err error) {
+	ctx, cancel := context.WithTimeout(parentCtx, reqTimeout)
+	defer cancel()
+
+	fieldIndex := &pb.CreateFieldIndexCollection{
+		CollectionName: c.collectionName,
+		FieldName:      fieldName,
+		FieldType:      fieldType,
+	}
+
+	_, err = c.pointClient.CreateFieldIndex(ctx, fieldIndex)
+	return
+}
+
 func (c *Connector) UpsertPoints(parentCtx context.Context, waitUpsert bool, points []*pb.PointStruct) (err error) {
 	ctx, cancel := context.WithTimeout(parentCtx, reqTimeout)
 	defer cancel()
