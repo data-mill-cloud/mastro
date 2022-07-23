@@ -17,7 +17,9 @@ require (
 
 require (
 	github.com/alexflint/go-scalar v1.0.0 // indirect
-	github.com/elastic/go-elasticsearch/v7 v7.10.0 // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.0.0-20211216131617-bbee439d559c // indirect
+	github.com/elastic/go-elasticsearch v0.0.0 // indirect
+	github.com/elastic/go-elasticsearch/v8 v8.3.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect

@@ -1,0 +1,109 @@
+version: "3.9"
+services:
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.3.2
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - ELASTIC_PASSWORD=test
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - cluster.name=es-docker-cluster
+      - bootstrap.memory_lock=true
+    #volumes:
+    #  - data01:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://localhost:9200"]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+
+    
+  #catalogue:
+  #  build: 
+  #    context: .
+  #    dockerfile: catalogue/Dockerfile
+  #  ports:
+  #    - 8085:8085
+  #  volumes:
+  #    - ./compose-confs/es/es-catalogue.yml:/conf/es-catalogue.yml
+  #  environment:
+  #    - MASTRO_CONFIG=/conf/es-catalogue.yml
+  #  depends_on:
+  #    - es01
+  #  networks:
+  #    - mastro
+
+  featurestore:
+    build: 
+      context: .
+      dockerfile: featurestore/Dockerfile
+    ports:
+      - 8086:8085
+    volumes:
+      - ./compose-confs/es/es-fs.yml:/conf/es-fs.yml
+      - ./compose-confs/es/index-fs.json:/conf/index-fs.json
+    environment:
+      - MASTRO_CONFIG=/conf/es-fs.yml
+    depends_on:
+      elastic:
+        condition: service_healthy
+    deploy:
+      restart_policy:
+        condition: on-failure
+    
+  #metricstore:
+  #  build: 
+  #    context: .
+  #    dockerfile: metricstore/Dockerfile
+  #  ports:
+  #    - 8087:8085
+  #  volumes:
+  #    - ./compose-confs/es/es-ms.yml:/conf/es-ms.yml
+  #  environment:
+  #    - MASTRO_CONFIG=/conf/es-ms.yml
+  #  depends_on:
+  #    - es01
+  #    - mastro
+
+  embeddingstore:
+    build: 
+      context: .
+      dockerfile: embeddingstore/Dockerfile
+    ports:
+      - 8089:8085
+    volumes:
+      - ./compose-confs/es/es-es.yml:/conf/es-es.yml
+      - ./compose-confs/es/index-es.json:/conf/index-es.json
+    environment:
+      - MASTRO_CONFIG=/conf/es-es.yml
+    depends_on:
+      elastic:
+        condition: service_healthy
+
+  # ui:
+  #   build:
+  #     context: ui
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 8088:80
+  #   environment:
+  #     - NGINX_PORT=80
+  #     - CATALOGUE_URL="http://catalogue:8085/"
+  #     - FEATURESTORE_URL="http://featurestore:8085/"
+  #     - METRICSTORE_URL="http://metricstore:8085/"
+  #   depends_on:
+  #     elastic:
+  #       condition: service_healthy
+  #     #featurestore:
+  #     #  condition: service_healthy
+  #     #- catalogue
+  #     #- metricstore
+  #   deploy:
+  #     restart_policy:
+  #       condition: on-failure
+
+#volumes:
+#  data01:
+#    driver: local
