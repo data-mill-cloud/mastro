@@ -1,0 +1,29 @@
+{
+    "settings":{
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings":{
+      "properties":{
+        "name" : {
+          "type":"text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "inserted_at":{
+          "type":"date"
+        },
+        "vector":{
+          "type":"dense_vector",
+          "dims": 2,
+          "index": true,
+          "similarity": "l2_norm"
+        }
+      }
+    }
+  }
+  

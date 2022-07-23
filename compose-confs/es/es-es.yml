@@ -1,0 +1,13 @@
+type: embeddingstore
+details:
+  port: 8085
+backend:
+  name: test-elastic
+  type: elastic
+  settings:
+    hosts: "http://elastic:9200"
+    index: mastro-embeddingstore
+    username: elastic
+    password: test
+    index-def: ./index-es.json
+    vector-field-name: vector

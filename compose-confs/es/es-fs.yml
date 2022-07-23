@@ -9,4 +9,4 @@ backend:
     password: test
     hosts: "http://elastic:9200"
     index: mastro-featurestore
-    index-def: ./index_def.json
+    index-def: ./index-fs.json

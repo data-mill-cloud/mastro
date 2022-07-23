@@ -7,6 +7,7 @@ replace github.com/data-mill-cloud/mastro/commons => ../commons
 require (
 	github.com/alexflint/go-arg v1.4.3
 	github.com/data-mill-cloud/mastro/commons v0.0.0
+	github.com/elastic/go-elasticsearch/v8 v8.3.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.2
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -15,6 +16,8 @@ require (
 
 require (
 	github.com/alexflint/go-scalar v1.1.0 // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.0.0-20211216131617-bbee439d559c // indirect
+	github.com/elastic/go-elasticsearch v0.0.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
